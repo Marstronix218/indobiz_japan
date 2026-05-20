@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,12 +38,15 @@ const EMPTY_INQUIRY: LeadInquiry = {
   message: "",
 }
 
+const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY
+
 export function LeadCaptureForm({
   initialLeadType = "expansion",
   title = "インド進出・採用の相談フォーム",
   description = "記事詳細、価格ページ、ヘッダーのCTAからこのフォームへ遷移します。",
   compact = false,
 }: LeadCaptureFormProps) {
+  const router = useRouter()
   const [form, setForm] = useState<LeadInquiry>({
     ...EMPTY_INQUIRY,
     leadType: initialLeadType,
@@ -68,23 +72,45 @@ export function LeadCaptureForm({
 
     setIsSubmitting(true)
     try {
-      const response = await fetch("/api/leads", {
+      if (!WEB3FORMS_ACCESS_KEY) {
+        throw new Error("NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY is not configured")
+      }
+
+      const leadSummary = [
+        `相談種別: ${LEAD_TYPE_LABELS[form.leadType]}`,
+        `会社規模: ${COMPANY_SIZE_LABELS[form.companySize]}`,
+        `会社名: ${form.companyName}`,
+        `担当者名: ${form.contactName}`,
+        `相談内容: ${form.message}`,
+      ].join("\n\n")
+
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: `【IndoBiz Japan】${LEAD_TYPE_LABELS[form.leadType]} - ${form.companyName}`,
+          from_name: form.contactName,
+          name: form.contactName,
+          email: form.email,
+          message: leadSummary,
+          inquiry_type: LEAD_TYPE_LABELS[form.leadType],
+          company_size: COMPANY_SIZE_LABELS[form.companySize],
+          company_name: form.companyName,
+          contact_name: form.contactName,
+        }),
       })
+      const data = (await response.json()) as { success?: boolean }
 
-      if (!response.ok) {
-        throw new Error("lead submit failed")
+      if (!response.ok || !data.success) {
+        throw new Error("web3forms submit failed")
       }
 
       toast.success("お問い合わせを受け付けました。24時間以内を目安にご連絡します。")
-      setForm({
-        ...EMPTY_INQUIRY,
-        leadType: form.leadType,
-      })
+      router.push("/contact/thanks")
     } catch {
       toast.error("送信できませんでした。時間をおいて再度お試しください。")
     } finally {

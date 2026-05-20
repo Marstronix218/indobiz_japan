@@ -153,6 +153,6 @@ npm run build
 
 ## Notes
 
-- The contact form submits through FormSubmit to `info@g-launchers.com`.
+- The contact form submits through Web3Forms.
 - Market snapshot content can be provided through static or stored article data depending on the article source.
 - Scraper output is gated so non-article source URLs or low-quality provenance can be marked for review or failed instead of published.
