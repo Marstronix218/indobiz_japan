@@ -93,6 +93,6 @@ npm run scrape:fetch
 
 ## Notes
 
-- 問い合わせフォームは Web3Forms 経由で送信します。無料会員登録フォームは UI 実装までです。
+- 問い合わせフォームと後援会入会フォームは Web3Forms 経由で送信し、`form_source` で送信元を判別できます。
 - `為替・市況` は現在静的データで管理しています。
 - 自動化基盤はローカルのサンプル実装で、本番の RSS/API 接続先は `lib/automation.ts` の `SOURCE_CONNECTORS` から差し替えられます。

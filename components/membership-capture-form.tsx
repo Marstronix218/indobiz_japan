@@ -17,6 +17,7 @@ import {
   type DigestFrequency,
   type MembershipSignup,
 } from "@/lib/site-config"
+import { submitWeb3Form } from "@/lib/web3forms"
 
 const EMPTY_SIGNUP: MembershipSignup = {
   companyName: "",
@@ -27,8 +28,9 @@ const EMPTY_SIGNUP: MembershipSignup = {
 
 export function MembershipCaptureForm() {
   const [form, setForm] = useState<MembershipSignup>(EMPTY_SIGNUP)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     if (!form.contactName.trim() || !form.email.trim()) {
@@ -36,8 +38,37 @@ export function MembershipCaptureForm() {
       return
     }
 
-    toast.success("無料会員登録を受け付けました。ダイジェスト配信の案内をお送りします。")
-    setForm(EMPTY_SIGNUP)
+    setIsSubmitting(true)
+    try {
+      const companyName = form.companyName.trim() || "未入力"
+      const signupSummary = [
+        "フォーム種別: 後援会入会フォーム",
+        `会社名: ${companyName}`,
+        `担当者名: ${form.contactName}`,
+        `メールアドレス: ${form.email}`,
+        `配信頻度: ${DIGEST_FREQUENCY_LABELS[form.frequency]}`,
+      ].join("\n\n")
+
+      await submitWeb3Form({
+        subject: `【IndoBiz Japan】後援会入会フォーム - ${companyName}`,
+        from_name: form.contactName,
+        name: form.contactName,
+        email: form.email,
+        message: signupSummary,
+        form_source: "後援会入会フォーム",
+        company_name: companyName,
+        contact_name: form.contactName,
+        digest_frequency: DIGEST_FREQUENCY_LABELS[form.frequency],
+      })
+
+      toast.success("無料会員登録を受け付けました。ダイジェスト配信の案内をお送りします。")
+      setForm(EMPTY_SIGNUP)
+    } catch (error) {
+      console.error("Failed to submit membership form", error)
+      toast.error("送信できませんでした。時間をおいて再度お試しください。")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -121,8 +152,8 @@ export function MembershipCaptureForm() {
         </Select>
       </div>
 
-      <Button type="submit" className="w-full">
-        無料で登録する
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "送信中..." : "無料で登録する"}
       </Button>
     </form>
   )
