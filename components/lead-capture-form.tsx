@@ -71,26 +71,17 @@ export function LeadCaptureForm({
 
     setIsSubmitting(true)
     try {
-      const leadSummary = [
-        "フォーム種別: お問い合わせフォーム",
-        `相談種別: ${LEAD_TYPE_LABELS[form.leadType]}`,
-        `会社規模: ${COMPANY_SIZE_LABELS[form.companySize]}`,
-        `会社名: ${form.companyName}`,
-        `担当者名: ${form.contactName}`,
-        `相談内容: ${form.message}`,
-      ].join("\n\n")
-
       await submitWeb3Form({
         subject: `【IndoBiz Japan】お問い合わせフォーム - ${LEAD_TYPE_LABELS[form.leadType]} - ${form.companyName}`,
         from_name: form.contactName,
-        name: form.contactName,
-        email: form.email,
-        message: leadSummary,
-        form_source: "お問い合わせフォーム",
-        inquiry_type: LEAD_TYPE_LABELS[form.leadType],
-        company_size: COMPANY_SIZE_LABELS[form.companySize],
-        company_name: form.companyName,
-        contact_name: form.contactName,
+        replyto: form.email,
+        フォーム種別: "お問い合わせフォーム",
+        相談種別: LEAD_TYPE_LABELS[form.leadType],
+        会社規模: COMPANY_SIZE_LABELS[form.companySize],
+        会社名: form.companyName,
+        担当者名: form.contactName,
+        メールアドレス: form.email,
+        相談内容: form.message,
       })
 
       toast.success("お問い合わせを受け付けました。24時間以内を目安にご連絡します。")
