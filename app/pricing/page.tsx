@@ -1,7 +1,9 @@
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { MembershipCaptureForm } from "@/components/membership-capture-form"
-import { PricingSection } from "@/components/pricing-section"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { Button } from "@/components/ui/button"
 
 export default function PricingPage() {
   return (
@@ -17,11 +19,32 @@ export default function PricingPage() {
             価格
           </h1>
           <p className="max-w-3xl text-base leading-8 text-muted-foreground">
-            法人パイロットの料金イメージと、無料会員登録の入口をこのページにまとめています。
+            現在はベータ版として、すべての機能を無料でご提供しています。
           </p>
         </div>
 
-        <PricingSection />
+        <section className="mx-auto max-w-3xl rounded-3xl border-2 border-accent/40 bg-card p-8 text-center shadow-sm md:p-10">
+          <span className="inline-flex items-center rounded-full bg-accent/10 px-3 py-1 font-mono text-[11px] font-semibold tracking-[0.22em] text-accent">
+            BETA
+          </span>
+          <h2 className="mt-4 font-serif text-2xl font-bold tracking-tight text-foreground">
+            現在、すべての機能を無料でご利用いただけます
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-base leading-8 text-muted-foreground">
+            ベータ期間中は、会員登録のみで全記事・日本企業への示唆・市況情報をお読みいただけます。料金プランは正式版の公開に合わせてご案内します。
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button asChild>
+              <Link href="/signup">新規登録（無料）</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/contact?leadType=expansion">
+                法人導入を相談する
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        </section>
 
         <section
           id="free-member"
