@@ -93,14 +93,14 @@ export function NewsCardHero({
       ) : (
         <PlaceholderImg tone={tone} label="hero photo · 1600×1000" />
       )}
-      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/30 to-transparent p-6">
-        <p className="font-mono text-xs text-white/70">
+      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/75 via-black/25 to-transparent p-6">
+        <p className="font-mono text-xs text-white/80">
           {formatArticleDate(article.publishedAt)}
         </p>
         <h2 className="mt-2 text-balance font-serif text-2xl font-bold leading-[1.25] text-white md:text-[28px]">
           {article.title}
         </h2>
-        <p className="mt-2 line-clamp-2 max-w-prose text-base leading-7 text-white/80">
+        <p className="mt-2 line-clamp-2 max-w-prose text-base leading-7 text-white/85">
           {article.summary}
         </p>
       </div>
@@ -143,8 +143,8 @@ export function NewsCardMosaic({
       ) : (
         <PlaceholderImg tone={tone} label="photo" />
       )}
-      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/30 to-transparent p-3">
-        <p className="font-mono text-[10px] text-white/70">
+      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-3">
+        <p className="font-mono text-[10px] text-white/80">
           {formatArticleShortDate(article.publishedAt)}
         </p>
         <h3 className="mt-1 line-clamp-3 text-[15px] font-semibold leading-snug text-white md:text-base">

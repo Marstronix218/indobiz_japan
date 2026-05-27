@@ -17,6 +17,7 @@ import {
 } from "@/components/sidebar-widgets"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { SiteIntro } from "@/components/site-intro"
 import { Input } from "@/components/ui/input"
 import { usePublicArticles } from "@/lib/article-store"
 import {
@@ -137,6 +138,7 @@ export function NewsList() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
+      {!filterActive && <SiteIntro />}
       <FilterRibbon
         activeCategory={activeCategory}
         onSelectCategory={selectCategory}

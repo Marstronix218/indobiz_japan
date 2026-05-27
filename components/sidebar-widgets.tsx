@@ -51,7 +51,7 @@ export function TrendingWidget() {
   return (
     <div className="rounded-md border border-border bg-card p-5">
       <RailHead label="アクセスランキング" en="TRENDING" icon="📈" />
-      <ul className="space-y-3">
+      <ul className="space-y-3.5">
         {trending.map((article, index) => (
           <li key={article.id} className="flex gap-3">
             <span
@@ -65,7 +65,7 @@ export function TrendingWidget() {
             <div className="min-w-0">
               <Link
                 href={`/article/${article.id}`}
-                className="line-clamp-2 text-xs font-semibold leading-snug hover:text-accent"
+                className="line-clamp-2 text-sm font-semibold leading-snug hover:text-accent"
               >
                 {article.title}
               </Link>
