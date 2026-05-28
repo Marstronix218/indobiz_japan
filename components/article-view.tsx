@@ -72,6 +72,11 @@ export function ArticleView({ id }: { id: string }) {
                     {CATEGORY_LABELS[article.category]}
                   </Link>
                 </Badge>
+                {article.industryTags.map((tag) => (
+                  <Badge key={tag} asChild variant="outline" className="px-2 py-0.5">
+                    <Link href={`/?tag=${tag}`}>{INDUSTRY_LABELS[tag]}</Link>
+                  </Badge>
+                ))}
               </div>
 
               <div className="space-y-3">
@@ -194,26 +199,6 @@ export function ArticleView({ id }: { id: string }) {
                     </li>
                   ))}
                 </ul>
-              </section>
-            )}
-
-            {article.industryTags.length > 0 && (
-              <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
-                  業界タグ
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {article.industryTags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      asChild
-                      variant="outline"
-                      className="px-3 py-1"
-                    >
-                      <Link href={`/?tag=${tag}`}>{INDUSTRY_LABELS[tag]}</Link>
-                    </Badge>
-                  ))}
-                </div>
               </section>
             )}
 
