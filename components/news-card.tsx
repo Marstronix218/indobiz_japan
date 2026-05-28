@@ -48,13 +48,19 @@ function CardBadges({
   const offset = position === "top-left-tight" ? "left-2 top-2" : "left-3 top-3"
   return (
     <div className={`absolute ${offset} z-10 flex flex-wrap gap-1`}>
-      <span className="bg-accent px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-accent-foreground">
+      <Link
+        href={`/?category=${article.category}`}
+        className="bg-accent px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-accent-foreground transition-opacity hover:opacity-80"
+      >
         {CATEGORY_LABELS[article.category]}
-      </span>
+      </Link>
       {industry && article.category !== "column" && (
-        <span className="bg-primary px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-primary-foreground">
+        <Link
+          href={`/?category=economy&tag=${industry}`}
+          className="bg-primary px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-primary-foreground transition-opacity hover:opacity-80"
+        >
           {INDUSTRY_LABELS[industry]}
-        </span>
+        </Link>
       )}
     </div>
   )
@@ -71,13 +77,18 @@ export function NewsCardHero({
   const tone = deriveImageTone(article)
 
   return (
-    <Link
-      href={`/article/${article.id}`}
+    <article
       className={cn(
         "card-hover group relative block aspect-[16/10] overflow-hidden rounded-md bg-muted",
         className,
       )}
     >
+      {/* Stretched article link — covers full card below badges */}
+      <Link
+        href={`/article/${article.id}`}
+        className="absolute inset-0 z-[1]"
+        aria-label={article.title}
+      />
       <CardBadges article={article} />
       {imageSrc ? (
         <Image
@@ -87,13 +98,13 @@ export function NewsCardHero({
           priority
           loading="eager"
           fetchPriority="high"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 1024px) 100vw, 66vw"
         />
       ) : (
         <PlaceholderImg tone={tone} label="hero photo · 1600×1000" />
       )}
-      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/75 via-black/25 to-transparent p-6">
+      <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/75 via-black/25 to-transparent p-6">
         <p className="font-mono text-xs text-white/80">
           {formatArticleDate(article.publishedAt)}
         </p>
@@ -104,7 +115,7 @@ export function NewsCardHero({
           {article.summary}
         </p>
       </div>
-    </Link>
+    </article>
   )
 }
 
@@ -122,13 +133,18 @@ export function NewsCardMosaic({
   const tone = deriveImageTone(article)
 
   return (
-    <Link
-      href={`/article/${article.id}`}
+    <article
       className={cn(
-        "card-hover group relative block h-full min-h-[8rem] overflow-hidden rounded-md bg-muted",
+        "card-hover group relative h-full min-h-[8rem] overflow-hidden rounded-md bg-muted",
         className,
       )}
     >
+      {/* Stretched article link — covers full card below badges */}
+      <Link
+        href={`/article/${article.id}`}
+        className="absolute inset-0 z-[1]"
+        aria-label={article.title}
+      />
       <CardBadges article={article} position="top-left-tight" />
       {imageSrc ? (
         <Image
@@ -137,13 +153,13 @@ export function NewsCardMosaic({
           fill
           priority={priority}
           loading={priority ? "eager" : undefined}
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 1024px) 100vw, 33vw"
         />
       ) : (
         <PlaceholderImg tone={tone} label="photo" />
       )}
-      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-3">
+      <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-3">
         <p className="font-mono text-[10px] text-white/80">
           {formatArticleShortDate(article.publishedAt)}
         </p>
@@ -151,7 +167,7 @@ export function NewsCardMosaic({
           {article.title}
         </h3>
       </div>
-    </Link>
+    </article>
   )
 }
 
@@ -160,7 +176,13 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
   const tone = deriveImageTone(article)
 
   return (
-    <Link href={`/article/${article.id}`} className="card-hover group block">
+    <article className="card-hover group relative block">
+      {/* Stretched article link — covers full card below badges */}
+      <Link
+        href={`/article/${article.id}`}
+        className="absolute inset-0 z-[1]"
+        aria-label={article.title}
+      />
       <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-muted">
         <CardBadges article={article} position="top-left-tight" />
         {imageSrc ? (
@@ -168,14 +190,14 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
             src={imageSrc}
             alt={article.title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
         ) : (
           <PlaceholderImg tone={tone} label="photo" />
         )}
       </div>
-      <div className="pt-3">
+      <div className="pointer-events-none pt-3">
         <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
           {formatArticleDate(article.publishedAt)}
         </p>
@@ -186,7 +208,7 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
           {article.summary}
         </p>
       </div>
-    </Link>
+    </article>
   )
 }
 
@@ -196,37 +218,46 @@ export function NewsCardFeature({ article }: { article: NewsArticle }) {
   const industry = article.industryTags[0]
 
   return (
-    <Link
-      href={`/article/${article.id}`}
-      className="card-hover group block h-full"
-    >
+    <article className="card-hover group relative h-full">
+      {/* Stretched article link — covers full card below badges */}
+      <Link
+        href={`/article/${article.id}`}
+        className="absolute inset-0 z-[1]"
+        aria-label={article.title}
+      />
       <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-muted">
         {imageSrc ? (
           <Image
             src={imageSrc}
             alt={article.title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
         ) : (
           <PlaceholderImg tone={tone} label="feature" />
         )}
-        <div className="absolute left-3 top-3 flex gap-1">
-          <span className="bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white">
+        <div className="absolute left-3 top-3 z-10 flex gap-1">
+          <Link
+            href={`/?category=${article.category}`}
+            className="bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white transition-opacity hover:opacity-80"
+          >
             {CATEGORY_LABELS[article.category]}
-          </span>
+          </Link>
           {industry && article.category !== "column" && (
-            <span className="bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white">
+            <Link
+              href={`/?category=economy&tag=${industry}`}
+              className="bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white transition-opacity hover:opacity-80"
+            >
               {INDUSTRY_LABELS[industry]}
-            </span>
+            </Link>
           )}
         </div>
-        <div className="absolute bottom-3 left-3 font-mono text-[10px] tracking-wider text-foreground/40">
+        <div className="pointer-events-none absolute bottom-3 left-3 font-mono text-[10px] tracking-wider text-foreground/40">
           FEATURE
         </div>
       </div>
-      <div className="pt-4">
+      <div className="pointer-events-none pt-4">
         <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
           {formatArticleDate(article.publishedAt)}
         </p>
@@ -237,6 +268,6 @@ export function NewsCardFeature({ article }: { article: NewsArticle }) {
           {article.summary}
         </p>
       </div>
-    </Link>
+    </article>
   )
 }

@@ -52,15 +52,14 @@ export function NewsList() {
       )
 
     setActiveCategory(nextCategory)
-    setSelectedIndustries(nextCategory === "economy" ? nextTags : [])
+    setSelectedIndustries(nextTags)
   }, [searchParams])
 
-  const showIndustryFilter = activeCategory === "economy"
+  const showIndustryFilter = activeCategory === "economy" || selectedIndustries.length > 0
 
   const sortedArticles = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase()
-    const industryFilterActive =
-      showIndustryFilter && selectedIndustries.length > 0
+    const industryFilterActive = selectedIndustries.length > 0
     const now = Date.now()
 
     return [...publicArticles]

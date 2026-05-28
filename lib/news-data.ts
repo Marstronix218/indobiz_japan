@@ -365,6 +365,16 @@ const JST_DATE_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
   day: "2-digit",
 })
 
+const IST_DATETIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
+  timeZone: "Asia/Kolkata",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+})
+
 export function formatJstDateTime(value: string | undefined | null): string {
   if (!value) return ""
   const d = new Date(value)
@@ -377,6 +387,13 @@ export function formatJstDate(value: string | undefined | null): string {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return value
   return JST_DATE_FORMATTER.format(d)
+}
+
+export function formatIstDateTime(value: string | undefined | null): string {
+  if (!value) return ""
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return value
+  return `${IST_DATETIME_FORMATTER.format(d)} IST`
 }
 
 const MS_PER_DAY = 86_400_000

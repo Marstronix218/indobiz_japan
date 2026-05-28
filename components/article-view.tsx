@@ -14,6 +14,8 @@ import {
   INDUSTRY_LABELS,
   MARKET_METRIC_ORDER,
   formatArticleDate,
+  formatIstDateTime,
+  formatJstDateTime,
   getAllSources,
 } from "@/lib/news-data"
 import { formatSummaryParagraphs } from "@/lib/summary-utils"
@@ -65,8 +67,10 @@ export function ArticleView({ id }: { id: string }) {
         <article className="space-y-5">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className={`${CATEGORY_COLORS[article.category]} border-none`}>
-                  {CATEGORY_LABELS[article.category]}
+                <Badge asChild className={`${CATEGORY_COLORS[article.category]} border-none`}>
+                  <Link href={`/?category=${article.category}`}>
+                    {CATEGORY_LABELS[article.category]}
+                  </Link>
                 </Badge>
               </div>
 
@@ -75,7 +79,9 @@ export function ArticleView({ id }: { id: string }) {
                   {article.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground">
-                  <span>{formatArticleDate(article.publishedAt)}</span>
+                  <span>{formatJstDateTime(article.publishedAt)}</span>
+                  <span className="text-muted-foreground/50">/</span>
+                  <span>{formatIstDateTime(article.publishedAt)}</span>
                 </div>
               </div>
             </div>
