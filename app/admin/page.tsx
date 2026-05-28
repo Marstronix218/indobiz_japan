@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   AlertTriangle,
   ArrowLeft,
   ExternalLink,
   Eye,
+  ImageOff,
   LogOut,
   Pencil,
   Plus,
@@ -16,6 +18,7 @@ import {
   Send,
   Sparkles,
   Trash2,
+  X,
 } from "lucide-react"
 import { toast } from "sonner"
 import { ArticleFormDialog } from "@/components/admin/article-form-dialog"
@@ -35,12 +38,15 @@ import { useArticles } from "@/lib/article-store"
 import {
   CATEGORY_LABELS,
   CATEGORY_OPTIONS,
+  formatJstDateTime,
+  getAllSources,
   INDUSTRY_LABELS,
   MARKET_METRIC_ORDER,
   WORKFLOW_STATUS_LABELS,
   type Category,
   type NewsArticle,
   type QualityVerdict,
+  type WorkflowStatus,
 } from "@/lib/news-data"
 
 const QUALITY_VERDICT_LABELS: Record<QualityVerdict, string> = {
@@ -55,12 +61,32 @@ const QUALITY_VERDICT_BADGE_CLASS: Record<QualityVerdict, string> = {
   REJECT: "border-red-500/60 text-red-700",
 }
 
-type StatusTab = "all" | "published" | "review"
+type StatusTab = "all" | WorkflowStatus
 
 const STATUS_TAB_LABELS: Record<StatusTab, string> = {
   all: "すべて",
   published: "公開中",
   review: "要確認",
+  failed: "処理失敗",
+}
+
+const STATUS_TAB_ORDER: StatusTab[] = ["all", "published", "review", "failed"]
+
+type QualityFilter = "all" | QualityVerdict | "none"
+
+const QUALITY_FILTER_LABELS: Record<QualityFilter, string> = {
+  all: "すべての品質",
+  PASS: "品質OK",
+  REVISION: "要修正",
+  REJECT: "AI差戻",
+  none: "未チェック",
+}
+
+type SortOrder = "newest" | "oldest"
+
+const SORT_LABELS: Record<SortOrder, string> = {
+  newest: "新しい順",
+  oldest: "古い順",
 }
 
 export default function AdminPage() {
@@ -68,6 +94,8 @@ export default function AdminPage() {
   const articles = useArticles()
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all")
+  const [qualityFilter, setQualityFilter] = useState<QualityFilter>("all")
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest")
   const [statusTab, setStatusTab] = useState<StatusTab>("all")
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -76,10 +104,22 @@ export default function AdminPage() {
   const [isCleaningUp, setIsCleaningUp] = useState(false)
 
   const counts = useMemo(() => {
-    const published = articles.filter((a) => a.workflowStatus === "published").length
-    const review = articles.filter((a) => a.workflowStatus === "review").length
-    const unsynthesized = articles.filter((a) => a.isSynthesized === false).length
-    return { all: articles.length, published, review, unsynthesized }
+    const byStatus = { published: 0, review: 0, failed: 0 } as Record<
+      WorkflowStatus,
+      number
+    >
+    let unsynthesized = 0
+    for (const a of articles) {
+      byStatus[a.workflowStatus] = (byStatus[a.workflowStatus] ?? 0) + 1
+      if (a.isSynthesized === false) unsynthesized += 1
+    }
+    return {
+      all: articles.length,
+      published: byStatus.published,
+      review: byStatus.review,
+      failed: byStatus.failed,
+      unsynthesized,
+    }
   }, [articles])
 
   const filteredArticles = useMemo(() => {
@@ -96,14 +136,34 @@ export default function AdminPage() {
           categoryFilter === "all" || article.category === categoryFilter
         const matchesStatus =
           statusTab === "all" || article.workflowStatus === statusTab
+        const matchesQuality =
+          qualityFilter === "all"
+            ? true
+            : qualityFilter === "none"
+              ? !article.qualityCheck
+              : article.qualityCheck?.verdict === qualityFilter
 
-        return matchesQuery && matchesCategory && matchesStatus
+        return matchesQuery && matchesCategory && matchesStatus && matchesQuality
       })
-      .sort(
-        (a, b) =>
-          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-      )
-  }, [articles, categoryFilter, search, statusTab])
+      .sort((a, b) => {
+        const diff =
+          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+        return sortOrder === "newest" ? diff : -diff
+      })
+  }, [articles, categoryFilter, qualityFilter, search, sortOrder, statusTab])
+
+  const hasActiveFilters =
+    search.trim() !== "" ||
+    categoryFilter !== "all" ||
+    qualityFilter !== "all" ||
+    statusTab !== "all"
+
+  function resetFilters() {
+    setSearch("")
+    setCategoryFilter("all")
+    setQualityFilter("all")
+    setStatusTab("all")
+  }
 
   function openCreateDialog() {
     setEditingId(null)
@@ -253,64 +313,83 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               <ArrowLeft className="size-4" />
-              サイトへ戻る
+              <span className="hidden sm:inline">サイトへ戻る</span>
             </Link>
             <Separator orientation="vertical" className="h-5" />
-            <h1 className="text-lg font-semibold text-foreground">記事管理</h1>
+            <div className="flex min-w-0 items-center gap-2">
+              <h1 className="truncate text-base font-semibold text-foreground sm:text-lg">
+                記事管理
+              </h1>
+              {counts.review > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setStatusTab("review")}
+                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-500/20"
+                  title="要確認の記事へジャンプ"
+                >
+                  <AlertTriangle className="size-3" />
+                  要確認 {counts.review}
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Button onClick={openCreateDialog} size="sm">
               <Plus className="size-4" />
-              新規追加
+              <span className="hidden sm:inline">新規追加</span>
             </Button>
             <Button
               onClick={handleRunScrape}
               variant="outline"
               size="sm"
               disabled={isScraping}
+              title="RSS取得 + AI合成パイプラインを今すぐ実行"
             >
               <RefreshCw className={`size-4 ${isScraping ? "animate-spin" : ""}`} />
-              スクレイピング
+              <span className="hidden sm:inline">
+                {isScraping ? "実行中…" : "スクレイピング"}
+              </span>
             </Button>
-            <Button onClick={handleLogout} variant="ghost" size="sm">
+            <Button onClick={handleLogout} variant="ghost" size="sm" title="ログアウト">
               <LogOut className="size-4" />
-              ログアウト
+              <span className="sr-only sm:not-sr-only sm:inline">ログアウト</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
-          {(Object.keys(STATUS_TAB_LABELS) as StatusTab[]).map((tab) => {
-            const count =
-              tab === "all"
-                ? counts.all
-                : tab === "published"
-                  ? counts.published
-                  : counts.review
+      <main className="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-border pb-3">
+          {STATUS_TAB_ORDER.map((tab) => {
+            const count = counts[tab]
             const isActive = statusTab === tab
             return (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setStatusTab(tab)}
-                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-foreground text-background"
                     : "bg-secondary/50 text-muted-foreground hover:bg-secondary"
                 }`}
               >
                 {STATUS_TAB_LABELS[tab]}
-                <span className="ml-2 text-xs opacity-70">{count}</span>
+                <span
+                  className={`text-xs tabular-nums ${
+                    isActive ? "opacity-80" : "opacity-60"
+                  }`}
+                >
+                  {count}
+                </span>
               </button>
             )
           })}
@@ -343,224 +422,118 @@ export default function AdminPage() {
 
         <GenerationStats />
 
-        <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[1.5fr_0.7fr]">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="タイトル、要約、示唆で検索"
-              className="pl-9"
-            />
+        <div className="rounded-2xl border border-border bg-card p-3 sm:p-4">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(3,_1fr)]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="タイトル・要約・示唆で検索"
+                className="pl-9"
+              />
+            </div>
+
+            <Select
+              value={categoryFilter}
+              onValueChange={(value) => setCategoryFilter(value as Category | "all")}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="カテゴリ" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">すべてのカテゴリ</SelectItem>
+                {CATEGORY_OPTIONS.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {CATEGORY_LABELS[category]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={qualityFilter}
+              onValueChange={(value) => setQualityFilter(value as QualityFilter)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="AI品質" />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(QUALITY_FILTER_LABELS) as QualityFilter[]).map(
+                  (key) => (
+                    <SelectItem key={key} value={key}>
+                      {QUALITY_FILTER_LABELS[key]}
+                    </SelectItem>
+                  ),
+                )}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={sortOrder}
+              onValueChange={(value) => setSortOrder(value as SortOrder)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(SORT_LABELS) as SortOrder[]).map((order) => (
+                  <SelectItem key={order} value={order}>
+                    {SORT_LABELS[order]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <Select
-            value={categoryFilter}
-            onValueChange={(value) => setCategoryFilter(value as Category | "all")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="カテゴリ" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">すべてのカテゴリ</SelectItem>
-              {CATEGORY_OPTIONS.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {CATEGORY_LABELS[category]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {hasActiveFilters && (
+            <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+              <span>
+                {filteredArticles.length} 件 / {articles.length} 件中
+              </span>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-foreground transition-colors hover:bg-secondary"
+              >
+                <X className="size-3" />
+                フィルタをクリア
+              </button>
+            </div>
+          )}
         </div>
 
         {filteredArticles.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
-            条件に一致する記事はありません。
+          <div className="rounded-3xl border border-dashed border-border p-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              {hasActiveFilters
+                ? "条件に一致する記事はありません。"
+                : "まだ記事がありません。"}
+            </p>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="mt-3 inline-flex items-center gap-1 text-sm text-foreground underline-offset-2 hover:underline"
+              >
+                <X className="size-3" />
+                フィルタをクリア
+              </button>
+            )}
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredArticles.map((article) => {
-              const isReview = article.workflowStatus === "review"
-              const isUnsynthesized = article.isSynthesized === false
-
-              return (
-                <div
-                  key={article.id}
-                  className={`flex flex-col gap-4 rounded-3xl border p-5 lg:flex-row lg:items-start lg:justify-between ${
-                    isUnsynthesized
-                      ? "border-amber-500/40 bg-amber-500/5"
-                      : "border-border bg-card"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge
-                        variant={
-                          article.workflowStatus === "published"
-                            ? "default"
-                            : "outline"
-                        }
-                        className={
-                          article.workflowStatus === "review"
-                            ? "border-amber-500/50 text-amber-700"
-                            : ""
-                        }
-                      >
-                        {WORKFLOW_STATUS_LABELS[article.workflowStatus]}
-                      </Badge>
-                      {article.isSynthesized ? (
-                        <Badge variant="outline" className="border-emerald-500/50 text-emerald-700">
-                          <Sparkles className="size-3" />
-                          AI生成
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="border-amber-500/50 text-amber-700">
-                          <AlertTriangle className="size-3" />
-                          未合成
-                        </Badge>
-                      )}
-                      {article.qualityCheck && (
-                        <Badge
-                          variant="outline"
-                          className={QUALITY_VERDICT_BADGE_CLASS[article.qualityCheck.verdict]}
-                        >
-                          {QUALITY_VERDICT_LABELS[article.qualityCheck.verdict]}
-                          {article.qualityCheck.revisionCount > 0
-                            ? `(再生成${article.qualityCheck.revisionCount}回)`
-                            : ""}
-                        </Badge>
-                      )}
-                      <Badge variant="outline">
-                        {CATEGORY_LABELS[article.category]}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {article.publishedAt}
-                      </span>
-                      {article.sourceUrl && (
-                        <a
-                          href={article.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-                        >
-                          <ExternalLink className="size-3" />
-                          原文
-                        </a>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <h2 className="text-lg font-semibold text-foreground">
-                        {article.title}
-                      </h2>
-                      <p className="max-w-3xl line-clamp-3 text-sm leading-7 text-muted-foreground">
-                        {article.summary}
-                      </p>
-                    </div>
-
-                    {article.marketSnapshot && (
-                      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                        {MARKET_METRIC_ORDER.map((key) => {
-                          const metric = article.marketSnapshot?.[key]
-                          if (!metric) return null
-
-                          return (
-                            <div
-                              key={key}
-                              className="rounded-xl border border-border bg-secondary/30 px-3 py-2"
-                            >
-                              <p className="text-xs font-medium text-foreground">
-                                {metric.label}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {metric.value} {metric.unit}
-                              </p>
-                              <p className="text-xs text-foreground">
-                                {metric.change}
-                              </p>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-
-                    {article.industryTags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {article.industryTags.map((tag) => (
-                          <Badge key={tag} variant="outline">
-                            {INDUSTRY_LABELS[tag]}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-
-                    {article.implications.length > 0 && (
-                      <ul className="space-y-1 text-sm text-muted-foreground">
-                        {article.implications.slice(0, 3).map((implication) => (
-                          <li key={implication}>{implication}</li>
-                        ))}
-                      </ul>
-                    )}
-
-                    {article.qualityCheck &&
-                      article.qualityCheck.verdict !== "PASS" &&
-                      article.qualityCheck.notes && (
-                        <details className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-900">
-                          <summary className="cursor-pointer font-medium">
-                            AI品質チェックの指摘
-                          </summary>
-                          <pre className="mt-2 whitespace-pre-wrap font-sans text-xs text-amber-900/90">
-                            {article.qualityCheck.notes}
-                          </pre>
-                        </details>
-                      )}
-                  </div>
-
-                  <div className="flex shrink-0 flex-wrap items-center gap-2">
-                    {isReview && article.isSynthesized && (
-                      <Button
-                        size="sm"
-                        onClick={() => handlePublish(article)}
-                        disabled={isPublishing === article.id}
-                      >
-                        <Send className="size-4" />
-                        {isPublishing === article.id ? "公開中…" : "公開する"}
-                      </Button>
-                    )}
-                    {article.workflowStatus === "published" ? (
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={`/article/${article.id}`}>
-                          <Eye className="size-4" />
-                          <span className="sr-only">プレビュー</span>
-                        </Link>
-                      </Button>
-                    ) : (
-                      <Button variant="ghost" size="sm" disabled>
-                        <Eye className="size-4" />
-                        <span className="sr-only">プレビュー不可</span>
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openEditDialog(article.id)}
-                    >
-                      <Pencil className="size-4" />
-                      <span className="sr-only">編集</span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive"
-                      onClick={() => handleDelete(article.id, article.title)}
-                    >
-                      <Trash2 className="size-4" />
-                      <span className="sr-only">削除</span>
-                    </Button>
-                  </div>
-                </div>
-              )
-            })}
+          <div className="space-y-3">
+            {filteredArticles.map((article) => (
+              <AdminArticleCard
+                key={article.id}
+                article={article}
+                isPublishing={isPublishing === article.id}
+                onPublish={() => handlePublish(article)}
+                onEdit={() => openEditDialog(article.id)}
+                onDelete={() => handleDelete(article.id, article.title)}
+              />
+            ))}
           </div>
         )}
       </main>
@@ -571,5 +544,225 @@ export default function AdminPage() {
         editingId={editingId}
       />
     </div>
+  )
+}
+
+interface AdminArticleCardProps {
+  article: NewsArticle
+  isPublishing: boolean
+  onPublish: () => void
+  onEdit: () => void
+  onDelete: () => void
+}
+
+function AdminArticleCard({
+  article,
+  isPublishing,
+  onPublish,
+  onEdit,
+  onDelete,
+}: AdminArticleCardProps) {
+  const isReview = article.workflowStatus === "review"
+  const isPublished = article.workflowStatus === "published"
+  const isUnsynthesized = article.isSynthesized === false
+
+  return (
+    <article
+      className={`flex flex-col gap-4 rounded-2xl border p-4 sm:flex-row sm:items-start ${
+        isUnsynthesized
+          ? "border-amber-500/40 bg-amber-500/5"
+          : "border-border bg-card"
+      }`}
+    >
+      <div className="relative h-32 w-full shrink-0 overflow-hidden rounded-xl bg-secondary/40 sm:h-24 sm:w-32 md:h-28 md:w-40">
+        {article.imageUrl ? (
+          <Image
+            src={article.imageUrl}
+            alt=""
+            fill
+            sizes="(min-width: 768px) 160px, (min-width: 640px) 128px, 100vw"
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+            <ImageOff className="size-5" />
+          </div>
+        )}
+      </div>
+
+      <div className="min-w-0 flex-1 space-y-2.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge
+            variant={isPublished ? "default" : "outline"}
+            className={
+              isReview
+                ? "border-amber-500/50 text-amber-700"
+                : article.workflowStatus === "failed"
+                  ? "border-red-500/50 text-red-700"
+                  : ""
+            }
+          >
+            {WORKFLOW_STATUS_LABELS[article.workflowStatus]}
+          </Badge>
+          {article.isSynthesized ? (
+            <Badge variant="outline" className="border-emerald-500/50 text-emerald-700">
+              <Sparkles className="size-3" />
+              AI生成
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="border-amber-500/50 text-amber-700">
+              <AlertTriangle className="size-3" />
+              未合成
+            </Badge>
+          )}
+          {article.qualityCheck && (
+            <Badge
+              variant="outline"
+              className={QUALITY_VERDICT_BADGE_CLASS[article.qualityCheck.verdict]}
+            >
+              {QUALITY_VERDICT_LABELS[article.qualityCheck.verdict]}
+              {article.qualityCheck.revisionCount > 0
+                ? `(再生成${article.qualityCheck.revisionCount}回)`
+                : ""}
+            </Badge>
+          )}
+          <Badge variant="outline">{CATEGORY_LABELS[article.category]}</Badge>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {formatJstDateTime(article.publishedAt)}
+          </span>
+        </div>
+
+        <AdminCardSources article={article} />
+
+        <div className="space-y-1.5">
+          <h2 className="text-base font-semibold leading-snug text-foreground">
+            {article.title}
+          </h2>
+          <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
+            {article.summary}
+          </p>
+        </div>
+
+        {article.marketSnapshot && (
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {MARKET_METRIC_ORDER.map((key) => {
+              const metric = article.marketSnapshot?.[key]
+              if (!metric) return null
+
+              return (
+                <div
+                  key={key}
+                  className="rounded-xl border border-border bg-secondary/30 px-3 py-2"
+                >
+                  <p className="text-xs font-medium text-foreground">
+                    {metric.label}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {metric.value} {metric.unit}
+                  </p>
+                  <p className="text-xs text-foreground">{metric.change}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {article.industryTags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {article.industryTags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-[11px]">
+                {INDUSTRY_LABELS[tag]}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        {article.qualityCheck &&
+          article.qualityCheck.verdict !== "PASS" &&
+          article.qualityCheck.notes && (
+            <details className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-900">
+              <summary className="cursor-pointer font-medium">
+                AI品質チェックの指摘
+              </summary>
+              <pre className="mt-2 whitespace-pre-wrap font-sans text-xs text-amber-900/90">
+                {article.qualityCheck.notes}
+              </pre>
+            </details>
+          )}
+      </div>
+
+      <div className="flex shrink-0 flex-row flex-wrap items-center gap-1.5 sm:flex-col sm:items-stretch">
+        {isReview && article.isSynthesized && (
+          <Button
+            size="sm"
+            onClick={onPublish}
+            disabled={isPublishing}
+            className="w-full justify-start sm:justify-center"
+          >
+            <Send className="size-4" />
+            {isPublishing ? "公開中…" : "公開する"}
+          </Button>
+        )}
+        {isPublished ? (
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/article/${article.id}`} target="_blank">
+              <Eye className="size-4" />
+              <span className="sm:hidden">表示</span>
+              <span className="hidden sm:inline">プレビュー</span>
+            </Link>
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" disabled>
+            <Eye className="size-4" />
+            <span className="hidden sm:inline">非公開</span>
+          </Button>
+        )}
+        <Button variant="ghost" size="sm" onClick={onEdit}>
+          <Pencil className="size-4" />
+          <span className="hidden sm:inline">編集</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={onDelete}
+        >
+          <Trash2 className="size-4" />
+          <span className="hidden sm:inline">削除</span>
+        </Button>
+      </div>
+    </article>
+  )
+}
+
+function AdminCardSources({ article }: { article: NewsArticle }) {
+  const sources = getAllSources(article)
+  if (sources.length === 0) return null
+
+  return (
+    <details className="rounded-xl border border-border bg-secondary/20 px-3 py-2 text-xs">
+      <summary className="cursor-pointer font-medium text-muted-foreground">
+        参考記事 {sources.length} 件
+      </summary>
+      <ul className="mt-2 space-y-1.5 text-foreground">
+        {sources.map((src, idx) => (
+          <li key={`${idx}-${src.originalUrl ?? src.originalTitle}`}>
+            {src.originalUrl ? (
+              <a
+                href={src.originalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-start gap-1 underline-offset-2 hover:text-accent hover:underline"
+              >
+                <span className="line-clamp-1">{src.originalTitle}</span>
+                <ExternalLink className="mt-0.5 size-3 shrink-0" />
+              </a>
+            ) : (
+              <span className="line-clamp-1">{src.originalTitle}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }

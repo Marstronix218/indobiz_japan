@@ -26,6 +26,7 @@ import {
   CATEGORY_LABELS,
   CATEGORY_OPTIONS,
   DEFAULT_MARKET_SNAPSHOT,
+  getAllSources,
   INDUSTRY_LABELS,
   INDUSTRY_OPTIONS,
   MARKET_METRIC_ORDER,
@@ -34,9 +35,34 @@ import {
   type Category,
   type IndustryTag,
   type MarketSnapshot,
+  type SourceProvenance,
   type WorkflowStatus,
 } from "@/lib/news-data"
 import { toast } from "sonner"
+
+/**
+ * The articles table stores `published_at` as an ISO timestamp like
+ * `2026-05-26T00:00:00+00:00`. An <input type="date"> only accepts/emits
+ * `YYYY-MM-DD`, so we strip the time on load and reattach a UTC midnight
+ * on save when the date changed. If the user didn't touch the date, we
+ * keep the original ISO string verbatim so the JST/IST time isn't lost.
+ */
+function toDateInputValue(iso: string): string {
+  if (!iso) return ""
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 10)
+  return d.toISOString().slice(0, 10)
+}
+
+function reconstructIsoFromDateInput(
+  dateInput: string,
+  originalIso: string | undefined,
+): string {
+  if (originalIso && toDateInputValue(originalIso) === dateInput) {
+    return originalIso
+  }
+  return `${dateInput}T00:00:00.000Z`
+}
 
 interface ArticleFormDialogProps {
   open: boolean
@@ -50,6 +76,7 @@ interface ArticleFormState {
   source: string
   sourceUrl: string
   publishedAt: string
+  originalPublishedAt: string | undefined
   category: Category
   industryTags: IndustryTag[]
   implicationsText: string
@@ -57,14 +84,16 @@ interface ArticleFormState {
   imageUrl: string
   featured: boolean
   marketSnapshot: MarketSnapshot
+  referenceSources: SourceProvenance[]
 }
 
 const EMPTY_FORM: ArticleFormState = {
   title: "",
   summary: "",
-  source: "",
+  source: "編集部",
   sourceUrl: "",
   publishedAt: new Date().toISOString().slice(0, 10),
+  originalPublishedAt: undefined,
   category: "economy",
   industryTags: [],
   implicationsText: "",
@@ -72,6 +101,7 @@ const EMPTY_FORM: ArticleFormState = {
   imageUrl: "",
   featured: false,
   marketSnapshot: DEFAULT_MARKET_SNAPSHOT,
+  referenceSources: [],
 }
 
 export function ArticleFormDialog({
@@ -123,6 +153,7 @@ export function ArticleFormDialog({
       setForm({
         ...EMPTY_FORM,
         publishedAt: new Date().toISOString().slice(0, 10),
+        originalPublishedAt: undefined,
         marketSnapshot: DEFAULT_MARKET_SNAPSHOT,
       })
       return
@@ -136,7 +167,8 @@ export function ArticleFormDialog({
       summary: article.summary,
       source: article.source,
       sourceUrl: article.sourceUrl ?? "",
-      publishedAt: article.publishedAt,
+      publishedAt: toDateInputValue(article.publishedAt),
+      originalPublishedAt: article.publishedAt,
       category: article.category,
       industryTags: article.industryTags,
       implicationsText: article.implications.join("\n"),
@@ -144,6 +176,7 @@ export function ArticleFormDialog({
       imageUrl: article.imageUrl ?? "",
       featured: article.featured ?? false,
       marketSnapshot: article.marketSnapshot ?? DEFAULT_MARKET_SNAPSHOT,
+      referenceSources: getAllSources(article),
     })
   }, [editingId, open])
 
@@ -182,8 +215,8 @@ export function ArticleFormDialog({
       .map((item) => item.trim())
       .filter(Boolean)
 
-    if (!form.title.trim() || !form.summary.trim() || !form.source.trim()) {
-      toast.error("タイトル、要約、出典は必須です。")
+    if (!form.title.trim() || !form.summary.trim()) {
+      toast.error("タイトルと要約は必須です。")
       return
     }
 
@@ -193,9 +226,12 @@ export function ArticleFormDialog({
     const payload = {
       title: form.title.trim(),
       summary: form.summary.trim(),
-      source: form.source.trim(),
+      source: form.source.trim() || "編集部",
       sourceUrl: form.sourceUrl.trim() || undefined,
-      publishedAt: form.publishedAt,
+      publishedAt: reconstructIsoFromDateInput(
+        form.publishedAt,
+        form.originalPublishedAt,
+      ),
       category: form.category,
       industryTags: form.industryTags,
       implications,
@@ -283,9 +319,7 @@ export function ArticleFormDialog({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="source">
-                出典名 <span className="text-destructive">*</span>
-              </Label>
+              <Label htmlFor="source">出典名（メタ情報）</Label>
               <Input
                 id="source"
                 value={form.source}
@@ -297,6 +331,9 @@ export function ArticleFormDialog({
                 }
                 placeholder="編集部 / Reuters など"
               />
+              <p className="text-xs text-muted-foreground">
+                公開ページには表示されません。手動投稿時の編集者名や主要参照元として記録します。
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="sourceUrl">出典 URL（任意）</Label>
@@ -312,8 +349,47 @@ export function ArticleFormDialog({
                 }
                 placeholder="https://..."
               />
+              <p className="text-xs text-muted-foreground">
+                参考記事一覧が空のときのフォールバックとしてのみ使用されます。
+              </p>
             </div>
           </div>
+
+          {form.referenceSources.length > 0 && (
+            <div className="space-y-2 rounded-2xl border border-border bg-secondary/20 p-4">
+              <div className="flex items-baseline justify-between gap-2">
+                <Label className="text-sm">
+                  参考記事 {form.referenceSources.length} 件
+                </Label>
+                <span className="text-xs text-muted-foreground">
+                  パイプラインが自動付与（編集不可）
+                </span>
+              </div>
+              <ul className="space-y-1.5 text-xs">
+                {form.referenceSources.map((src, idx) => (
+                  <li key={`${idx}-${src.originalUrl ?? src.originalTitle}`}>
+                    {src.originalUrl ? (
+                      <a
+                        href={src.originalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="line-clamp-1 text-foreground underline-offset-2 hover:text-accent hover:underline"
+                      >
+                        {src.originalTitle}
+                      </a>
+                    ) : (
+                      <span className="line-clamp-1 text-foreground">
+                        {src.originalTitle}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted-foreground">
+                記事ページの「参考記事」セクションにこのまま表示されます。
+              </p>
+            </div>
+          )}
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
@@ -377,6 +453,9 @@ export function ArticleFormDialog({
                   }))
                 }
               />
+              <p className="text-xs text-muted-foreground">
+                変更しなければ取得時刻（時分）はそのまま保持されます。
+              </p>
             </div>
           </div>
 
