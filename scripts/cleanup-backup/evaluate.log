@@ -1,0 +1,35 @@
+[evaluate] target articles: 112
+[evaluate] backup written: /Users/nori/Desktop/indobiz_japan/scripts/cleanup-backup/backup-2026-05-27T03-00-50-242Z.json
+  [4/112] REJECT   インド主要都市の燃料・金価格動向——2026年5月時点の市場概況
+  [2/112] REVISION インド・ベトナム、インフラDX連携へ――「包括的戦略的パートナーシップ」が映す南
+  [3/112] REVISION インドのPLI制度が電子機器製造を牽引、スマートフォン輸出奨励策も拡充
+  [1/112] REVISION モディ首相が予算後ウェビナーで描く成長戦略：ケア経済・製造業・女性活躍の三本柱
+  [5/112] REJECT   西ベンガル州選挙後の混乱と政局の再編成
+  [6/112] REVISION インドにおける半導体産業の新たな展開
+  [7/112] REJECT   インディアでの偽札と犯罪の動向
+  [10/112] PASS     インド内閣、グジャラート州で半導体2拠点を承認——累計投資額165億ドル規模に
+  [11/112] PASS     インド独占禁止当局がペルノ・リカールの流通慣行を調査へ——外資酒類大手に警戒感
+  [9/112] REVISION インド準備銀行が金の国内回帰を加速——その背景にある地政学的リスクと中央銀行の新
+  [8/112] REVISION インドのGDP成長率、6.6%に下方修正される見通し
+  [12/112] REVISION 中東危機が直撃するインドエネルギー市場——月3兆円規模の損失を国営石油会社が吸収
+  [13/112] REVISION バイオコン、バイオシミラー事業の本格拡大でFY27後半に収益加速へ
+  [14/112] REVISION インド即時家事代行サービス市場で激化する競争、Urban CompanyのIns
+  [15/112] REVISION インド中銀が政策金利を据え置き、2026年度のGDP成長率を6.9%と予測
+  [16/112] REVISION インド半導体産業の現在地——国家支援策と主要プレイヤーが描く成長シナリオ
+  [17/112] ERROR    仏アコーが2030年までにインドで300ホテル体制へ——国内富裕層需要を追い風に — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL43ziM75KMgFVu1Re7"}
+      ! rewrite failed for d2b7a408-d52d-4be0-b8d1-9c47353c0ac2: rewrite failed: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL4iNHo85i9zU7qct2f"}
+  [18/112] ERROR    タタ教育信託における権力闘争の深化 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL54zGnj4nWDJGTV83v"}
+  [19/112] ERROR    インドにおけるギグワーカーの社保制度改革 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL5GgyVu3iSLS8MSCYz"}
+  [20/112] ERROR    インド市場における外国投資の減少傾向 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL5Hqw84f9rMCt8vidT"}
+  [21/112] ERROR    インド経済への影響をもたらす高騰する原油価格 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL5yNhveN8YgTUty8Jy"}
+  [22/112] ERROR    ペルノ・リカール、インド市場における独占行為で調査開始 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL6Ke7LpiZxRhwFr5SM"}
+  [23/112] ERROR    ノバルティス、インドにおけるイノベーション戦略を強化 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL6X5SSkdb9jxv8fPpT"}
+  [24/112] ERROR    エアビーのインド市場、国内旅行者に支えられ成長加速中 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL6XobgYj5GRmrnJiRn"}
+  [25/112] ERROR    エネルギー価格高騰に対処するインド政府の新たな方針 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL7FPeXFMBUVYcpSLeG"}
+  [26/112] ERROR    インドの第8中央給与委員会が始動、重要な人事も発表 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL7bvB2Mcz1gq86Mdou"}
+  [27/112] ERROR    Samsung、インドで『Solve for Tomorrow』の第5版を発表  — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL7kkzUD6HGhE5ut7ds"}
+  [28/112] ERROR    インドとベトナム、数十億ドル規模のビジネス提携が進展 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL7oZAYpH2NrTzzxi7x"}
+  [29/112] ERROR    インド準備銀行、レポ金利を5.25％に据え置き — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL8Vie5tw6aWbRWfjSM"}
+  [30/112] ERROR    インド政府、FTA活用計画の策定に着手 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL8rxaeQRxjT6mQdPv8"}
+  [31/112] ERROR    インド、エネルギー価格の安定を維持するために巨額の損失を被る — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL91bFALLpxxSsgLP9W"}
+  [32/112] ERROR    インド映画の興行成績: 現在のトレンドと動向 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbSL94nyX5A72Tx9g8cBT"}

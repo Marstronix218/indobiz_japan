@@ -338,16 +338,6 @@ export function normalizeLegacyCategory(category: string): Category {
   return LEGACY_CATEGORY_MAP[category] ?? "economy"
 }
 
-export function formatArticleDate(date: string) {
-  const d = new Date(date)
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
-}
-
-export function formatArticleShortDate(date: string) {
-  const d = new Date(date)
-  return `${d.getMonth() + 1}/${d.getDate()}`
-}
-
 const JST_DATETIME_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
   timeZone: "Asia/Tokyo",
   year: "numeric",
@@ -365,6 +355,13 @@ const JST_DATE_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
   day: "2-digit",
 })
 
+const JST_DATE_PARTS_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: "Asia/Tokyo",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+})
+
 const IST_DATETIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
   timeZone: "Asia/Kolkata",
   year: "numeric",
@@ -374,6 +371,37 @@ const IST_DATETIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
   minute: "2-digit",
   hour12: false,
 })
+
+function getJstDateParts(value: string): {
+  year: string
+  month: string
+  day: string
+} | null {
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return null
+
+  const parts = JST_DATE_PARTS_FORMATTER.formatToParts(d)
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((item) => item.type === type)?.value
+
+  const year = part("year")
+  const month = part("month")
+  const day = part("day")
+
+  return year && month && day ? { year, month, day } : null
+}
+
+export function formatArticleDate(date: string) {
+  const parts = getJstDateParts(date)
+  if (!parts) return date
+  return `${parts.year}年${parts.month}月${parts.day}日`
+}
+
+export function formatArticleShortDate(date: string) {
+  const parts = getJstDateParts(date)
+  if (!parts) return date
+  return `${parts.month}/${parts.day}`
+}
 
 export function formatJstDateTime(value: string | undefined | null): string {
   if (!value) return ""
