@@ -11,6 +11,7 @@ import {
   type WorkflowStatus,
 } from "@/lib/news-data"
 import type { PipelineDraft } from "@/lib/automation"
+import { extractKeywords } from "@/lib/clustering"
 import { getAnonClient, getServiceClient, hasSupabaseConfig } from "./client"
 
 interface ArticleRow {
@@ -276,6 +277,83 @@ export interface InsertDraftsResult {
   skipped: number
 }
 
+/**
+ * Cross-run near-duplicate detection.
+ *
+ * The `dedupe_key` unique constraint only catches drafts whose *source
+ * headline* slugifies identically, and `clusterArticles()` only merges raws
+ * within a single pipeline run. A developing story covered by different
+ * outlets (different headlines) across consecutive cron runs therefore slips
+ * past both gates and produces multiple Japanese articles on the same topic
+ * (e.g. the "ゴキブリ党" pair). This guard compares each draft's synthesized
+ * Japanese title+summary against recently created articles and skips drafts
+ * that share enough keywords with an existing same-category article.
+ */
+const DEDUPE_KEYWORDS_PER_ARTICLE = 20
+
+function dedupeLookbackHours(): number {
+  const n = Number(process.env.DEDUPE_LOOKBACK_HOURS)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 72
+}
+
+function dedupeMinSharedKeywords(): number {
+  const n = Number(process.env.DEDUPE_MIN_SHARED_KEYWORDS)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 6
+}
+
+interface RecentArticleKeywords {
+  category: string
+  keywords: Set<string>
+}
+
+async function loadRecentArticleKeywords(
+  client: SupabaseClient,
+): Promise<RecentArticleKeywords[]> {
+  const sinceIso = new Date(
+    Date.now() - dedupeLookbackHours() * 60 * 60 * 1000,
+  ).toISOString()
+
+  const { data, error } = await client
+    .from("articles")
+    .select("title, summary, category, created_at")
+    .gte("created_at", sinceIso)
+
+  if (error) {
+    // Fail open: a dedup-lookup error must never block publication.
+    console.error("[supabase] loadRecentArticleKeywords failed:", error.message)
+    return []
+  }
+
+  return ((data ?? []) as { title: string; summary: string; category: string }[]).map(
+    (row) => ({
+      category: row.category,
+      keywords: new Set(
+        extractKeywords(row.title ?? "", row.summary ?? "", DEDUPE_KEYWORDS_PER_ARTICLE),
+      ),
+    }),
+  )
+}
+
+/** True when `draftKeywords` shares ≥ threshold keywords with any same-category recent article. */
+function isSemanticDuplicate(
+  category: string,
+  draftKeywords: Set<string>,
+  recent: RecentArticleKeywords[],
+): boolean {
+  const threshold = dedupeMinSharedKeywords()
+  for (const row of recent) {
+    if (row.category !== category) continue
+    let shared = 0
+    for (const kw of draftKeywords) {
+      if (row.keywords.has(kw)) {
+        shared += 1
+        if (shared >= threshold) return true
+      }
+    }
+  }
+  return false
+}
+
 export async function insertPipelineDrafts(
   drafts: PipelineDraft[],
 ): Promise<InsertDraftsResult> {
@@ -287,7 +365,22 @@ export async function insertPipelineDrafts(
   let inserted = 0
   let skipped = 0
 
+  // Snapshot of recently created articles for near-duplicate detection. Drafts
+  // inserted within this batch are appended so same-run duplicates are caught too.
+  const recent = await loadRecentArticleKeywords(client)
+
   for (const draft of drafts) {
+    const draftKeywords = new Set(
+      extractKeywords(draft.title, draft.summary, DEDUPE_KEYWORDS_PER_ARTICLE),
+    )
+    if (isSemanticDuplicate(draft.category, draftKeywords, recent)) {
+      console.warn(
+        `[supabase] skipping near-duplicate draft (same-topic as recent article): ${draft.title}`,
+      )
+      skipped += 1
+      continue
+    }
+
     const input: InsertArticleInput = {
       title: draft.title,
       summary: draft.summary,
@@ -327,6 +420,7 @@ export async function insertPipelineDrafts(
     if (data) {
       await insertSourcesFor(client, data.id, input.sources)
       inserted += 1
+      recent.push({ category: draft.category, keywords: draftKeywords })
     }
   }
 
