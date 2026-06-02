@@ -1,87 +1,58 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { submitWeb3Form } from "@/lib/web3forms"
-import {
-  COMPANY_SIZE_LABELS,
-  LEAD_TYPE_LABELS,
-  type CompanySize,
-  type LeadInquiry,
-  type LeadType,
-} from "@/lib/site-config"
+import { type LeadInquiry } from "@/lib/site-config"
 
 interface LeadCaptureFormProps {
-  initialLeadType?: LeadType
   title?: string
   description?: string
   compact?: boolean
 }
 
 const EMPTY_INQUIRY: LeadInquiry = {
-  leadType: "expansion",
   companyName: "",
   contactName: "",
   email: "",
-  companySize: "under_50",
   message: "",
 }
 
 export function LeadCaptureForm({
-  initialLeadType = "expansion",
-  title = "インド進出・採用の相談フォーム",
-  description = "記事詳細、価格ページ、ヘッダーのCTAからこのフォームへ遷移します。",
+  title = "お問い合わせフォーム",
+  description = "ご相談内容を自由にご記入ください。",
   compact = false,
 }: LeadCaptureFormProps) {
   const router = useRouter()
-  const [form, setForm] = useState<LeadInquiry>({
-    ...EMPTY_INQUIRY,
-    leadType: initialLeadType,
-  })
+  const [form, setForm] = useState<LeadInquiry>(EMPTY_INQUIRY)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  useEffect(() => {
-    setForm((current) => ({ ...current, leadType: initialLeadType }))
-  }, [initialLeadType])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (
-      !form.companyName.trim() ||
-      !form.contactName.trim() ||
-      !form.email.trim() ||
-      !form.message.trim()
-    ) {
-      toast.error("会社名・担当者名・メールアドレス・相談内容を入力してください。")
+    if (!form.contactName.trim() || !form.email.trim() || !form.message.trim()) {
+      toast.error("お名前・メールアドレス・お問い合わせ内容を入力してください。")
       return
     }
 
     setIsSubmitting(true)
     try {
+      const companyName = form.companyName.trim() || "未入力"
+
       await submitWeb3Form({
-        subject: `【IndoBiz Japan】お問い合わせフォーム - ${LEAD_TYPE_LABELS[form.leadType]} - ${form.companyName}`,
+        subject: `【IndoBiz Japan】お問い合わせフォーム - ${companyName}`,
         from_name: form.contactName,
         replyto: form.email,
         フォーム種別: "お問い合わせフォーム",
-        相談種別: LEAD_TYPE_LABELS[form.leadType],
-        会社規模: COMPANY_SIZE_LABELS[form.companySize],
-        会社名: form.companyName,
-        担当者名: form.contactName,
+        会社名: companyName,
+        お名前: form.contactName,
         メールアドレス: form.email,
-        相談内容: form.message,
+        お問い合わせ内容: form.message,
       })
 
       toast.success("お問い合わせを受け付けました。24時間以内を目安にご連絡します。")
@@ -94,17 +65,6 @@ export function LeadCaptureForm({
     }
   }
 
-  const messagePlaceholder = (() => {
-    switch (form.leadType) {
-      case "expansion":
-        return "想定時期、検討中の州、事業テーマ、必要な調査内容を入力してください。"
-      case "hiring":
-        return "採用したい職種、採用人数、現地採用か駐在採用か、課題を入力してください。"
-      case "other":
-        return "ご相談内容、背景、現在の課題を入力してください。"
-    }
-  })()
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1">
@@ -116,71 +76,7 @@ export function LeadCaptureForm({
 
       <div className={`grid gap-4 ${compact ? "grid-cols-1" : "md:grid-cols-2"}`}>
         <div className="space-y-2">
-          <Label htmlFor="leadType">相談種別</Label>
-          <Select
-            value={form.leadType}
-            onValueChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                leadType: value as LeadType,
-              }))
-            }
-          >
-            <SelectTrigger id="leadType" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {(Object.keys(LEAD_TYPE_LABELS) as LeadType[]).map((type) => (
-                <SelectItem key={type} value={type}>
-                  {LEAD_TYPE_LABELS[type]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="companySize">会社規模</Label>
-          <Select
-            value={form.companySize}
-            onValueChange={(value) =>
-              setForm((current) => ({
-                ...current,
-                companySize: value as CompanySize,
-              }))
-            }
-          >
-            <SelectTrigger id="companySize" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {(Object.keys(COMPANY_SIZE_LABELS) as CompanySize[]).map((size) => (
-                <SelectItem key={size} value={size}>
-                  {COMPANY_SIZE_LABELS[size]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className={`grid gap-4 ${compact ? "grid-cols-1" : "md:grid-cols-2"}`}>
-        <div className="space-y-2">
-          <Label htmlFor="companyName">会社名</Label>
-          <Input
-            id="companyName"
-            value={form.companyName}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                companyName: event.target.value,
-              }))
-            }
-            placeholder="株式会社サンプル"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="contactName">担当者名</Label>
+          <Label htmlFor="contactName">お名前</Label>
           <Input
             id="contactName"
             value={form.contactName}
@@ -191,6 +87,25 @@ export function LeadCaptureForm({
               }))
             }
             placeholder="山田 太郎"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="companyName">
+            会社名・団体名
+            <span className="ml-1 text-xs font-normal text-muted-foreground">
+              （任意）
+            </span>
+          </Label>
+          <Input
+            id="companyName"
+            value={form.companyName}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                companyName: event.target.value,
+              }))
+            }
+            placeholder="株式会社サンプル"
           />
         </div>
       </div>
@@ -207,12 +122,12 @@ export function LeadCaptureForm({
               email: event.target.value,
             }))
           }
-          placeholder="name@company.co.jp"
+          placeholder="name@example.com"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="message">相談内容</Label>
+        <Label htmlFor="message">お問い合わせ内容</Label>
         <Textarea
           id="message"
           value={form.message}
@@ -222,17 +137,14 @@ export function LeadCaptureForm({
               message: event.target.value,
             }))
           }
-          placeholder={messagePlaceholder}
-          className="min-h-32"
+          placeholder="ご相談・ご質問の内容を自由にご記入ください。"
+          className="min-h-40"
         />
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          最低6か月の法人パイロットを前提に、初月無料の想定でご案内します。
-        </p>
+      <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "送信中..." : "相談内容を送信"}
+          {isSubmitting ? "送信中..." : "送信する"}
         </Button>
       </div>
     </form>

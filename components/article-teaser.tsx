@@ -12,10 +12,18 @@ import {
   type NewsArticle,
 } from "@/lib/news-data"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
+import { FREE_ARTICLE_LIMIT } from "@/lib/site-config"
 
 const TEASER_LENGTH = 150
 
-export function ArticleTeaser({ article }: { article: NewsArticle }) {
+export function ArticleTeaser({
+  article,
+  atLimit = false,
+}: {
+  article: NewsArticle
+  /** True when the visitor has exhausted their free reads (vs. never logged in). */
+  atLimit?: boolean
+}) {
   const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
   const teaser = article.summary.slice(0, TEASER_LENGTH).trimEnd()
   const truncated = article.summary.length > TEASER_LENGTH
@@ -75,10 +83,14 @@ export function ArticleTeaser({ article }: { article: NewsArticle }) {
           <section className="rounded-3xl border-2 border-accent/40 bg-card p-6 text-center sm:p-8">
             <Lock className="mx-auto size-6 text-accent" />
             <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
-              続きを読むには登録が必要です
+              {atLimit
+                ? "登録なしで読める記事数の上限に達しました"
+                : "続きを読むには登録が必要です"}
             </h2>
             <p className="mt-2 text-base leading-8 text-muted-foreground">
-              無料アカウントでフルテキスト・示唆・関連記事をお読みいただけます。
+              {atLimit
+                ? `登録なしでお読みいただけるのは${FREE_ARTICLE_LIMIT}件までです。無料アカウントの登録で、すべての記事のフルテキスト・示唆・関連記事を続けてお読みいただけます。`
+                : "無料アカウントでフルテキスト・示唆・関連記事をお読みいただけます。"}
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
               <Button asChild>

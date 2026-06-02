@@ -50,8 +50,13 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact?leadType=expansion" className="transition-opacity hover:opacity-100">
+                <Link href="/contact" className="transition-opacity hover:opacity-100">
                   お問い合わせ
+                </Link>
+              </li>
+              <li>
+                <Link href="/company" className="transition-opacity hover:opacity-100">
+                  運営会社
                 </Link>
               </li>
               <li>

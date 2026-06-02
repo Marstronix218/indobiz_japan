@@ -1,7 +1,9 @@
+import { cookies } from "next/headers"
 import { ArticleView } from "@/components/article-view"
 import { ArticleStoreProvider } from "@/components/article-store-provider"
 import { ArticleTeaser } from "@/components/article-teaser"
 import { DataUnavailable } from "@/components/data-unavailable"
+import { FREE_VIEW_COOKIE, parseViewedIds } from "@/lib/free-view"
 import {
   getArticleById,
   listPublishedArticles,
@@ -47,7 +49,15 @@ export default async function ArticlePage({
     if (!article || article.workflowStatus !== "published") {
       return <DataUnavailable showHomeLink />
     }
-    return <ArticleTeaser article={article} />
+    // `proxy.ts` records each anonymous read in this cookie up to
+    // FREE_ARTICLE_LIMIT. If this article isn't in the list, the visitor has
+    // already used up their free reads — show the login teaser instead.
+    const cookieStore = await cookies()
+    const viewed = parseViewedIds(cookieStore.get(FREE_VIEW_COOKIE)?.value)
+    if (!viewed.includes(id)) {
+      return <ArticleTeaser article={article} atLimit />
+    }
+    // Within the free allowance: fall through to the full article view.
   }
 
   const articles = await listPublishedArticles()

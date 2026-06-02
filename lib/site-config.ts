@@ -1,13 +1,16 @@
-export type LeadType = "expansion" | "hiring" | "other"
-export type CompanySize = "under_50" | "under_100" | "over_100"
 export type DigestFrequency = "daily" | "weekly"
 
+/**
+ * Number of full articles an unauthenticated visitor may read before the
+ * login/registration gate kicks in. Tracked per-browser via a cookie in
+ * `proxy.ts`; see `components/article-teaser.tsx` for the gate UI.
+ */
+export const FREE_ARTICLE_LIMIT = 5
+
 export interface LeadInquiry {
-  leadType: LeadType
   companyName: string
   contactName: string
   email: string
-  companySize: CompanySize
   message: string
 }
 
@@ -30,18 +33,6 @@ export interface PricingPlan {
   ctaLabel: string
   ctaHref: string
   featured?: boolean
-}
-
-export const LEAD_TYPE_LABELS: Record<LeadType, string> = {
-  expansion: "インド進出を相談したい",
-  hiring: "インド人材を採用したい",
-  other: "その他",
-}
-
-export const COMPANY_SIZE_LABELS: Record<CompanySize, string> = {
-  under_50: "50名以下",
-  under_100: "100名以下",
-  over_100: "100名超",
 }
 
 export const DIGEST_FREQUENCY_LABELS: Record<DigestFrequency, string> = {
