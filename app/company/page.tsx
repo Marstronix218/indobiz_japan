@@ -24,7 +24,7 @@ const rows: CompanyRow[] = [
     companies: (
       <ul className="space-y-1">
         <li>キャピタルランチャーズ</li>
-        <li>インドボックス株式会社</li>
+        <li>Indobox株式会社</li>
       </ul>
     ),
   },

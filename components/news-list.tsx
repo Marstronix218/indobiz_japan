@@ -11,9 +11,6 @@ import {
   TrendingWidget,
   MarketIndicatorWidget,
   CitySpotlightWidget,
-  PitchWidget,
-  SocialWidget,
-  NewsletterCTA,
 } from "@/components/sidebar-widgets"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
@@ -238,9 +235,6 @@ export function NewsList() {
                 <TrendingWidget />
                 <MarketIndicatorWidget />
                 <CitySpotlightWidget />
-                <PitchWidget />
-                <SocialWidget />
-                <NewsletterCTA />
               </aside>
             </div>
           </>
