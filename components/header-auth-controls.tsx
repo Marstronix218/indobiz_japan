@@ -6,9 +6,28 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
 
+type DisplayUser = { label: string } | null
+
+// LINE accounts have no real email (we store a synthetic line_*@line.invalid
+// address), so prefer the display name from user_metadata and fall back to the
+// email only for password accounts.
+function toDisplayUser(user: {
+  email?: string | null
+  user_metadata?: Record<string, unknown> | null
+} | null | undefined): DisplayUser {
+  if (!user) return null
+  const meta = user.user_metadata ?? {}
+  const name =
+    (typeof meta.name === "string" && meta.name) ||
+    (typeof meta.full_name === "string" && meta.full_name) ||
+    null
+  const email = user.email && !user.email.endsWith("@line.invalid") ? user.email : null
+  return { label: name || email || "アカウント" }
+}
+
 export function HeaderAuthControls() {
   const router = useRouter()
-  const [email, setEmail] = useState<string | null>(null)
+  const [user, setUser] = useState<DisplayUser>(null)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -17,13 +36,13 @@ export function HeaderAuthControls() {
 
     supabase.auth.getUser().then(({ data }) => {
       if (!active) return
-      setEmail(data.user?.email ?? null)
+      setUser(toDisplayUser(data.user))
       setLoaded(true)
     })
 
     const { data: subscription } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        setEmail(session?.user?.email ?? null)
+        setUser(toDisplayUser(session?.user))
       },
     )
 
@@ -43,14 +62,14 @@ export function HeaderAuthControls() {
     return <div className="h-8 w-32" aria-hidden />
   }
 
-  if (email) {
+  if (user) {
     return (
       <div className="flex items-center gap-2">
         <span
           className="hidden max-w-[12rem] truncate text-xs text-muted-foreground sm:inline"
-          title={email}
+          title={user.label}
         >
-          {email}
+          {user.label}
         </span>
         <Button asChild variant="ghost" size="sm">
           <Link href="/profile">マイページ</Link>

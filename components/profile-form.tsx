@@ -12,9 +12,14 @@ import Link from "next/link"
 interface ProfileFormProps {
   email: string
   fullName: string
+  isLineAccount?: boolean
 }
 
-export function ProfileForm({ email, fullName: initialFullName }: ProfileFormProps) {
+export function ProfileForm({
+  email,
+  fullName: initialFullName,
+  isLineAccount = false,
+}: ProfileFormProps) {
   const [fullName, setFullName] = useState(initialFullName)
   const [savingName, setSavingName] = useState(false)
 
@@ -74,11 +79,26 @@ export function ProfileForm({ email, fullName: initialFullName }: ProfileFormPro
       <section className="space-y-5">
         <h2 className="font-serif text-xl font-bold tracking-tight">アカウント情報</h2>
 
-        <div className="space-y-2">
-          <Label htmlFor="email">メールアドレス</Label>
-          <Input id="email" type="email" value={email} disabled className="bg-muted" />
-          <p className="text-xs text-muted-foreground">メールアドレスは変更できません。</p>
-        </div>
+        {isLineAccount ? (
+          <div className="space-y-2">
+            <Label htmlFor="loginMethod">ログイン方法</Label>
+            <Input
+              id="loginMethod"
+              value="LINE"
+              disabled
+              className="bg-muted"
+            />
+            <p className="text-xs text-muted-foreground">
+              LINEアカウントでログインしています。
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Label htmlFor="email">メールアドレス</Label>
+            <Input id="email" type="email" value={email} disabled className="bg-muted" />
+            <p className="text-xs text-muted-foreground">メールアドレスは変更できません。</p>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="fullName">表示名</Label>
@@ -96,59 +116,63 @@ export function ProfileForm({ email, fullName: initialFullName }: ProfileFormPro
         </div>
       </section>
 
-      <Separator />
+      {!isLineAccount && (
+        <>
+          <Separator />
 
-      {/* Password change */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif text-xl font-bold tracking-tight">パスワード</h2>
-          {!changingPassword && (
-            <Button variant="outline" size="sm" onClick={() => setChangingPassword(true)}>
-              パスワードを変更
-            </Button>
-          )}
-        </div>
+          {/* Password change */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-xl font-bold tracking-tight">パスワード</h2>
+              {!changingPassword && (
+                <Button variant="outline" size="sm" onClick={() => setChangingPassword(true)}>
+                  パスワードを変更
+                </Button>
+              )}
+            </div>
 
-        {changingPassword && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">新しいパスワード（8文字以上）</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="新しいパスワード"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">パスワード（確認）</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="同じパスワードを再入力"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleSavePassword} disabled={savingPassword}>
-                {savingPassword ? "変更中…" : "パスワードを変更する"}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setChangingPassword(false)
-                  setNewPassword("")
-                  setConfirmPassword("")
-                }}
-              >
-                キャンセル
-              </Button>
-            </div>
-          </div>
-        )}
-      </section>
+            {changingPassword && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">新しいパスワード（8文字以上）</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="新しいパスワード"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">パスワード（確認）</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="同じパスワードを再入力"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleSavePassword} disabled={savingPassword}>
+                    {savingPassword ? "変更中…" : "パスワードを変更する"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setChangingPassword(false)
+                      setNewPassword("")
+                      setConfirmPassword("")
+                    }}
+                  >
+                    キャンセル
+                  </Button>
+                </div>
+              </div>
+            )}
+          </section>
+        </>
+      )}
 
       <Separator />
 

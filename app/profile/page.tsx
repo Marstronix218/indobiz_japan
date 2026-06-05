@@ -14,8 +14,14 @@ export default async function ProfilePage() {
     redirect("/login?next=/profile")
   }
 
-  const email = user.email ?? ""
-  const fullName = (user.user_metadata?.full_name as string | undefined) ?? ""
+  const provider = (user.user_metadata?.provider as string | undefined) ?? null
+  const isLineAccount =
+    provider === "line" || (user.email?.endsWith("@line.invalid") ?? false)
+  const email = isLineAccount ? "" : user.email ?? ""
+  const fullName =
+    (user.user_metadata?.full_name as string | undefined) ??
+    (user.user_metadata?.name as string | undefined) ??
+    ""
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,7 +36,7 @@ export default async function ProfilePage() {
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm md:p-8">
-          <ProfileForm email={email} fullName={fullName} />
+          <ProfileForm email={email} fullName={fullName} isLineAccount={isLineAccount} />
         </div>
       </main>
 

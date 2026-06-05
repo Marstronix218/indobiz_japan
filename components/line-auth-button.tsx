@@ -4,10 +4,6 @@ import { useState } from "react"
 import { MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getSafeAuthRedirectPath } from "@/lib/auth-redirect"
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
-
-const LINE_AUTH_PROVIDER = "custom:line" as const
-const LINE_AUTH_SCOPES = "openid profile"
 
 interface LineAuthButtonProps {
   label: string
@@ -17,17 +13,20 @@ interface LineAuthButtonProps {
   onError?: (message: string | null) => void
 }
 
-function getCallbackUrl(nextPath: string, errorPath?: string): string {
-  const callbackUrl = new URL("/auth/callback", window.location.origin)
+// Kicks off our self-hosted LINE OAuth flow (app/api/auth/line/*). We handle the
+// code exchange + Supabase session server-side because LINE's HS256 ID tokens
+// are incompatible with Supabase's native custom-OIDC provider.
+function getLoginUrl(nextPath: string, errorPath?: string): string {
+  const url = new URL("/api/auth/line/login", window.location.origin)
   const safeNextPath = getSafeAuthRedirectPath(nextPath)
   if (safeNextPath !== "/") {
-    callbackUrl.searchParams.set("next", safeNextPath)
+    url.searchParams.set("next", safeNextPath)
   }
   const safeErrorPath = getSafeAuthRedirectPath(errorPath ?? null)
   if (safeErrorPath !== "/") {
-    callbackUrl.searchParams.set("error_path", safeErrorPath)
+    url.searchParams.set("error_path", safeErrorPath)
   }
-  return callbackUrl.toString()
+  return url.toString()
 }
 
 export function LineAuthButton({
@@ -39,27 +38,11 @@ export function LineAuthButton({
 }: LineAuthButtonProps) {
   const [submitting, setSubmitting] = useState(false)
 
-  async function handleLineAuth() {
+  function handleLineAuth() {
     if (submitting) return
     setSubmitting(true)
     onError?.(null)
-
-    try {
-      const supabase = getSupabaseBrowserClient()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: LINE_AUTH_PROVIDER,
-        options: {
-          redirectTo: getCallbackUrl(nextPath, errorPath),
-          scopes: LINE_AUTH_SCOPES,
-        },
-      })
-      if (error) throw error
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "LINE認証に失敗しました"
-      onError?.(message)
-      setSubmitting(false)
-    }
+    window.location.href = getLoginUrl(nextPath, errorPath)
   }
 
   return (
