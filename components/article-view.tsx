@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { NewsCardTile } from "@/components/news-card"
+import { ArticleFeedback } from "@/components/article-feedback"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Badge } from "@/components/ui/badge"
@@ -20,7 +21,13 @@ import { formatSummaryParagraphs } from "@/lib/summary-utils"
 import { ensureMinimumSummaryLength } from "@/lib/summary-utils"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 
-export function ArticleView({ id }: { id: string }) {
+export function ArticleView({
+  id,
+  canSubmitFeedback = false,
+}: {
+  id: string
+  canSubmitFeedback?: boolean
+}) {
   const articles = usePublicArticles()
   const article = articles.find((item) => item.id === id)
 
@@ -197,6 +204,8 @@ export function ArticleView({ id }: { id: string }) {
                 </ul>
               </section>
             )}
+
+            <ArticleFeedback articleId={article.id} canSubmit={canSubmitFeedback} />
 
             {relatedArticles.length > 0 && (
               <section>

@@ -24,6 +24,7 @@ import {
   getImageClient,
   type ImageClient,
 } from "@/lib/image-gen"
+import { getActivePromptAmendments } from "@/lib/feedback/repository"
 import { fetchSimilarArticles } from "@/lib/scrapers/fetch-india-news"
 
 export type ConnectorMode = "rss" | "api"
@@ -470,10 +471,12 @@ async function buildDraft(
       bodyText: cleanText(a.bodyText ?? ""),
     }))
 
+    const promptAmendments = await getActivePromptAmendments()
     const output = await llm.synthesize({
       cluster: synthInput,
       categoryHint: primary.legacyCategory,
       industryHints: primary.industryHints,
+      promptAmendments,
     })
 
     const minScore = readIndiaRelevanceMin()

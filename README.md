@@ -133,6 +133,16 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 
 Copy the generated `whsec_...` value into `STRIPE_WEBHOOK_SECRET`.
 
+## LINE Login
+
+The login and signup screens support LINE through Supabase Auth custom OIDC providers. Configure the external providers before testing the buttons:
+
+1. Create a LINE Login channel in the LINE Developers Console with Web app enabled.
+2. In Supabase Dashboard → Auth → Providers, create a custom OIDC provider with identifier `custom:line`, issuer `https://access.line.me`, scopes `openid profile email`, and the LINE channel ID/secret as the client ID/secret.
+3. Copy the callback URL shown by Supabase for that custom provider into the LINE Login channel callback URLs.
+4. Add your app callback URL to the Supabase Auth redirect allow list, for example `http://localhost:3000/auth/callback` locally and `https://your-domain.com/auth/callback` in production.
+5. Apply for LINE email address permission in the LINE Developers Console if you request the `email` scope.
+
 ## Validation
 
 Before shipping changes, run:

@@ -57,6 +57,16 @@ npm run dev
 npm run build
 ```
 
+## LINEログイン
+
+ログイン画面と新規登録画面は、Supabase Auth のカスタム OIDC provider 経由で LINE ログインに対応しています。ボタンを試す前に、外部 provider 側を設定してください。
+
+1. LINE Developers Console で LINE Login チャネルを作成し、Web app を有効にします。
+2. Supabase Dashboard → Auth → Providers でカスタム OIDC provider を作成します。identifier は `custom:line`、issuer は `https://access.line.me`、scopes は `openid profile email`、client ID/secret は LINE のチャネルID/チャネルシークレットを設定します。
+3. Supabase が表示する callback URL を、LINE Login チャネルの callback URL に追加します。
+4. Supabase Auth の redirect allow list に `http://localhost:3000/auth/callback` と本番 URL の `/auth/callback` を追加します。
+5. `email` scope を使うため、LINE Developers Console でメールアドレス取得権限を申請します。
+
 ## Scraping Execution
 
 Python バックエンド経由での取得とパイプライン実行を追加しました。

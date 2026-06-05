@@ -3,7 +3,7 @@ import type { RawSourceArticle } from "@/lib/automation"
 import { isLikelyArticleUrl } from "@/lib/source-url-utils"
 
 const USER_AGENT =
-  "Mozilla/5.0 (compatible; IndiaBusinessDispatch/1.0; +https://example.com/bot)"
+  "Mozilla/5.0 (compatible; IndoBizJapan/1.0; +https://example.com/bot)"
 
 interface Connector {
   connectorId: string

@@ -3,6 +3,10 @@ import { OpenAIClient } from "./openai-client"
 import type { LLMClient } from "./types"
 
 export type {
+  FeedbackCategory,
+  FeedbackGateInput,
+  FeedbackGateOutput,
+  FeedbackVerdict,
   LLMClient,
   QualityCheckInput,
   QualityCheckOutput,

@@ -3,19 +3,27 @@
 import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
+import { LineAuthButton } from "@/components/line-auth-button"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { getSafeAuthRedirectPath } from "@/lib/auth-redirect"
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
 
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const next = searchParams.get("next") ?? "/"
+  const next = getSafeAuthRedirectPath(searchParams.get("next"))
+  const callbackError = searchParams.get("auth_error")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    callbackError === "oauth_callback"
+      ? "LINEログインに失敗しました。時間をおいて再度お試しください。"
+      : null,
+  )
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -50,7 +58,20 @@ function LoginForm() {
             記事を読むには、ログインしてください。
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
+          <LineAuthButton
+            label="LINEでログイン"
+            nextPath={next}
+            disabled={submitting}
+            onError={setError}
+          />
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className="text-xs text-muted-foreground">または</span>
+            <Separator className="flex-1" />
+          </div>
+        </div>
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">メールアドレス</Label>
             <Input
