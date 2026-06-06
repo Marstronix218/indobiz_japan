@@ -25,7 +25,7 @@ const rows: DisclosureRow[] = [
   },
   {
     label: "所在地",
-    content: "〒466-0051 愛知県名古屋市昭和区御器所2丁目4-14-1",
+    content: "〒466-0051 愛知県名古屋市昭和区御器所",
   },
   {
     label: "電話番号",
@@ -34,7 +34,7 @@ const rows: DisclosureRow[] = [
         050-3629-1977
         <br />
         <span className="text-xs leading-6 text-muted-foreground">
-          ※受付時間：平日10:00–18:00（土日祝・年末年始を除く）。お問い合わせは原則メールにて承ります。
+          ※受付時間：平日10:00–17:00（土日祝・年末年始を除く）。お問い合わせは原則メールにて承ります。
         </span>
       </>
     ),
