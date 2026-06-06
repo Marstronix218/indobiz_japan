@@ -12,7 +12,7 @@ export function SiteFooter() {
               IndoBiz Japan
             </h4>
             <p className="max-w-sm text-base leading-8 text-primary-foreground/75">
-              日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける v1 プロダクトです。
+              日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける β版プロダクトです。
             </p>
           </div>
 
