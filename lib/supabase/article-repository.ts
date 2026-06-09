@@ -131,7 +131,11 @@ export async function listPublishedArticles(
     .select(ARTICLE_SELECT)
     .eq("workflow_status", "published")
     .order("published_at", { ascending: false })
-    .limit(100)
+    // Homepage loads the whole published feed and filters/searches client-side,
+    // so anything beyond this cap is unreachable from the main page. Kept well
+    // above the current article count; revisit with server-side pagination if
+    // the published set ever approaches this limit.
+    .limit(500)
 
   if (error) {
     console.error("[supabase] listPublishedArticles failed:", error.message)
