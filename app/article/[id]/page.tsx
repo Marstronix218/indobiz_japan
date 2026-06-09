@@ -61,12 +61,27 @@ export default async function ArticlePage({
   }
 
   const articles = await listPublishedArticles()
-  if (articles.length === 0) {
+
+  // `listPublishedArticles()` only returns the newest 100 published articles,
+  // so any older published article (e.g. once the site has >100 articles)
+  // would be missing from the store and `ArticleView` would render
+  // "記事が見つかりません". Fetch the requested article directly and merge it
+  // in if the feed list doesn't already contain it.
+  let storeArticles = articles
+  if (!articles.some((item) => item.id === id)) {
+    const article = await getArticleById(id)
+    if (!article || article.workflowStatus !== "published") {
+      return <DataUnavailable showHomeLink />
+    }
+    storeArticles = [article, ...articles]
+  }
+
+  if (storeArticles.length === 0) {
     return <DataUnavailable showHomeLink />
   }
 
   return (
-    <ArticleStoreProvider initial={articles}>
+    <ArticleStoreProvider initial={storeArticles}>
       <ArticleView id={id} canSubmitFeedback={Boolean(user)} />
     </ArticleStoreProvider>
   )
