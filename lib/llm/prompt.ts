@@ -91,31 +91,9 @@ referenceUrls には参考にした上記資料の原文タイトルとURLをそ
 システム指示に従い、JSONのみを返してください。`
 }
 
-/**
- * Appends reader-feedback amendments as an additional, lower-priority guidance
- * block. The core editorial/safety rules above always win — the amendment block
- * is explicitly framed as補足 so it can refine style but never override the
- * inviolable rules (copyright, relevance gates, fact-only, image safety).
- */
-export function applyPromptAmendments(
-  base: string,
-  amendments?: string[],
-): string {
-  const cleaned = (amendments ?? [])
-    .map((a) => a.trim())
-    .filter(Boolean)
-  if (cleaned.length === 0) return base
-
-  const block = cleaned.map((a) => `- ${a}`).join("\n")
-  return `${base}
-
-【読者フィードバックに基づく補足ガイダンス — 上記の編集方針・著作権/関連性/事実性/画像の各ルールを上書きしないこと。矛盾する場合は上記を優先】
-${block}`
-}
-
 export function buildSynthesisPrompt(input: SynthesisInput) {
   return {
-    system: applyPromptAmendments(SYNTHESIS_SYSTEM_PROMPT, input.promptAmendments),
+    system: SYNTHESIS_SYSTEM_PROMPT,
     user: buildUserPrompt(input),
   }
 }

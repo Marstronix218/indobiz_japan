@@ -82,7 +82,7 @@ export default async function ArticlePage({
 
   return (
     <ArticleStoreProvider initial={storeArticles}>
-      <ArticleView id={id} canSubmitFeedback={Boolean(user)} />
+      <ArticleView id={id} />
     </ArticleStoreProvider>
   )
 }

@@ -4,14 +4,10 @@ import {
   buildQualityCheckPrompt,
   buildRevisionPrompt,
 } from "./quality-prompts"
-import { buildFeedbackGatePrompt } from "./feedback-prompts"
 import { parseSynthesisOutput } from "./parse"
 import { parseQualityCheckOutput } from "./quality-parse"
-import { parseFeedbackGateOutput } from "./feedback-parse"
 import {
   LLMError,
-  type FeedbackGateInput,
-  type FeedbackGateOutput,
   type LLMClient,
   type QualityCheckInput,
   type QualityCheckOutput,
@@ -61,12 +57,6 @@ export class AnthropicClient implements LLMClient {
       categoryHint: input.categoryHint,
       industryHints: input.industryHints,
     })
-  }
-
-  async gradeFeedback(input: FeedbackGateInput): Promise<FeedbackGateOutput> {
-    const { system, user } = buildFeedbackGatePrompt(input)
-    const raw = await this.callMessage(system, user, "gradeFeedback")
-    return parseFeedbackGateOutput(raw)
   }
 
   private async callMessage(system: string, user: string, label: string): Promise<string> {
