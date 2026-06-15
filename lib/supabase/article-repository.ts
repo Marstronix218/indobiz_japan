@@ -151,7 +151,11 @@ export async function listAllArticles(): Promise<NewsArticle[]> {
     .from("articles")
     .select(ARTICLE_SELECT)
     .order("published_at", { ascending: false })
-    .limit(200)
+    // Admin lists every status (published/review/failed), so this is always
+    // larger than the public feed (limit 500). Kept well above the current
+    // count so older articles stay visible; revisit with server-side
+    // pagination if the table ever approaches this cap.
+    .limit(2000)
 
   if (error) {
     console.error("[supabase] listAllArticles failed:", error.message)
