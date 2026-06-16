@@ -5,8 +5,9 @@ import { fetchIndiaNews } from "@/lib/scrapers/fetch-india-news"
 import { clusterArticles, readClusterOptionsFromEnv } from "@/lib/clustering"
 import type { RawSourceArticle } from "@/lib/automation"
 import { OpenAIClient } from "@/lib/llm/openai-client"
+import { AnthropicClient } from "@/lib/llm/anthropic-client"
 import { buildSynthesisPrompt, buildSynthesisPromptCoreFirst } from "@/lib/llm/prompt"
-import type { SynthesisInput, SynthesisOutput } from "@/lib/llm/types"
+import type { LLMClient, SynthesisInput, SynthesisOutput } from "@/lib/llm/types"
 import { isAdminRequest } from "@/lib/admin-auth"
 
 export const dynamic = "force-dynamic"
@@ -158,6 +159,75 @@ async function handleRun(): Promise<NextResponse> {
   return NextResponse.json({ ok: true, mode: "run", model: MODEL, path: outPath, summary })
 }
 
+// 実験②: プロンプトを core-first に固定し、モデルだけを変えて比較する。
+function makeClient(modelId: string): LLMClient {
+  return modelId.startsWith("claude")
+    ? new AnthropicClient({ model: modelId })
+    : new OpenAIClient({ model: modelId })
+}
+
+async function handleModels(modelsCsv: string): Promise<NextResponse> {
+  if (!existsSync(FROZEN_PATH)) {
+    return NextResponse.json(
+      { ok: false, error: "frozen-clusters.json が無い。先に ?mode=freeze を実行してください" },
+      { status: 400 },
+    )
+  }
+  const models = modelsCsv.split(",").map((m) => m.trim()).filter(Boolean)
+  const frozen = JSON.parse(readFileSync(FROZEN_PATH, "utf8")) as FrozenFile
+
+  const lines: string[] = [
+    `# モデル比較: 同一プロンプト(主軸＋肉付け)で gpt vs claude`,
+    "",
+    `- 実行時刻: ${new Date().toISOString()}`,
+    `- 凍結データ: ${frozen.capturedAt} 取得 / ${frozen.clusters.length} クラスタ`,
+    `- 比較モデル: ${models.join(" / ")}`,
+    `- プロンプト(全モデル共通): buildSynthesisPromptCoreFirst / 品質ループ・画像生成 OFF`,
+    "",
+    "---",
+    "",
+  ]
+  const summary: Array<{ cluster: number; model: string; ok: boolean; error?: string }> = []
+
+  for (let i = 0; i < frozen.clusters.length; i++) {
+    const cluster = frozen.clusters[i]
+    const input = toSynthesisInput(cluster)
+    lines.push(`## クラスタ ${i + 1}（${cluster.length}ソース）`, "")
+    lines.push("**ソース一覧（先頭＝核）:**", "")
+    input.cluster.forEach((s, j) => {
+      lines.push(`${j + 1}. ${j === 0 ? "🟢核 " : ""}[${s.source}] ${s.title}（本文 ${s.bodyText.length} 字）`)
+    })
+    lines.push("")
+
+    // モデルは並列実行(allSettled)。1モデルが無効IDで落ちても他は出す。
+    const settled = await Promise.allSettled(
+      models.map((m) =>
+        makeClient(m).synthesize(input, { promptBuilder: buildSynthesisPromptCoreFirst }),
+      ),
+    )
+    settled.forEach((r, idx) => {
+      const model = models[idx]
+      if (r.status === "fulfilled") {
+        lines.push(renderArm(`モデル: ${model}`, r.value))
+        lines.push("---", "")
+        summary.push({ cluster: i + 1, model, ok: true })
+      } else {
+        const msg = r.reason instanceof Error ? r.reason.message : String(r.reason)
+        lines.push(`#### モデル: ${model}`, `> ⚠️ 合成失敗: ${msg}`, "", "---", "")
+        summary.push({ cluster: i + 1, model, ok: false, error: msg })
+      }
+    })
+    lines.push("\n===\n")
+  }
+
+  mkdirSync(EXP_DIR, { recursive: true })
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-")
+  const outPath = resolve(EXP_DIR, `model-results-${stamp}.md`)
+  writeFileSync(outPath, lines.join("\n"), "utf8")
+
+  return NextResponse.json({ ok: true, mode: "models", models, path: outPath, summary })
+}
+
 export async function GET(request: Request) {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json({ ok: false, error: "disabled in production" }, { status: 403 })
@@ -173,8 +243,12 @@ export async function GET(request: Request) {
   try {
     if (mode === "freeze") return await handleFreeze(n)
     if (mode === "run") return await handleRun()
+    if (mode === "models") {
+      const models = url.searchParams.get("models") ?? "gpt-5-mini,gpt-5.4,claude-sonnet-4-6"
+      return await handleModels(models)
+    }
     return NextResponse.json(
-      { ok: false, error: "mode は freeze か run を指定してください" },
+      { ok: false, error: "mode は freeze / run / models を指定してください" },
       { status: 400 },
     )
   } catch (error) {
