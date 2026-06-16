@@ -21,3 +21,7 @@ CLAUDE.md
 .claude
 .rocketride/
 .github
+
+# Experiment artifacts (generated, contains scraped source bodies)
+scripts/experiments/frozen-clusters.json
+scripts/experiments/ab-results-*.md
