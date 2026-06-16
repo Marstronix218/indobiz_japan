@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk"
-import { SYNTHESIS_SYSTEM_PROMPT, buildSynthesisPrompt } from "./prompt"
+import { SYNTHESIS_SYSTEM_PROMPT, getDefaultSynthesisPromptBuilder } from "./prompt"
 import {
   buildQualityCheckPrompt,
   buildRevisionPrompt,
@@ -14,6 +14,7 @@ import {
   type ReviseSynthesisInput,
   type SynthesisInput,
   type SynthesisOutput,
+  type SynthesizeOptions,
 } from "./types"
 import { isRetryableLLMError, sleep } from "./retry"
 
@@ -36,8 +37,8 @@ export class AnthropicClient implements LLMClient {
     this.maxRetries = opts?.maxRetries ?? Number(process.env.LLM_MAX_RETRIES ?? 3)
   }
 
-  async synthesize(input: SynthesisInput): Promise<SynthesisOutput> {
-    const { system, user } = buildSynthesisPrompt(input)
+  async synthesize(input: SynthesisInput, opts?: SynthesizeOptions): Promise<SynthesisOutput> {
+    const { system, user } = (opts?.promptBuilder ?? getDefaultSynthesisPromptBuilder())(input)
     const raw = await this.callMessage(system, user, "synthesize")
     return parseSynthesisOutput(raw, input)
   }

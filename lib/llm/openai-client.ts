@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { SYNTHESIS_SYSTEM_PROMPT, buildSynthesisPrompt } from "./prompt"
+import { SYNTHESIS_SYSTEM_PROMPT, getDefaultSynthesisPromptBuilder } from "./prompt"
 import {
   buildQualityCheckPrompt,
   buildRevisionPrompt,
@@ -14,6 +14,7 @@ import {
   type ReviseSynthesisInput,
   type SynthesisInput,
   type SynthesisOutput,
+  type SynthesizeOptions,
 } from "./types"
 import { isRetryableLLMError, sleep } from "./retry"
 
@@ -36,11 +37,8 @@ export class OpenAIClient implements LLMClient {
     this.maxRetries = opts?.maxRetries ?? Number(process.env.LLM_MAX_RETRIES ?? 3)
   }
 
-  async synthesize(
-    input: SynthesisInput,
-    opts?: { promptBuilder?: (i: SynthesisInput) => { system: string; user: string } },
-  ): Promise<SynthesisOutput> {
-    const { system, user } = (opts?.promptBuilder ?? buildSynthesisPrompt)(input)
+  async synthesize(input: SynthesisInput, opts?: SynthesizeOptions): Promise<SynthesisOutput> {
+    const { system, user } = (opts?.promptBuilder ?? getDefaultSynthesisPromptBuilder())(input)
     const raw = await this.callChat(system, user, "synthesize")
     return parseSynthesisOutput(raw, input)
   }

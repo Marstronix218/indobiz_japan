@@ -31,11 +31,14 @@ function clusterRecency(cluster: RawSourceArticle[]): number {
   return Math.max(...cluster.map((a) => Date.parse(a.publishedAt) || 0))
 }
 
+// 本番の MAX_CLUSTER_SIZE (lib/automation.ts) に合わせる。
+const MAX_CLUSTER_SIZE = 5
+
 function toSynthesisInput(cluster: RawSourceArticle[]): SynthesisInput {
-  // 本文が最も充実した1本を核として先頭に並べる(両アーム共通の入力)。
-  const ordered = [...cluster].sort(
-    (a, b) => (b.bodyText?.length ?? 0) - (a.bodyText?.length ?? 0),
-  )
+  // 本文が最も充実した1本を核として先頭に並べ、本番同様に上限5ソースへ絞る。
+  const ordered = [...cluster]
+    .sort((a, b) => (b.bodyText?.length ?? 0) - (a.bodyText?.length ?? 0))
+    .slice(0, MAX_CLUSTER_SIZE)
   return {
     cluster: ordered.map((a) => ({
       source: a.source,

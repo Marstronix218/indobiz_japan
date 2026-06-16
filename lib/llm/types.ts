@@ -60,8 +60,13 @@ export interface ReviseSynthesisInput {
   industryHints?: string[]
 }
 
+export interface SynthesizeOptions {
+  // プロンプトビルダーの明示的 override(実験用 A/B 等)。未指定なら環境フラグで既定を選ぶ。
+  promptBuilder?: (input: SynthesisInput) => { system: string; user: string }
+}
+
 export interface LLMClient {
-  synthesize(input: SynthesisInput): Promise<SynthesisOutput>
+  synthesize(input: SynthesisInput, opts?: SynthesizeOptions): Promise<SynthesisOutput>
   checkQuality(input: QualityCheckInput): Promise<QualityCheckOutput>
   reviseSynthesis(input: ReviseSynthesisInput): Promise<SynthesisOutput>
 }

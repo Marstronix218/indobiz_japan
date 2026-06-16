@@ -151,3 +151,14 @@ export function buildSynthesisPromptCoreFirst(input: SynthesisInput) {
     user: buildUserPromptCoreFirst(input),
   }
 }
+
+// 主軸＋肉付け方式を本番経路で使うかどうかのフラグ。
+// 未設定なら現行(フラット統合)と完全に同一の挙動を保つ(QUALITY_CHECK_ENABLED と同じ安全ロールアウト方針)。
+export function isCoreFirstSynthesisEnabled(): boolean {
+  return process.env.CORE_FIRST_SYNTHESIS === "1"
+}
+
+// 既定の合成プロンプトビルダー(フラグに応じて切替)。明示的な override があればそれを優先する。
+export function getDefaultSynthesisPromptBuilder() {
+  return isCoreFirstSynthesisEnabled() ? buildSynthesisPromptCoreFirst : buildSynthesisPrompt
+}

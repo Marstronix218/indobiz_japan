@@ -25,6 +25,7 @@ import {
   type ImageClient,
 } from "@/lib/image-gen"
 import { fetchSimilarArticles } from "@/lib/scrapers/fetch-india-news"
+import { isCoreFirstSynthesisEnabled } from "@/lib/llm/prompt"
 
 export type ConnectorMode = "rss" | "api"
 
@@ -179,7 +180,12 @@ function toProvenance(article: RawSourceArticle): SourceProvenance {
   }
 }
 
+// 主軸＋肉付け方式が有効なときは「本文が最も充実した1本」を核(=primary)に選ぶ。
+// 無効なら従来どおり connectorId のアルファベット順(挙動互換のため)。
 function pickPrimary(cluster: RawSourceArticle[]): RawSourceArticle {
+  if (isCoreFirstSynthesisEnabled()) {
+    return [...cluster].sort((a, b) => (b.bodyText?.length ?? 0) - (a.bodyText?.length ?? 0))[0]
+  }
   return [...cluster].sort((a, b) => a.connectorId.localeCompare(b.connectorId))[0]
 }
 
@@ -462,7 +468,11 @@ async function buildDraft(
   }
 
   try {
-    const synthInput: SynthesisSource[] = cluster.map((a) => ({
+    // 主軸＋肉付け方式では核(本文最長=primary)を先頭に並べ、プロンプトの「資料1=核」前提と一致させる。
+    const orderedCluster = isCoreFirstSynthesisEnabled()
+      ? [...cluster].sort((a, b) => (b.bodyText?.length ?? 0) - (a.bodyText?.length ?? 0))
+      : cluster
+    const synthInput: SynthesisSource[] = orderedCluster.map((a) => ({
       source: a.source,
       sourceUrl: a.url,
       publishedAt: a.publishedAt,
