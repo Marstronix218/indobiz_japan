@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk"
-import { SYNTHESIS_SYSTEM_PROMPT, buildSynthesisPrompt } from "./prompt"
+import { SYNTHESIS_SYSTEM_PROMPT, getDefaultSynthesisPromptBuilder } from "./prompt"
 import {
   buildQualityCheckPrompt,
   buildRevisionPrompt,
@@ -14,6 +14,7 @@ import {
   type ReviseSynthesisInput,
   type SynthesisInput,
   type SynthesisOutput,
+  type SynthesizeOptions,
 } from "./types"
 import { isRetryableLLMError, sleep } from "./retry"
 
@@ -36,8 +37,8 @@ export class AnthropicClient implements LLMClient {
     this.maxRetries = opts?.maxRetries ?? Number(process.env.LLM_MAX_RETRIES ?? 3)
   }
 
-  async synthesize(input: SynthesisInput): Promise<SynthesisOutput> {
-    const { system, user } = buildSynthesisPrompt(input)
+  async synthesize(input: SynthesisInput, opts?: SynthesizeOptions): Promise<SynthesisOutput> {
+    const { system, user } = (opts?.promptBuilder ?? getDefaultSynthesisPromptBuilder())(input)
     const raw = await this.callMessage(system, user, "synthesize")
     return parseSynthesisOutput(raw, input)
   }
@@ -63,15 +64,32 @@ export class AnthropicClient implements LLMClient {
     let lastError: unknown
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
+        // システムプロンプト(巨大かつ1回の実行で全クラスタ共通)をプレフィックスキャッシュする。
+        // 2回目以降の合成は入力分が約1割のキャッシュ読み取り価格になる。API的にはGA(betaヘッダ不要)
+        // だが、当リポジトリの @anthropic-ai/sdk(0.30.x)の型は cache_control を含まないため
+        // 型キャストで付与する(ランタイムではbodyがそのまま送信される)。
+        const cachedSystem = [
+          { type: "text", text: system, cache_control: { type: "ephemeral" } },
+        ] as unknown as string
         const response = await this.client.messages.create(
           {
             model: this.model,
             max_tokens: this.maxTokens,
-            system,
+            system: cachedSystem,
             messages: [{ role: "user", content: user }],
           },
           { timeout: this.timeoutMs },
         )
+
+        const u = response.usage as typeof response.usage & {
+          cache_read_input_tokens?: number | null
+          cache_creation_input_tokens?: number | null
+        }
+        if (u && ((u.cache_read_input_tokens ?? 0) > 0 || (u.cache_creation_input_tokens ?? 0) > 0)) {
+          console.log(
+            `[anthropic:${label}] cache read=${u.cache_read_input_tokens ?? 0} write=${u.cache_creation_input_tokens ?? 0} input=${u.input_tokens} output=${u.output_tokens}`,
+          )
+        }
 
         const textBlock = response.content.find((block) => block.type === "text")
         if (!textBlock || textBlock.type !== "text") {

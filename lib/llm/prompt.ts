@@ -98,3 +98,67 @@ export function buildSynthesisPrompt(input: SynthesisInput) {
     user: buildUserPrompt(input),
   }
 }
+
+// === 実験: 「主軸記事(核)＋肉付け」方式 ===
+// 既存の不可侵ルール(SYNTHESIS_SYSTEM_PROMPT)を全て維持したうえで、
+// 「1本の主軸記事を背骨とし、残りは肉付け・裏取り専用に使う」という執筆方式を上乗せする。
+// 入力クラスタの先頭(cluster[0])を主軸として扱う前提。出力JSONスキーマは現行と完全同一。
+const CORE_FIRST_ADDENDUM = `
+
+【今回の執筆方式 — 主軸記事(核)＋肉付け】
+1. 参考資料1を「主軸記事(核)」として扱ってください。記事の骨格 — 何が起きたか・主要な事実・出来事の流れ — は主軸記事から取ります。
+2. 参考資料2以降は「肉付け／裏取り」専用です。用途は次の3つに限定してください:(a)主軸に無い補足事実の追加、(b)主軸の数値・固有名詞・日付の照合(裏取り)、(c)独自の切り口・背景・見通しを補強する材料。主軸と論理的に結びつかない「別の出来事」は絶対に混ぜないでください(同じ企業名・人名を共有していても別件なら除外)。
+3. 【著作権の歯止め — 厳守】主軸が1本でも、その記事の翻訳・要約に堕してはいけません。文章表現・段落構成・見出しの取り方・分析は完全にあなた自身の言葉で再構成してください。可能な限り肉付けソースで事実を照合し、複数ソースの事実を組み合わせた独自記事として書き起こしてください。主軸原文と5語以上連続して一致する英語フレーズの直訳は引き続き禁止です。
+4. 上記の【編集方針】【記事文体】【インド関連性の判定】【日本企業関心度の判定】【出力形式】はすべてそのまま適用されます。本方式はそれらに優先せず、ソースの「使い方」だけを規定します。`
+
+export const SYNTHESIS_SYSTEM_PROMPT_CORE_FIRST =
+  SYNTHESIS_SYSTEM_PROMPT + CORE_FIRST_ADDENDUM
+
+function buildUserPromptCoreFirst(input: SynthesisInput): string {
+  const { cluster, categoryHint, industryHints } = input
+  const n = cluster.length
+
+  const sourcesBlock = cluster
+    .map((s, i) => {
+      const body = s.bodyText.length > BODY_TRUNCATE_CHARS
+        ? s.bodyText.slice(0, BODY_TRUNCATE_CHARS)
+        : s.bodyText
+      const role = i === 0 ? "主軸(核) — 記事の背骨" : "肉付け／裏取り用"
+      return `--- 参考資料 ${i + 1} 【${role}】 ---
+公開日: ${s.publishedAt}
+原文URL: ${s.sourceUrl}
+原文タイトル: ${s.title}
+
+本文(事実抽出用):
+${body}`
+    })
+    .join("\n\n")
+
+  return `以下の${n}件の参考資料(英語ソース記事)のうち、参考資料1が「主軸記事(核)」です。記事の骨格は主軸から取り、参考資料2以降は補足事実の追加・裏取り・独自の切り口づくりにのみ使ってください。主軸と論理的に結びつかない別の出来事は混ぜないでください。事実のみを抽出し、自分の言葉で独自の日本語記事として書き下ろしてください。記事本文にはソース名・「〜によると」といった引用表現・「（参考リンク1）」「（参考資料2）」のような番号付き引用マーカーを一切含めないでください。なお、ソースで特定できる企業名・人名・製品名などの固有名詞は事実として本文に具体的に明記し、「国内最大手」「大手企業」のような一般名詞でぼかさないでください。
+
+${sourcesBlock}
+
+カテゴリヒント: ${categoryHint ?? "未指定"}
+業界ヒント: ${industryHints && industryHints.length > 0 ? industryHints.join(", ") : "未指定"}
+
+referenceUrls には参考にした上記資料の原文タイトルとURLをそのまま列挙してください(本文への引用ではなく、記事末尾の参考リンク用です)。
+システム指示に従い、JSONのみを返してください。`
+}
+
+export function buildSynthesisPromptCoreFirst(input: SynthesisInput) {
+  return {
+    system: SYNTHESIS_SYSTEM_PROMPT_CORE_FIRST,
+    user: buildUserPromptCoreFirst(input),
+  }
+}
+
+// 主軸＋肉付け方式を本番経路で使うかどうかのフラグ。
+// 未設定なら現行(フラット統合)と完全に同一の挙動を保つ(QUALITY_CHECK_ENABLED と同じ安全ロールアウト方針)。
+export function isCoreFirstSynthesisEnabled(): boolean {
+  return process.env.CORE_FIRST_SYNTHESIS === "1"
+}
+
+// 既定の合成プロンプトビルダー(フラグに応じて切替)。明示的な override があればそれを優先する。
+export function getDefaultSynthesisPromptBuilder() {
+  return isCoreFirstSynthesisEnabled() ? buildSynthesisPromptCoreFirst : buildSynthesisPrompt
+}

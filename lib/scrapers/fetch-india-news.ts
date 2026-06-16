@@ -313,18 +313,29 @@ const CONNECTORS: Connector[] = [
 
 function stripHtml(value: string): string {
   return value
-    .replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/https?:\/\/\S+/g, " ")
+    // RSS本文は XMLParser の processEntities:false によりエンティティ符号化された
+    // まま渡される(&lt;a&gt; など)。タグ除去より先に復号しないと、復号後に生タグが
+    // 残ってしまう(クラスタリングの font/href 等のゴミキーワード化の原因だった)。
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, " ")
+    // 復号後にタグを除去する。
+    .replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/https?:\/\/\S+/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim()
+}
+
+// stripHtml 後に残った本文が短すぎる(例: Google News の説明文は <a>見出し</a> <font>媒体名</font>
+// で、タグ除去後は媒体名だけが残る)場合は、本文より情報量のある見出しにフォールバックする。
+const MIN_BODY_CHARS = 40
+function pickBody(strippedBody: string, title: string): string {
+  return strippedBody.length >= MIN_BODY_CHARS ? strippedBody : title
 }
 
 function buildEvidenceSnippets(text: string, maxItems = 3): string[] {
@@ -504,7 +515,7 @@ async function parseRss(
       title,
       url: canonical,
       publishedAt,
-      bodyText: body || title,
+      bodyText: pickBody(body, title),
       imageUrl: undefined,
       originalTitle: title,
       originalPublishedAt: publishedAt,
@@ -597,7 +608,7 @@ async function fetchGNews(limit: number): Promise<{
       title,
       url: canonical,
       publishedAt,
-      bodyText: body || title,
+      bodyText: pickBody(body, title),
       imageUrl: row.image || undefined,
       originalTitle: title,
       originalPublishedAt: publishedAt,
