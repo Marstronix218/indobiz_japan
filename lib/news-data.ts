@@ -73,6 +73,8 @@ export interface NewsArticle {
   source: string
   sourceUrl?: string
   publishedAt: string
+  /** DB row creation time (ISO) — when the pipeline generated/persisted this article. Admin display only; absent for in-memory seed data. */
+  createdAt?: string
   category: Category
   industryTags: IndustryTag[]
   topics?: Topic[]

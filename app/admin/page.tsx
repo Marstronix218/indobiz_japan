@@ -38,6 +38,7 @@ import { useArticles } from "@/lib/article-store"
 import {
   CATEGORY_LABELS,
   CATEGORY_OPTIONS,
+  formatJstDate,
   formatJstDateTime,
   getAllSources,
   INDUSTRY_LABELS,
@@ -627,8 +628,13 @@ function AdminArticleCard({
             </Badge>
           )}
           <Badge variant="outline">{CATEGORY_LABELS[article.category]}</Badge>
+          {article.createdAt && (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              生成 {formatJstDateTime(article.createdAt)}
+            </span>
+          )}
           <span className="text-xs text-muted-foreground tabular-nums">
-            {formatJstDateTime(article.publishedAt)}
+            原文 {formatJstDate(article.publishedAt)}
           </span>
         </div>
 

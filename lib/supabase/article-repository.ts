@@ -35,6 +35,7 @@ interface ArticleRow {
   quality_notes: string | null
   revision_count: number | null
   last_quality_check_at: string | null
+  created_at: string | null
   article_sources?: SourceRow[] | null
 }
 
@@ -58,6 +59,7 @@ const ARTICLE_SELECT = `
   implications, content_type, visibility, workflow_status,
   image_url, featured, is_synthesized, dedupe_key,
   quality_verdict, quality_notes, revision_count, last_quality_check_at,
+  created_at,
   article_sources (
     article_id, source_name, original_title, original_url, canonical_url,
     original_published_at, fetched_at, extracted_by, source_language,
@@ -106,6 +108,7 @@ function rowToArticle(row: ArticleRow): NewsArticle {
     source: row.source,
     sourceUrl: row.source_url ?? undefined,
     publishedAt: row.published_at,
+    createdAt: row.created_at ?? undefined,
     category: row.category as Category,
     industryTags: (row.industry_tags ?? []) as IndustryTag[],
     implications: row.implications ?? [],
