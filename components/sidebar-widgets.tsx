@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Feather } from "lucide-react"
 import {
   articleDisplayDate,
   formatArticleShortDate,
@@ -654,6 +654,65 @@ export function CollabHighlightWidget({
                 <div className="min-w-0">
                   <p className="line-clamp-3 text-xs font-semibold leading-snug group-hover:text-accent">
                     {article.title}
+                  </p>
+                  <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                    {formatArticleShortDate(articleDisplayDate(article))}
+                  </p>
+                </div>
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+export function EditorialColumnWidget() {
+  const articles = usePublicArticles()
+  const columns = [...articles]
+    .filter((article) => article.category === "column")
+    .sort(
+      (left, right) =>
+        new Date(articleDisplayDate(right)).getTime() -
+        new Date(articleDisplayDate(left)).getTime(),
+    )
+    .slice(0, 3)
+
+  if (columns.length === 0) return null
+
+  return (
+    <div className="rounded-md border border-border bg-card p-5">
+      <RailHead
+        label="編集部コラム"
+        en="EDITORIAL"
+        icon={<Feather className="size-4" />}
+      />
+      <ul className="space-y-4">
+        {columns.map((article) => {
+          const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
+          return (
+            <li key={article.id}>
+              <Link href={`/article/${article.id}`} className="group flex gap-3">
+                <div className="relative size-16 shrink-0 overflow-hidden rounded bg-muted">
+                  {imageSrc ? (
+                    <Image
+                      src={imageSrc}
+                      alt={article.title}
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 ph-stripe" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="line-clamp-2 text-xs font-semibold leading-snug group-hover:text-accent">
+                    {article.title}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+                    {article.summary}
                   </p>
                   <p className="mt-1 font-mono text-[10px] text-muted-foreground">
                     {formatArticleShortDate(articleDisplayDate(article))}

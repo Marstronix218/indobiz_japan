@@ -8,6 +8,7 @@ import { TopicCarousel } from "@/components/topic-carousel"
 import { TopicHeader } from "@/components/topic-header"
 import { MarketTicker } from "@/components/market-ticker"
 import {
+  EditorialColumnWidget,
   TrendingWidget,
   MarketIndicatorWidget,
   CitySpotlightWidget,
@@ -233,6 +234,7 @@ export function NewsList() {
               </div>
 
               <aside className="space-y-5 self-start lg:col-span-1 lg:sticky lg:top-4">
+                <EditorialColumnWidget />
                 <TrendingWidget />
                 <MarketIndicatorWidget />
                 <CitySpotlightWidget />

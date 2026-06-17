@@ -269,7 +269,7 @@ export function ArticleFormDialog({
       category: form.category,
       industryTags: form.industryTags,
       implications,
-      contentType: "news",
+      contentType: form.category === "column" ? "column" : "news",
       visibility,
       workflowStatus: form.workflowStatus,
       imageUrl: form.imageUrl.trim() || undefined,
@@ -349,6 +349,11 @@ export function ArticleFormDialog({
               placeholder="記事の本文を入力"
               className="min-h-44"
             />
+            {form.category === "column" && (
+              <p className="text-xs text-muted-foreground">
+                段落は空行で区切れます。文字数の自動補完は行われません。
+              </p>
+            )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

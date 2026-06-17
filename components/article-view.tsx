@@ -47,7 +47,11 @@ export function ArticleView({
   const relatedArticles = articles
     .filter((item) => item.category === article.category && item.id !== article.id)
     .slice(0, 3)
-  const detailedSummary = ensureMinimumSummaryLength(article.summary, 500)
+  const isEditorial =
+    article.contentType !== "news" || article.category === "column"
+  const detailedSummary = isEditorial
+    ? article.summary.trim()
+    : ensureMinimumSummaryLength(article.summary, 500)
   const summaryParagraphs = formatSummaryParagraphs(detailedSummary)
   const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
   const allSources = getAllSources(article)
