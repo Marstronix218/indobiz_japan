@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { Sparkles } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -113,7 +114,40 @@ export function ArticleFormDialog({
   const [form, setForm] = useState<ArticleFormState>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [generatingImage, setGeneratingImage] = useState(false)
   const isEditing = editingId !== null
+
+  async function handleGenerateImage() {
+    if (generatingImage || uploadingImage) return
+    if (!form.title.trim()) {
+      toast.error("画像生成にはタイトルが必要です。")
+      return
+    }
+    setGeneratingImage(true)
+    try {
+      const response = await fetch("/api/admin/generate-image", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title, summary: form.summary }),
+      })
+      const data = (await response.json()) as {
+        ok?: boolean
+        url?: string
+        error?: string
+      }
+      if (!response.ok || !data.ok || !data.url) {
+        throw new Error(data.error ?? `HTTP ${response.status}`)
+      }
+      setForm((current) => ({ ...current, imageUrl: data.url ?? "" }))
+      toast.success("画像を生成しました。「更新する」で保存されます。")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "不明なエラー"
+      toast.error(`画像生成失敗: ${message}`)
+    } finally {
+      setGeneratingImage(false)
+    }
+  }
 
   async function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -480,7 +514,7 @@ export function ArticleFormDialog({
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   onChange={handleImageUpload}
-                  disabled={uploadingImage}
+                  disabled={uploadingImage || generatingImage}
                   className="cursor-pointer text-xs file:mr-3 file:cursor-pointer"
                 />
                 {uploadingImage && (
@@ -488,6 +522,25 @@ export function ArticleFormDialog({
                     アップロード中…
                   </span>
                 )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateImage}
+                  disabled={generatingImage || uploadingImage}
+                >
+                  <Sparkles className="size-4" />
+                  {generatingImage
+                    ? "生成中…"
+                    : form.imageUrl
+                      ? "画像を再生成"
+                      : "画像を生成"}
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  タイトル・要約からAI画像を生成します（「更新する」で保存）。
+                </span>
               </div>
               {form.imageUrl && !uploadingImage && (
                 // eslint-disable-next-line @next/next/no-img-element

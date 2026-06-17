@@ -24,6 +24,7 @@ import {
   getImageClient,
   type ImageClient,
 } from "@/lib/image-gen"
+import { buildSafeImagePrompt } from "@/lib/image-gen/safe-prompt"
 import { fetchSimilarArticles } from "@/lib/scrapers/fetch-india-news"
 import { isCoreFirstSynthesisEnabled } from "@/lib/llm/prompt"
 
@@ -548,19 +549,6 @@ async function tryGenerateImage(
     console.error(`[automation] 画像生成失敗 (prompt="${positive.slice(0, 80)}"): ${msg}`)
     return null
   }
-}
-
-function buildSafeImagePrompt(prompt: string, fallbackTitle: string): string {
-  const base = (prompt && prompt.trim().length > 0) ? prompt.trim() : fallbackTitle.trim()
-  if (!base) return ""
-
-  return [
-    base,
-    "Prefer bright daylight, bright indoor light, or high-key natural editorial lighting with balanced exposure and a clear bright atmosphere.",
-    "Avoid dark, moody, dim, night, dawn, low-key lighting, heavy shadows, gloomy scenes, and muted dark tones.",
-    "Use only generic, anonymous editorial imagery.",
-    "No company logos, brand names, trademarks, product branding, readable signage, identifiable buildings, named public figures, executives, politicians, celebrities, or recognizable real people.",
-  ].join(" ")
 }
 
 function urlKey(a: RawSourceArticle): string {
