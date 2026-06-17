@@ -91,23 +91,36 @@ export async function getOpenAiCosts(days = 30): Promise<BillingSummary> {
 interface AnthropicCostResponse {
   data?: {
     starting_at: string
-    results?: { amount?: string | number }[]
+    // `workspace_id` is only populated when grouping by workspace; it is `null`
+    // for the organization's default workspace.
+    results?: { amount?: string | number; workspace_id?: string | null }[]
   }[]
 }
 
 /**
  * Anthropic organization cost report — `GET /v1/organizations/cost_report`, which
  * returns 1-day buckets with `amount` as a decimal string.
+ *
+ * When `ANTHROPIC_WORKSPACE_ID` is set, the report is grouped by workspace and
+ * narrowed to that single workspace (e.g. the IndoBiz workspace) so the dashboard
+ * shows just this app's spend instead of the whole organization. The cost report
+ * has no direct workspace filter, so we request `group_by[]=workspace_id` and keep
+ * only the matching rows. Unset → org-wide total, byte-identical to before.
  */
 export async function getAnthropicCosts(days = 30): Promise<BillingSummary> {
   const key = process.env.ANTHROPIC_ADMIN_KEY
   if (!key) return { configured: false }
+
+  const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID?.trim() || undefined
 
   try {
     const start = windowStart(days)
     const url = new URL("https://api.anthropic.com/v1/organizations/cost_report")
     url.searchParams.set("starting_at", start.toISOString())
     url.searchParams.set("limit", String(days + 1))
+    // Grouping multiplies result rows *within* each daily bucket, not the number
+    // of buckets, so `limit` still covers the window.
+    if (workspaceId) url.searchParams.append("group_by[]", "workspace_id")
 
     const res = await fetch(url, {
       headers: {
@@ -126,10 +139,9 @@ export async function getAnthropicCosts(days = 30): Promise<BillingSummary> {
     const json = (await res.json()) as AnthropicCostResponse
     const daily = (json.data ?? []).map((bucket) => ({
       date: (bucket.starting_at ?? "").slice(0, 10),
-      usd: (bucket.results ?? []).reduce(
-        (sum, r) => sum + toNumber(r.amount),
-        0,
-      ),
+      usd: (bucket.results ?? [])
+        .filter((r) => !workspaceId || r.workspace_id === workspaceId)
+        .reduce((sum, r) => sum + toNumber(r.amount), 0),
     }))
     const totalUsd = daily.reduce((sum, d) => sum + d.usd, 0)
     return { configured: true, totalUsd, daily, days }
