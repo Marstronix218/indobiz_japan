@@ -405,6 +405,15 @@ export function formatArticleShortDate(date: string) {
   return `${parts.month}/${parts.day}`
 }
 
+/**
+ * Date used for reader-facing display and feed recency ranking: the pipeline's
+ * generation time (`createdAt`) when known, falling back to the source article's
+ * publish date (`publishedAt`) for in-memory seed data that has no `createdAt`.
+ */
+export function articleDisplayDate(article: NewsArticle): string {
+  return article.createdAt ?? article.publishedAt
+}
+
 export function formatJstDateTime(value: string | undefined | null): string {
   if (!value) return ""
   const d = new Date(value)
@@ -443,7 +452,7 @@ export function computePopularityScore(
   article: NewsArticle,
   now: number = Date.now(),
 ): number {
-  let score = recencyScore(article.publishedAt, now)
+  let score = recencyScore(articleDisplayDate(article), now)
 
   const sources = getAllSources(article)
   if (sources.length >= 2) score += 30

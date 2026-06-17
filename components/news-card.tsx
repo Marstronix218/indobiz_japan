@@ -3,6 +3,7 @@ import Image from "next/image"
 import {
   CATEGORY_LABELS,
   INDUSTRY_LABELS,
+  articleDisplayDate,
   deriveImageTone,
   formatArticleDate,
   formatArticleShortDate,
@@ -106,7 +107,7 @@ export function NewsCardHero({
       )}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/75 via-black/25 to-transparent p-6">
         <p className="font-mono text-xs text-white/80">
-          {formatArticleDate(article.publishedAt)}
+          {formatArticleDate(articleDisplayDate(article))}
         </p>
         <h2 className="mt-2 text-balance font-serif text-2xl font-bold leading-[1.25] text-white md:text-[28px]">
           {article.title}
@@ -161,7 +162,7 @@ export function NewsCardMosaic({
       )}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-3">
         <p className="font-mono text-[10px] text-white/80">
-          {formatArticleShortDate(article.publishedAt)}
+          {formatArticleShortDate(articleDisplayDate(article))}
         </p>
         <h3 className="mt-1 line-clamp-3 text-[15px] font-semibold leading-snug text-white md:text-base">
           {article.title}
@@ -199,7 +200,7 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
       </div>
       <div className="pointer-events-none pt-3">
         <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
-          {formatArticleDate(article.publishedAt)}
+          {formatArticleDate(articleDisplayDate(article))}
         </p>
         <h3 className="mt-1.5 line-clamp-3 font-serif text-[17px] font-bold leading-snug text-foreground transition-colors group-hover:text-accent">
           {article.title}
@@ -259,7 +260,7 @@ export function NewsCardFeature({ article }: { article: NewsArticle }) {
       </div>
       <div className="pointer-events-none pt-4">
         <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
-          {formatArticleDate(article.publishedAt)}
+          {formatArticleDate(articleDisplayDate(article))}
         </p>
         <h3 className="mt-2 text-balance font-serif text-2xl font-bold leading-snug transition-colors group-hover:text-accent">
           {article.title}

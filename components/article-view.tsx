@@ -13,6 +13,7 @@ import {
   CATEGORY_LABELS,
   INDUSTRY_LABELS,
   MARKET_METRIC_ORDER,
+  articleDisplayDate,
   formatJstDateTime,
   getAllSources,
 } from "@/lib/news-data"
@@ -86,7 +87,7 @@ export function ArticleView({
                   {article.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground">
-                  <span>{formatJstDateTime(article.publishedAt)}</span>
+                  <span>{formatJstDateTime(articleDisplayDate(article))}</span>
                 </div>
               </div>
             </div>

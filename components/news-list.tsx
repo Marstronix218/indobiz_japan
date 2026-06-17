@@ -22,6 +22,7 @@ import {
   CATEGORY_SECTIONS,
   INDUSTRY_LABELS,
   INDUSTRY_OPTIONS,
+  articleDisplayDate,
   computePopularityScore,
   type Category,
   type IndustryTag,
@@ -86,8 +87,8 @@ export function NewsList() {
           computePopularityScore(right, now) - computePopularityScore(left, now)
         if (diff !== 0) return diff
         return (
-          new Date(right.publishedAt).getTime() -
-          new Date(left.publishedAt).getTime()
+          new Date(articleDisplayDate(right)).getTime() -
+          new Date(articleDisplayDate(left)).getTime()
         )
       })
   }, [

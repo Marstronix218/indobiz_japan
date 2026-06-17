@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import {
+  articleDisplayDate,
   formatArticleShortDate,
   type ImagePlaceholderTone,
   type NewsArticle,
@@ -70,7 +71,7 @@ export function TrendingWidget() {
                 {article.title}
               </Link>
               <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                {formatArticleShortDate(article.publishedAt)}
+                {formatArticleShortDate(articleDisplayDate(article))}
               </p>
             </div>
           </li>
@@ -655,7 +656,7 @@ export function CollabHighlightWidget({
                     {article.title}
                   </p>
                   <p className="mt-1 font-mono text-[10px] text-muted-foreground">
-                    {formatArticleShortDate(article.publishedAt)}
+                    {formatArticleShortDate(articleDisplayDate(article))}
                   </p>
                 </div>
               </Link>

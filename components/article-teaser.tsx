@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import {
   CATEGORY_COLORS,
   CATEGORY_LABELS,
+  articleDisplayDate,
   formatArticleDate,
   type NewsArticle,
 } from "@/lib/news-data"
@@ -56,7 +57,7 @@ export function ArticleTeaser({
               {article.title}
             </h1>
             <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground">
-              <span>{formatArticleDate(article.publishedAt)}</span>
+              <span>{formatArticleDate(articleDisplayDate(article))}</span>
             </div>
           </div>
 
