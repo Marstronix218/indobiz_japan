@@ -90,28 +90,6 @@ export interface ClusterOptions {
   keywordsPerArticle: number
 }
 
-class UnionFind {
-  private readonly parent: number[]
-  constructor(size: number) {
-    this.parent = Array.from({ length: size }, (_, i) => i)
-  }
-  find(x: number): number {
-    let root = x
-    while (this.parent[root] !== root) root = this.parent[root]
-    while (this.parent[x] !== root) {
-      const next = this.parent[x]
-      this.parent[x] = root
-      x = next
-    }
-    return root
-  }
-  union(a: number, b: number) {
-    const ra = this.find(a)
-    const rb = this.find(b)
-    if (ra !== rb) this.parent[ra] = rb
-  }
-}
-
 function parsePublishedAt(value: string): number {
   const ts = Date.parse(value)
   if (!Number.isNaN(ts)) return ts
@@ -127,40 +105,82 @@ export function clusterArticles(
 
   const { minSharedKeywords, windowHours, keywordsPerArticle } = opts
   const windowMs = windowHours * 60 * 60 * 1000
+  const n = raws.length
 
   const indexed = raws.map((article) => ({
-    article,
-    keywords: new Set(extractKeywords(article.title, article.bodyText ?? "", keywordsPerArticle)),
+    keywords: new Set(
+      extractKeywords(article.title, article.bodyText ?? "", keywordsPerArticle),
+    ),
     publishedMs: parsePublishedAt(article.publishedAt),
   }))
 
-  const uf = new UnionFind(raws.length)
-
-  for (let i = 0; i < indexed.length; i++) {
-    for (let j = i + 1; j < indexed.length; j++) {
-      const timeOk = Math.abs(indexed[i].publishedMs - indexed[j].publishedMs) <= windowMs
-      if (!timeOk) continue
-
+  // Pairwise eligibility (time window + shared-keyword threshold) and the full
+  // shared-keyword count (needed as the complete-linkage strength / tie-break).
+  const eligible: boolean[][] = Array.from({ length: n }, () =>
+    new Array<boolean>(n).fill(false),
+  )
+  const sharedCount: number[][] = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const timeOk =
+        Math.abs(indexed[i].publishedMs - indexed[j].publishedMs) <= windowMs
       let shared = 0
-      for (const kw of indexed[i].keywords) {
-        if (indexed[j].keywords.has(kw)) {
-          shared++
-          if (shared >= minSharedKeywords) break
+      if (timeOk) {
+        for (const kw of indexed[i].keywords) {
+          if (indexed[j].keywords.has(kw)) shared++
         }
       }
-      if (shared >= minSharedKeywords) uf.union(i, j)
+      eligible[i][j] = eligible[j][i] = timeOk && shared >= minSharedKeywords
+      sharedCount[i][j] = sharedCount[j][i] = shared
     }
   }
 
-  const groups = new Map<number, RawSourceArticle[]>()
-  for (let i = 0; i < raws.length; i++) {
-    const root = uf.find(i)
-    const group = groups.get(root) ?? []
-    group.push(raws[i])
-    groups.set(root, group)
+  // Greedy complete-linkage agglomeration. Each cluster is a clique in which
+  // every member pair is eligible. Two clusters merge only when ALL cross-pairs
+  // are eligible, so a bridge article cannot chain two otherwise-unrelated
+  // groups. Among mergeable pairs, pick the largest weakest-link (min shared
+  // across cross-pairs); break ties by smallest member indices for determinism.
+  let clusters: number[][] = raws.map((_, i) => [i])
+
+  for (;;) {
+    let best: { a: number; b: number; linkage: number } | null = null
+    for (let a = 0; a < clusters.length; a++) {
+      for (let b = a + 1; b < clusters.length; b++) {
+        let mergeable = true
+        let minShared = Infinity
+        for (const ia of clusters[a]) {
+          for (const ib of clusters[b]) {
+            if (!eligible[ia][ib]) {
+              mergeable = false
+              break
+            }
+            if (sharedCount[ia][ib] < minShared) minShared = sharedCount[ia][ib]
+          }
+          if (!mergeable) break
+        }
+        if (!mergeable) continue
+        if (
+          best === null ||
+          minShared > best.linkage ||
+          (minShared === best.linkage &&
+            (clusters[a][0] < clusters[best.a][0] ||
+              (clusters[a][0] === clusters[best.a][0] &&
+                clusters[b][0] < clusters[best.b][0])))
+        ) {
+          best = { a, b, linkage: minShared }
+        }
+      }
+    }
+    if (best === null) break
+    const merged = [...clusters[best.a], ...clusters[best.b]].sort((x, y) => x - y)
+    clusters[best.a] = merged
+    clusters.splice(best.b, 1)
   }
 
-  return [...groups.values()]
+  clusters.sort((c1, c2) => c1[0] - c2[0])
+  return clusters.map((members) => members.map((i) => raws[i]))
 }
 
 export function debugClusterDetails(
