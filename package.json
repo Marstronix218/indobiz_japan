@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "eslint .",
     "scrape:fetch": "python3 scripts/python/fetch_india_news.py --limit 10",
-    "scrape:run": "python3 scripts/python/push_to_pipeline.py --api-url http://localhost:3000/api/scrape/run --limit 10"
+    "scrape:run": "python3 scripts/python/push_to_pipeline.py --api-url http://localhost:3000/api/scrape/run --limit 10",
+    "test:clustering": "node --experimental-strip-types --test lib/clustering.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
