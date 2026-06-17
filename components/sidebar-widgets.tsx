@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Feather } from "lucide-react"
 import {
   articleDisplayDate,
   formatArticleShortDate,
@@ -683,7 +683,11 @@ export function EditorialColumnWidget() {
 
   return (
     <div className="rounded-md border border-border bg-card p-5">
-      <RailHead label="編集部コラム" en="EDITORIAL" icon="📝" />
+      <RailHead
+        label="編集部コラム"
+        en="EDITORIAL"
+        icon={<Feather className="size-4" />}
+      />
       <ul className="space-y-4">
         {columns.map((article) => {
           const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
