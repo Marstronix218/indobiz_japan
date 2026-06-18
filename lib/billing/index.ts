@@ -99,7 +99,10 @@ interface AnthropicCostResponse {
 
 /**
  * Anthropic organization cost report — `GET /v1/organizations/cost_report`, which
- * returns 1-day buckets with `amount` as a decimal string.
+ * returns 1-day buckets with `amount` as a decimal string in USD *cents*
+ * (e.g. "96.75264" = $0.9675), NOT dollars — so we divide by 100 below. This was
+ * verified against the usage_report token counts × per-token pricing: every line
+ * item (input / output / cache write / cache read) matched at exactly 100×.
  *
  * When `ANTHROPIC_WORKSPACE_ID` is set, the report is grouped by workspace and
  * narrowed to that single workspace (e.g. the IndoBiz workspace) so the dashboard
@@ -139,9 +142,11 @@ export async function getAnthropicCosts(days = 30): Promise<BillingSummary> {
     const json = (await res.json()) as AnthropicCostResponse
     const daily = (json.data ?? []).map((bucket) => ({
       date: (bucket.starting_at ?? "").slice(0, 10),
-      usd: (bucket.results ?? [])
-        .filter((r) => !workspaceId || r.workspace_id === workspaceId)
-        .reduce((sum, r) => sum + toNumber(r.amount), 0),
+      // `amount` is in USD cents (see the docstring above) — convert to dollars.
+      usd:
+        (bucket.results ?? [])
+          .filter((r) => !workspaceId || r.workspace_id === workspaceId)
+          .reduce((sum, r) => sum + toNumber(r.amount), 0) / 100,
     }))
     const totalUsd = daily.reduce((sum, d) => sum + d.usd, 0)
     return { configured: true, totalUsd, daily, days }
