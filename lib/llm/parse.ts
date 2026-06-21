@@ -39,7 +39,9 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
   const obj = parsed as Record<string, unknown>
   const title = asString(obj.title)
   const summary = asString(obj.summary)
-  const implications = asStringArray(obj.implications)
+  // 「日本企業への示唆」は最も重要な1件のみ。プロンプトで1件指示しているが、
+  // LLMが複数返すことがあるため、コード側で先頭1件に強制する。
+  const implications = asStringArray(obj.implications).slice(0, 1)
   const industryTags = asStringArray(obj.industryTags ?? [])
   const category = asString(obj.category)
   const referenceUrls = asReferenceUrls(obj.referenceUrls, input)
