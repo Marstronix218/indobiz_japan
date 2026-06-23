@@ -3,9 +3,10 @@ import type {
   ReviseSynthesisInput,
   SynthesisInput,
 } from "./types"
-import { buildUserPrompt } from "./prompt"
+import { getDefaultSynthesisPromptBuilder } from "./prompt"
 
-const SOURCE_BODY_TRUNCATE_CHARS = 1500
+// The checker must see at least the same evidence window as the writer.
+const SOURCE_BODY_TRUNCATE_CHARS = 3000
 
 export const QUALITY_CHECK_SYSTEM_PROMPT = `あなたはインド市場専門の編集チーフです。
 合成された日本語記事と、その元になった参考記事の対応関係を読み、知財・独自性・ニュース価値・文章品質の観点で評価してください。
@@ -15,9 +16,12 @@ A. 知財・著作権リスク
   - 参考記事の文章表現や段落構造を実質的にそのまま流用していないか
   - 事実(数値・固有名詞)以外の表現は独自に書かれているか
   - referenceUrls に挙げられた記事のうち、本文で実質的に使われていないものはないか
+  - 同一記事のGoogle Newsリダイレクト、転載、同一タイトルが独立ソースとして重複計上されていないか
+  - sourceUsage の factsUsed が実際に各参考記事本文に存在し、生成本文でも使われているか
   - 本文中に「（参考リンク1）」「（参考資料1）」「（ソース1）」のような番号付き引用マーカーが含まれていないか(含まれていればREVISIONまたはREJECT)
 B. 編集の独自性
   - 「日本企業への示唆」(implications) が、参考記事に書かれていない独自の分析になっているか
+  - 示唆が1件であること自体は問題にしない。記事中の事実→作用経路→具体的判断・行動の因果が十分に説明されているかを評価する
   - 「背景として」「意思決定では」「示唆を整理する」など、どの記事にも使い回せるテンプレート的な汎用表現が多用されていないか
   - 複数参考記事がある場合、それらを論理的につなぐ独自の視点が示されているか
 C. ニュース価値
@@ -29,6 +33,8 @@ D. 文章品質
   - industryTags と category が記事内容と整合しているか
   - summary・implications 全体を通じて「だ・である調」に統一されているか。「です・ます調」が1文でも混在していればREVISION
   - 為替・株価・指数・金利・各種指標などの数値に算術的な矛盾がないか。終値・前日比・前営業日終値などが計算上整合しているか(例:終値と前営業日終値の差が前日比と一致するか)。別の日付・別ソースの数値を「前営業日値」「前日比」として接続して矛盾していればREVISION
+  - 数値・比率・日付・歴史的経緯が参考記事本文に明記されているか。提供本文にない事実を一般知識で補っていればREVISION
+  - ルピー、円、ドルなどの通貨単位を取り違えていないか
 E. 文脈の一貫性
   - 複数の参考記事が同じ企業・人物名を含む場合でも、それぞれが「別の出来事」を報じているにもかかわらず1つのストーリーに誤って統合していないか
   - 固有名詞(企業名など)をその英単語の一般的な意味と混同し、主語を業界全体に拡大していないか
@@ -75,6 +81,11 @@ ${body}`
   const implicationsList = output.implications.length === 0
     ? "(なし)"
     : output.implications.map((s, i) => `${i + 1}. ${s}`).join("\n")
+  const usageList = !output.sourceUsage || output.sourceUsage.length === 0
+    ? "(指定なし)"
+    : output.sourceUsage
+        .map((usage) => `参考記事${usage.sourceIndex}: ${usage.factsUsed.join(" / ")}`)
+        .join("\n")
 
   return `【生成記事】
 タイトル: ${output.title}
@@ -89,6 +100,9 @@ ${implicationsList}
 
 記事末尾に掲示される参考リンク:
 ${referenceList}
+
+本文で使用したと生成側が申告した事実:
+${usageList}
 
 ---
 
@@ -112,7 +126,11 @@ const REVISION_SYSTEM_ADDENDUM = `
 - 直前の生成結果に編集チーフから修正指示が付いています。下記【修正指示】を反映した新しい記事を生成してください。
 - 参考記事から持ち込めるのは固有の事実(数値・日付・社名・地名)のみです。表現・分析・示唆は独自に書き起こしてください。
 - 「日本企業への示唆」は進出・調達・採用・リスク管理など具体的な行動に直結する内容にしてください。
+- 「日本企業への示唆」は120〜220字を目安に、記事中の事実→日本企業への作用経路→具体的判断・行動の因果を1件の中で説明してください。
 - referenceUrls には、本文中で実質的に活用した参考記事のみを残してください。本文に貢献していない記事はリストから外してください。
+- 数値・比率・日付・歴史的経緯は、提供された参考記事本文に明記されたものだけを使ってください。根拠が見つからない事実は削除してください。
+- 示唆で使う企業名・業界・数値は本文で先に説明し、示唆で新しい事実を突然導入しないでください。
+- ルピー・円・ドルなどの通貨単位を取り違えないでください。
 - 「背景として」「意思決定では」「示唆を整理する」のようなテンプレート的な汎用表現は避け、記事固有の文脈で書いてください。
 - ソースで特定できる企業名・人名・製品名は「国内最大手」等の一般名詞でぼかさず、実名で本文・示唆に明記してください(事実は著作権の保護対象外)。
 - summary・implications 全体を「だ・である調」に統一してください。「〜です」「〜ます」「〜でしょう」で終わる文は使用しないでください。`
@@ -123,7 +141,7 @@ export function buildRevisionPrompt(input: ReviseSynthesisInput) {
     categoryHint: input.categoryHint,
     industryHints: input.industryHints,
   }
-  const baseUser = buildUserPrompt(synthInput)
+  const base = getDefaultSynthesisPromptBuilder()(synthInput)
 
   const previous = input.previousOutput
   const previousBlock = `
@@ -137,11 +155,17 @@ ${previous.summary}
 示唆:
 ${previous.implications.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
+参考リンク:
+${previous.referenceUrls.map((r, i) => `${i + 1}. ${r.title}\n   ${r.url}`).join("\n")}
+
+使用事実:
+${previous.sourceUsage?.map((usage) => `参考記事${usage.sourceIndex}: ${usage.factsUsed.join(" / ")}`).join("\n") || "(指定なし)"}
+
 【修正指示】
 ${input.revisionInstructions}`
 
   return {
-    user: baseUser + previousBlock,
-    systemAddendum: REVISION_SYSTEM_ADDENDUM,
+    user: base.user + previousBlock,
+    system: base.system + REVISION_SYSTEM_ADDENDUM,
   }
 }

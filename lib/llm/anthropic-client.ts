@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk"
-import { SYNTHESIS_SYSTEM_PROMPT, getDefaultSynthesisPromptBuilder } from "./prompt"
+import { getDefaultSynthesisPromptBuilder } from "./prompt"
 import {
   buildQualityCheckPrompt,
   buildRevisionPrompt,
@@ -50,8 +50,7 @@ export class AnthropicClient implements LLMClient {
   }
 
   async reviseSynthesis(input: ReviseSynthesisInput): Promise<SynthesisOutput> {
-    const { user, systemAddendum } = buildRevisionPrompt(input)
-    const system = SYNTHESIS_SYSTEM_PROMPT + systemAddendum
+    const { user, system } = buildRevisionPrompt(input)
     const raw = await this.callMessage(system, user, "reviseSynthesis")
     return parseSynthesisOutput(raw, {
       cluster: input.cluster,

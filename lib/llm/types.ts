@@ -27,6 +27,11 @@ export interface ReferenceUrl {
   url: string
 }
 
+export interface SourceUsage {
+  sourceIndex: number
+  factsUsed: string[]
+}
+
 export interface SynthesisOutput {
   title: string
   summary: string
@@ -34,6 +39,7 @@ export interface SynthesisOutput {
   industryTags: string[]
   category: string
   referenceUrls: ReferenceUrl[]
+  sourceUsage?: SourceUsage[]
   indiaRelevance: IndiaRelevance
   japaneseBusinessRelevance: JapaneseBusinessRelevance
   imagePrompt: string

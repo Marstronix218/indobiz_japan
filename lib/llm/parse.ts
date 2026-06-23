@@ -2,10 +2,12 @@ import type {
   IndiaRelevance,
   JapaneseBusinessRelevance,
   ReferenceUrl,
+  SourceUsage,
   SynthesisOutput,
 } from "./types"
 import { LLMError } from "./types"
 import type { SynthesisInput } from "./types"
+import { sanitizeReferenceUrls } from "./source-policy"
 
 export function extractJsonObject(raw: string): string {
   const trimmed = raw.trim()
@@ -44,7 +46,12 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
   const implications = asStringArray(obj.implications).slice(0, 1)
   const industryTags = asStringArray(obj.industryTags ?? [])
   const category = asString(obj.category)
-  const referenceUrls = asReferenceUrls(obj.referenceUrls, input)
+  const sourceUsage = asSourceUsage(obj.sourceUsage)
+  const referenceUrls = sanitizeReferenceUrls(
+    asReferenceUrls(obj.referenceUrls),
+    input,
+    sourceUsage,
+  )
   const indiaRelevance = asIndiaRelevance(obj.indiaRelevance)
   const japaneseBusinessRelevance = asJapaneseBusinessRelevance(
     obj.japaneseBusinessRelevance,
@@ -62,13 +69,14 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
     industryTags,
     category,
     referenceUrls,
+    sourceUsage,
     indiaRelevance,
     japaneseBusinessRelevance,
     imagePrompt,
   }
 }
 
-function asReferenceUrls(value: unknown, input?: SynthesisInput): ReferenceUrl[] {
+function asReferenceUrls(value: unknown): ReferenceUrl[] {
   const fromLLM: ReferenceUrl[] = []
   if (Array.isArray(value)) {
     for (const item of value) {
@@ -79,13 +87,22 @@ function asReferenceUrls(value: unknown, input?: SynthesisInput): ReferenceUrl[]
       if (title && url) fromLLM.push({ title, url })
     }
   }
-  if (fromLLM.length > 0) return fromLLM
-  if (input) {
-    return input.cluster
-      .filter((s) => s.title && s.sourceUrl)
-      .map((s) => ({ title: s.title, url: s.sourceUrl }))
+  return fromLLM
+}
+
+function asSourceUsage(value: unknown): SourceUsage[] {
+  if (!Array.isArray(value)) return []
+  const result: SourceUsage[] = []
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue
+    const obj = item as Record<string, unknown>
+    const sourceIndex = Number(obj.sourceIndex)
+    const factsUsed = asStringArray(obj.factsUsed)
+    if (Number.isInteger(sourceIndex) && sourceIndex > 0 && factsUsed.length > 0) {
+      result.push({ sourceIndex, factsUsed })
+    }
   }
-  return []
+  return result
 }
 
 function asIndiaRelevance(value: unknown): IndiaRelevance {

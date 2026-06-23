@@ -27,6 +27,7 @@ import {
 import { buildSafeImagePrompt } from "@/lib/image-gen/safe-prompt"
 import { fetchSimilarArticles } from "@/lib/scrapers/fetch-india-news"
 import { isCoreFirstSynthesisEnabled } from "@/lib/llm/prompt"
+import { normalizeSourceTitle } from "@/lib/llm/source-policy"
 
 export type ConnectorMode = "rss" | "api"
 
@@ -588,6 +589,14 @@ async function augmentSingletonClusters(
       for (const f of found) {
         const k = urlKey(f)
         if (excludeUrls.has(k)) continue
+        // Search results are candidates, not evidence. Re-run the same
+        // event-level clustering gate before attaching them to the seed.
+        if (
+          clusterArticles(
+            [seed, f],
+            readClusterOptionsFromEnv(),
+          ).length !== 1
+        ) continue
         excludeUrls.add(k)
         augmented[idx].push(f)
       }
@@ -649,11 +658,14 @@ export async function runAutomationPipeline(
   }
 
   const seen = new Set<string>()
+  const seenTitles = new Set<string>()
   const deduped: RawSourceArticle[] = []
   for (const a of rawArticles) {
     const key = (a.canonicalUrl ?? a.url).split("?")[0].replace(/\/+$/, "").toLowerCase()
-    if (seen.has(key)) continue
+    const titleKey = normalizeSourceTitle(a.originalTitle ?? a.title)
+    if (seen.has(key) || (titleKey && seenTitles.has(titleKey))) continue
     seen.add(key)
+    if (titleKey) seenTitles.add(titleKey)
     deduped.push(a)
   }
 

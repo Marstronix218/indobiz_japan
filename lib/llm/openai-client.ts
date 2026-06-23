@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { SYNTHESIS_SYSTEM_PROMPT, getDefaultSynthesisPromptBuilder } from "./prompt"
+import { getDefaultSynthesisPromptBuilder } from "./prompt"
 import {
   buildQualityCheckPrompt,
   buildRevisionPrompt,
@@ -50,8 +50,7 @@ export class OpenAIClient implements LLMClient {
   }
 
   async reviseSynthesis(input: ReviseSynthesisInput): Promise<SynthesisOutput> {
-    const { user, systemAddendum } = buildRevisionPrompt(input)
-    const system = SYNTHESIS_SYSTEM_PROMPT + systemAddendum
+    const { user, system } = buildRevisionPrompt(input)
     const raw = await this.callChat(system, user, "reviseSynthesis")
     return parseSynthesisOutput(raw, {
       cluster: input.cluster,
