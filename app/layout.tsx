@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   description:
     '日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける情報プラットフォーム。',
   icons: {
-    icon: [{ url: '/logo.png', type: 'image/png', sizes: '1254x1254' }],
-    shortcut: '/logo.png',
-    apple: [{ url: '/logo.png', type: 'image/png', sizes: '1254x1254' }],
+    icon: [{ url: '/goindia.png', type: 'image/png', sizes: '1024x1024' }],
+    shortcut: '/goindia.png',
+    apple: [{ url: '/goindia.png', type: 'image/png', sizes: '1024x1024' }],
   },
 }
 

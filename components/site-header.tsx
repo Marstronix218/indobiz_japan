@@ -59,7 +59,7 @@ export function SiteHeader() {
           <Link href="/" className="inline-flex items-center gap-3">
             <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-background">
               <Image
-                src="/logo.png"
+                src="/goindia.png"
                 alt="IndoBiz Japan logo"
                 width={48}
                 height={48}
