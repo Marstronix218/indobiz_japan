@@ -28,6 +28,7 @@ import { buildSafeImagePrompt } from "@/lib/image-gen/safe-prompt"
 import { fetchSimilarArticles } from "@/lib/scrapers/fetch-india-news"
 import { isCoreFirstSynthesisEnabled } from "@/lib/llm/prompt"
 import { normalizeSourceTitle } from "@/lib/llm/source-policy"
+import { runDeterministicQualityGuard } from "@/lib/llm/output-quality-guard"
 
 export type ConnectorMode = "rss" | "api"
 
@@ -312,25 +313,30 @@ async function runQualityLoop(
 
   while (true) {
     let qc: QualityCheckOutput
-    try {
-      qc = await llm.checkQuality({ output: currentOutput, cluster: synthInput })
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error)
-      console.warn(
-        `[automation:quality] checkQuality失敗 (title="${primary.title}"): ${msg}`,
-      )
-      return {
-        output: currentOutput,
-        qualityCheck: {
-          verdict: "REVISION",
-          notes: joinIssueNotes([
-            lastIssuesText,
-            `品質チェック自体が失敗しました: ${msg}`,
-          ]),
-          revisionCount: attempts,
-          checkedAt: new Date().toISOString(),
-        },
-        forceReview: true,
+    const deterministicQc = runDeterministicQualityGuard(currentOutput, synthInput)
+    if (deterministicQc) {
+      qc = deterministicQc
+    } else {
+      try {
+        qc = await llm.checkQuality({ output: currentOutput, cluster: synthInput })
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error)
+        console.warn(
+          `[automation:quality] checkQuality失敗 (title="${primary.title}"): ${msg}`,
+        )
+        return {
+          output: currentOutput,
+          qualityCheck: {
+            verdict: "REVISION",
+            notes: joinIssueNotes([
+              lastIssuesText,
+              `品質チェック自体が失敗しました: ${msg}`,
+            ]),
+            revisionCount: attempts,
+            checkedAt: new Date().toISOString(),
+          },
+          forceReview: true,
+        }
       }
     }
 

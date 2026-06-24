@@ -63,9 +63,72 @@ export function sanitizeReferenceUrls(
 
   // Empty model output must not expand to every clustered source. One primary
   // source is a safer fallback than publishing unrelated references.
-  const selected = candidates.length > 0 ? candidates : [input.cluster[0]]
+  const selected = candidates.length > 0 ? dedupeSources(candidates) : [input.cluster[0]]
   return dedupeReferences(
     selected.map((source) => ({ title: source.title, url: source.sourceUrl })),
+  )
+}
+
+function dedupeSources(
+  sources: SynthesisInput["cluster"],
+): SynthesisInput["cluster"] {
+  const result: SynthesisInput["cluster"] = []
+
+  for (const source of sources) {
+    const duplicateIndex = result.findIndex(
+      (existing) =>
+        normalizeSourceUrl(existing.sourceUrl) === normalizeSourceUrl(source.sourceUrl) ||
+        normalizeSourceTitle(existing.title) === normalizeSourceTitle(source.title) ||
+        bodySimilarity(existing.bodyText, source.bodyText) >= 0.9,
+    )
+
+    if (duplicateIndex < 0) {
+      result.push(source)
+      continue
+    }
+
+    // If a Google News redirect and the original publisher article both exist,
+    // keep the publisher URL. The public reference list should not cite a
+    // redirect as an independent source.
+    const existing = result[duplicateIndex]
+    if (isGoogleNewsUrl(existing.sourceUrl) && !isGoogleNewsUrl(source.sourceUrl)) {
+      result[duplicateIndex] = source
+    }
+  }
+
+  return result
+}
+
+function isGoogleNewsUrl(url: string): boolean {
+  try {
+    return new URL(url).hostname.toLowerCase() === "news.google.com"
+  } catch {
+    return false
+  }
+}
+
+function bodySimilarity(a: string, b: string): number {
+  const left = tokenSet(a)
+  const right = tokenSet(b)
+  if (left.size === 0 || right.size === 0) return 0
+
+  let intersection = 0
+  for (const token of left) {
+    if (right.has(token)) intersection += 1
+  }
+  return intersection / Math.max(left.size, right.size)
+}
+
+function tokenSet(text: string): Set<string> {
+  const normalized = text
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+  return new Set(
+    normalized
+      .split(/\s+/)
+      .filter((token) => token.length >= 4)
+      .slice(0, 250),
   )
 }
 

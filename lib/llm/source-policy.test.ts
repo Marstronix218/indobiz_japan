@@ -56,6 +56,36 @@ test("uses explicit sourceUsage and removes duplicate references", () => {
   ])
 })
 
+test("prefers publisher URL over Google News redirect when bodies are duplicates", () => {
+  const references = sanitizeReferenceUrls(
+    input.cluster.map((source) => ({ title: source.title, url: source.sourceUrl })),
+    {
+      cluster: [
+        {
+          ...input.cluster[1],
+          title: "Google News wrapper with slightly different title",
+          bodyText: "The rupee fell to 94.63 per dollar after RBI intervention in the foreign exchange market.",
+        },
+        {
+          ...input.cluster[0],
+          bodyText: "The rupee fell to 94.63 per dollar after RBI intervention in the foreign exchange market.",
+        },
+      ],
+    },
+    [
+      { sourceIndex: 1, factsUsed: ["94.63 per dollar"] },
+      { sourceIndex: 2, factsUsed: ["94.63 per dollar"] },
+    ],
+  )
+
+  assert.deepEqual(references, [
+    {
+      title: input.cluster[0].title,
+      url: input.cluster[0].sourceUrl,
+    },
+  ])
+})
+
 test("empty model references fall back to the primary source only", () => {
   assert.deepEqual(sanitizeReferenceUrls([], input), [
     {
