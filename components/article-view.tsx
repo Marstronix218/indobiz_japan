@@ -30,8 +30,171 @@ import { formatSummaryParagraphs } from "@/lib/summary-utils"
 import { ensureMinimumSummaryLength } from "@/lib/summary-utils"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 
+const TITLE_SOURCE_SUFFIX =
+  /\s+(?:[-–—|])\s+(?:reuters|associated press|ap news|bloomberg|bbc|cnn|cnbc|financial times|the hindu|hindustan times|times of india|the economic times|the new indian express|indian express|mint|moneycontrol|business standard|ndtv|deccan herald|firstpost|the print|pib)$/i
+
+const SOURCE_DOMAIN_LABELS: Record<string, string> = {
+  "news.google.com": "Google News",
+  "timesofindia.indiatimes.com": "Times of India",
+  "economictimes.indiatimes.com": "The Economic Times",
+  "business-standard.com": "Business Standard",
+  "www.business-standard.com": "Business Standard",
+  "businesstoday.in": "Business Today",
+  "www.businesstoday.in": "Business Today",
+  "thehindu.com": "The Hindu",
+  "www.thehindu.com": "The Hindu",
+  "hindustantimes.com": "Hindustan Times",
+  "www.hindustantimes.com": "Hindustan Times",
+  "livemint.com": "Mint",
+  "www.livemint.com": "Mint",
+  "moneycontrol.com": "Moneycontrol",
+  "www.moneycontrol.com": "Moneycontrol",
+  "reuters.com": "Reuters",
+  "www.reuters.com": "Reuters",
+  "ndtv.com": "NDTV",
+  "www.ndtv.com": "NDTV",
+  "pib.gov.in": "PIB",
+}
+
+const DOMAIN_WORD_OVERRIDES: Record<string, string> = {
+  ai: "AI",
+  ap: "AP",
+  bbc: "BBC",
+  cnbc: "CNBC",
+  cnn: "CNN",
+  et: "ET",
+  ndtv: "NDTV",
+  pib: "PIB",
+}
+
+function isAggregateSourceLabel(value: string | undefined) {
+  if (!value) return false
+  return /、他(?:\d+件)?$/.test(value.trim())
+}
+
+function publisherFromUrl(url: string | undefined) {
+  if (!url) return undefined
+  try {
+    const host = new URL(url).hostname.toLowerCase()
+    return SOURCE_DOMAIN_LABELS[host] ?? formatDomainLabel(host)
+  } catch {
+    return undefined
+  }
+}
+
+function formatDomainLabel(host: string) {
+  const withoutWww = host.replace(/^www\./, "")
+  const parts = withoutWww.split(".").filter(Boolean)
+  const core =
+    parts.length >= 3 && ["co", "com", "org", "net"].includes(parts.at(-2) ?? "")
+      ? parts.at(-3)
+      : parts.length >= 2
+        ? parts.at(-2)
+        : parts[0]
+
+  return (core ?? withoutWww)
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((word) => {
+      const override = DOMAIN_WORD_OVERRIDES[word]
+      if (override) return override
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+    .join(" ")
+}
+
+function cleanReferenceTitle(title: string) {
+  return title.replace(TITLE_SOURCE_SUFFIX, "").trim()
+}
+
 function getSourceLabel(source: SourceProvenance, fallback: string) {
-  return source.sourceName || fallback || "Source"
+  const raw = source.sourceName || fallback
+  if (raw && !isAggregateSourceLabel(raw)) return raw
+  return publisherFromUrl(source.originalUrl) || raw?.replace(/、他(?:\d+件)?$/, "") || "Source"
+}
+
+function normalizeTitleForCompare(value: string) {
+  return value
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+}
+
+function isGenericReferenceTitle(
+  title: string,
+  source: SourceProvenance,
+  articleSource: string,
+) {
+  const cleaned = cleanReferenceTitle(title)
+  if (!cleaned || isAggregateSourceLabel(cleaned)) return true
+
+  const titleKey = normalizeTitleForCompare(cleaned)
+  const labels = [
+    source.sourceName,
+    articleSource,
+    publisherFromUrl(source.originalUrl),
+    source.sourceName?.replace(/、他(?:\d+件)?$/, ""),
+    articleSource.replace(/、他(?:\d+件)?$/, ""),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map(normalizeTitleForCompare)
+
+  return labels.some((label) => label === titleKey)
+}
+
+function titleFromUrl(url: string | undefined) {
+  if (!url) return undefined
+  try {
+    const parsed = new URL(url)
+    const skipped = new Set([
+      "amp",
+      "articleshow",
+      "business",
+      "business-news",
+      "companies",
+      "economy",
+      "india",
+      "india-business",
+      "industry",
+      "latest",
+      "markets",
+      "news",
+      "story",
+    ])
+    const segments = parsed.pathname
+      .split("/")
+      .map((segment) => decodeURIComponent(segment).trim())
+      .filter(Boolean)
+
+    for (let index = segments.length - 1; index >= 0; index -= 1) {
+      const raw = segments[index]
+        .replace(/\.(?:cms|html?|amp)$/i, "")
+        .replace(/[-_]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+      const lower = raw.toLowerCase()
+      if (!raw || raw.length < 12 || /^\d+$/.test(raw) || skipped.has(lower)) {
+        continue
+      }
+      return raw.charAt(0).toUpperCase() + raw.slice(1)
+    }
+  } catch {
+    return undefined
+  }
+  return undefined
+}
+
+function getReferenceDisplayTitle(
+  source: SourceProvenance,
+  articleSource: string,
+  articleTitle: string,
+) {
+  const cleaned = cleanReferenceTitle(source.originalTitle || "")
+  if (cleaned && !isGenericReferenceTitle(cleaned, source, articleSource)) {
+    return cleaned
+  }
+  return titleFromUrl(source.originalUrl) || articleTitle
 }
 
 function SourceArticleCarousel({
@@ -88,6 +251,11 @@ function SourceArticleCarousel({
       >
         {sources.map((src, idx) => {
           const sourceName = getSourceLabel(src, articleSource)
+          const sourceTitle = getReferenceDisplayTitle(
+            src,
+            articleSource,
+            articleTitle,
+          )
           const sourceDate = formatArticleDate(
             src.originalPublishedAt ?? articlePublishedAt,
           )
@@ -97,7 +265,7 @@ function SourceArticleCarousel({
                 {sourceName}
               </p>
               <p className="mt-3 line-clamp-3 text-sm font-semibold leading-6 text-foreground">
-                {src.originalTitle || articleTitle}
+                {sourceTitle}
               </p>
               <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                 <span>{sourceDate}</span>
@@ -272,7 +440,7 @@ export function ArticleView({
                     key={tag}
                     asChild
                     variant="outline"
-                    className="rounded-sm border-primary/30 bg-primary px-2 py-1 text-[11px] text-primary-foreground hover:bg-primary/90"
+                    className="rounded-sm border-border bg-white px-2 py-1 text-[11px] text-foreground hover:border-primary hover:bg-secondary/40"
                   >
                     <Link href={`/?tag=${tag}`}>{INDUSTRY_LABELS[tag]}</Link>
                   </Badge>
