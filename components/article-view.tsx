@@ -1,9 +1,16 @@
 "use client"
 
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, ExternalLink } from "lucide-react"
+import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
+import { MarketTicker } from "@/components/market-ticker"
 import { NewsCardTile } from "@/components/news-card"
+import {
+  CitySpotlightWidget,
+  MarketIndicatorWidget,
+  TrendingWidget,
+} from "@/components/sidebar-widgets"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Badge } from "@/components/ui/badge"
@@ -14,12 +21,143 @@ import {
   INDUSTRY_LABELS,
   MARKET_METRIC_ORDER,
   articleDisplayDate,
+  formatArticleDate,
   formatJstDateTime,
   getAllSources,
+  type SourceProvenance,
 } from "@/lib/news-data"
 import { formatSummaryParagraphs } from "@/lib/summary-utils"
 import { ensureMinimumSummaryLength } from "@/lib/summary-utils"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
+
+function getSourceLabel(source: SourceProvenance, fallback: string) {
+  return source.sourceName || fallback || "Source"
+}
+
+function SourceArticleCarousel({
+  sources,
+  articleSource,
+  articleTitle,
+  articlePublishedAt,
+}: {
+  sources: SourceProvenance[]
+  articleSource: string
+  articleTitle: string
+  articlePublishedAt: string
+}) {
+  const scrollerRef = useRef<HTMLDivElement | null>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateState = useCallback(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    const { scrollLeft, scrollWidth, clientWidth } = el
+    setCanScrollLeft(scrollLeft > 4)
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 4)
+  }, [])
+
+  useEffect(() => {
+    updateState()
+    const el = scrollerRef.current
+    if (!el) return
+    const onScroll = () => updateState()
+    el.addEventListener("scroll", onScroll, { passive: true })
+    const ro = new ResizeObserver(updateState)
+    ro.observe(el)
+    return () => {
+      el.removeEventListener("scroll", onScroll)
+      ro.disconnect()
+    }
+  }, [updateState, sources.length])
+
+  function scrollByPage(direction: 1 | -1) {
+    const el = scrollerRef.current
+    if (!el) return
+    const card = el.querySelector<HTMLElement>("[data-source-card]")
+    const cardWidth = card?.offsetWidth ?? el.clientWidth / 3
+    const gap = parseFloat(getComputedStyle(el).columnGap) || 0
+    el.scrollBy({ left: direction * (cardWidth + gap) * 3, behavior: "smooth" })
+  }
+
+  return (
+    <div className="relative min-w-0 overflow-x-hidden">
+      <div
+        ref={scrollerRef}
+        className="-mx-4 flex min-w-0 snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-1 [scrollbar-width:none] sm:-mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+      >
+        {sources.map((src, idx) => {
+          const sourceName = getSourceLabel(src, articleSource)
+          const sourceDate = formatArticleDate(
+            src.originalPublishedAt ?? articlePublishedAt,
+          )
+          const card = (
+            <>
+              <p className="font-serif text-base font-bold leading-tight text-primary">
+                {sourceName}
+              </p>
+              <p className="mt-3 line-clamp-3 text-sm font-semibold leading-6 text-foreground">
+                {src.originalTitle || articleTitle}
+              </p>
+              <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                <span>{sourceDate}</span>
+                {src.originalUrl && (
+                  <ExternalLink className="size-4 text-primary" />
+                )}
+              </div>
+            </>
+          )
+
+          return (
+            <div
+              key={`${idx}-${src.originalUrl || src.originalTitle}`}
+              data-source-card
+              className="w-[82vw] max-w-[22rem] shrink-0 snap-start sm:w-[calc(50%-8px)] sm:max-w-none lg:w-[calc((100%-32px)/3)]"
+            >
+              {src.originalUrl ? (
+                <a
+                  href={src.originalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block h-full rounded-md border border-border bg-background p-4 transition-colors hover:border-primary"
+                >
+                  {card}
+                </a>
+              ) : (
+                <div className="h-full rounded-md border border-border bg-background p-4">
+                  {card}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {sources.length > 3 && (
+        <div className="mt-3 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            aria-label="前へ"
+            onClick={() => scrollByPage(-1)}
+            disabled={!canScrollLeft}
+            className="grid size-8 place-items-center rounded-full border border-border bg-card text-foreground transition-opacity hover:border-accent hover:text-accent disabled:opacity-30"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="次へ"
+            onClick={() => scrollByPage(1)}
+            disabled={!canScrollRight}
+            className="grid size-8 place-items-center rounded-full border border-border bg-card text-foreground transition-opacity hover:border-accent hover:text-accent disabled:opacity-30"
+          >
+            <ChevronRight className="size-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function ArticleView({
   id,
@@ -55,64 +193,147 @@ export function ArticleView({
   const summaryParagraphs = formatSummaryParagraphs(detailedSummary)
   const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
   const allSources = getAllSources(article)
+  const sourceCards: SourceProvenance[] =
+    allSources.length > 0
+      ? allSources
+      : article.sourceUrl
+        ? [
+            {
+              originalTitle: article.title,
+              originalUrl: article.sourceUrl,
+              originalPublishedAt: article.publishedAt,
+              sourceName: article.source,
+            },
+          ]
+        : []
+  const takeawayBullets =
+    article.implications.length > 0
+      ? article.implications.slice(0, 3)
+      : summaryParagraphs.slice(0, 3)
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
+      <MarketTicker />
 
-      <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <nav
+          aria-label="パンくず"
+          className="mb-4 flex min-w-0 items-center gap-1.5 overflow-hidden text-xs text-muted-foreground"
         >
-          <ArrowLeft className="size-4" />
-          トップに戻る
-        </Link>
-      </div>
+          <Link href="/" className="shrink-0 hover:text-foreground">
+            トップ
+          </Link>
+          <ChevronRight className="size-3.5 shrink-0" />
+          <Link
+            href={`/?category=${article.category}`}
+            className="shrink-0 hover:text-foreground"
+          >
+            {CATEGORY_LABELS[article.category]}
+          </Link>
+          {article.industryTags.length > 0 && (
+            <>
+              <ChevronRight className="size-3.5 shrink-0" />
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-secondary/60 px-2 py-0.5">
+                {article.industryTags.map((tag, index) => (
+                  <span key={tag} className="inline-flex items-center gap-1">
+                    <Link
+                      href={`/?tag=${tag}`}
+                      className="hover:text-foreground"
+                    >
+                      {INDUSTRY_LABELS[tag]}
+                    </Link>
+                    {index < article.industryTags.length - 1 && (
+                      <span className="text-muted-foreground/60">・</span>
+                    )}
+                  </span>
+                ))}
+              </span>
+            </>
+          )}
+          <ChevronRight className="size-3.5 shrink-0" />
+          <span className="truncate">{article.title}</span>
+        </nav>
 
-      <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
-        <article className="space-y-5">
+        <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_336px]">
+          <article className="min-w-0 rounded-md border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-7">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge asChild className={`${CATEGORY_COLORS[article.category]} border-none`}>
+                <Badge
+                  asChild
+                  className={`${CATEGORY_COLORS[article.category]} rounded-sm border-none px-2 py-1 text-[11px]`}
+                >
                   <Link href={`/?category=${article.category}`}>
                     {CATEGORY_LABELS[article.category]}
                   </Link>
                 </Badge>
                 {article.industryTags.map((tag) => (
-                  <Badge key={tag} asChild variant="outline" className="px-2 py-0.5">
+                  <Badge
+                    key={tag}
+                    asChild
+                    variant="outline"
+                    className="rounded-sm border-primary/30 bg-primary px-2 py-1 text-[11px] text-primary-foreground hover:bg-primary/90"
+                  >
                     <Link href={`/?tag=${tag}`}>{INDUSTRY_LABELS[tag]}</Link>
                   </Badge>
                 ))}
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-balance font-serif text-4xl font-bold leading-tight tracking-tight text-foreground">
+                <h1 className="text-balance font-serif text-[28px] font-bold leading-[1.45] tracking-tight text-foreground sm:text-4xl">
                   {article.title}
                 </h1>
-                <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span>{formatJstDateTime(articleDisplayDate(article))}</span>
+                  <span aria-hidden>｜</span>
+                  <span>IndoBiz Japan編集部</span>
                 </div>
               </div>
             </div>
 
             {imageSrc && (
-              <div className="relative mx-auto aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl border border-border bg-muted">
+              <div className="relative mx-auto mt-5 aspect-[16/9] w-full max-w-[620px] overflow-hidden rounded-md border border-border bg-muted">
                 <Image
                   src={imageSrc}
                   alt={article.title}
                   fill
                   priority
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 448px"
+                  sizes="(max-width: 768px) 100vw, 620px"
                 />
               </div>
             )}
 
+            {takeawayBullets.length > 0 && (
+              <section className="mt-5 rounded-md border border-primary/25 bg-primary/5 p-4 sm:p-5">
+                <h2 className="text-sm font-bold text-primary">
+                  本記事のまとめ
+                </h2>
+                <ul className="mt-3 space-y-2 pl-4 text-sm leading-7 text-foreground">
+                  {takeawayBullets.map((item) => (
+                    <li key={item} className="list-disc">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <section className="mt-6 space-y-4">
+              {summaryParagraphs.map((paragraph, idx) => (
+                <p
+                  key={idx}
+                  className="whitespace-pre-line text-[15px] leading-8 text-foreground"
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </section>
+
             {article.marketSnapshot && (
-              <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
-                  為替・市況
+              <section className="mt-7 border-t border-border pt-6">
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                  関連マーケット指標
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   {MARKET_METRIC_ORDER.map((key) => {
@@ -122,7 +343,7 @@ export function ArticleView({
                     return (
                       <div
                         key={key}
-                        className="rounded-2xl border border-border bg-secondary/30 p-4"
+                        className="rounded-md border border-border bg-secondary/30 p-4"
                       >
                         <p className="text-xs font-medium text-foreground">
                           {metric.label}
@@ -150,65 +371,25 @@ export function ArticleView({
               </section>
             )}
 
-            <section className="space-y-4 rounded-3xl border border-border bg-card p-5 sm:p-6">
-              {summaryParagraphs.map((paragraph, idx) => (
-                <p
-                  key={idx}
-                  className="whitespace-pre-line text-base leading-8 text-foreground"
-                >
-                  {paragraph}
-                </p>
-              ))}
-            </section>
-
-            <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
-                日本企業への示唆
-              </p>
-              <ul className="mt-3 space-y-2">
-                {article.implications.map((implication) => (
-                  <li
-                    key={implication}
-                    className="rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-base leading-8 text-foreground"
-                  >
-                    {implication}
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            {allSources.length > 0 && (
-              <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
-                  参考記事
-                </p>
-                <ul className="mt-3 space-y-2">
-                  {allSources.map((src, idx) => (
-                    <li
-                      key={`${idx}-${src.originalUrl}`}
-                      className="text-[13px] leading-6 text-foreground"
-                    >
-                      {src.originalUrl ? (
-                        <a
-                          href={src.originalUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-start gap-1 hover:text-accent hover:underline"
-                        >
-                          <span>{src.originalTitle}</span>
-                          <ExternalLink className="mt-1.5 size-3 shrink-0" />
-                        </a>
-                      ) : (
-                        <span>{src.originalTitle}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+            {sourceCards.length > 0 && (
+              <section className="mt-8 border-t border-border pt-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <h2 className="font-serif text-xl font-bold text-primary">
+                    参考記事
+                  </h2>
+                  <ExternalLink className="size-4 text-primary" />
+                </div>
+                <SourceArticleCarousel
+                  sources={sourceCards}
+                  articleSource={article.source}
+                  articleTitle={article.title}
+                  articlePublishedAt={article.publishedAt}
+                />
               </section>
             )}
 
             {relatedArticles.length > 0 && (
-              <section>
+              <section className="mt-8 border-t border-border pt-6">
                 <div className="mb-4 flex items-end justify-between gap-4">
                   <div className="flex items-baseline gap-3">
                     <span className="size-2.5 rounded-sm bg-accent" />
@@ -228,7 +409,14 @@ export function ArticleView({
                 </div>
               </section>
             )}
-        </article>
+          </article>
+
+          <aside className="space-y-4 self-start lg:sticky lg:top-4">
+            <TrendingWidget />
+            <MarketIndicatorWidget />
+            <CitySpotlightWidget />
+          </aside>
+        </div>
       </main>
 
       <SiteFooter />

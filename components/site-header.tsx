@@ -1,7 +1,8 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import { Search } from "lucide-react"
 import { HeaderAuthControls } from "@/components/header-auth-controls"
+import { CATEGORY_SECTIONS } from "@/lib/news-data"
 
 function formatTokyoDate(date: Date) {
   const parts = new Intl.DateTimeFormat("ja-JP", {
@@ -24,7 +25,7 @@ function BrandWordmark({ compact = false }: { compact?: boolean }) {
       className={
         compact
           ? "font-serif text-sm font-bold tracking-normal"
-          : "font-serif text-[32px] font-bold tracking-normal"
+          : "font-serif text-2xl font-bold tracking-normal sm:text-[32px]"
       }
     >
       <span className="text-primary">IndoBiz</span>{" "}
@@ -39,49 +40,80 @@ export function SiteHeader() {
   return (
     <header className="border-b border-border bg-background">
       <div className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 text-[11px] sm:px-6 lg:px-8">
-          <p className="font-semibold tracking-[0.22em] text-primary-foreground">
-            INDOBIZ JAPAN
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 text-[11px] sm:px-6 lg:px-8">
+          <p className="truncate font-semibold text-primary-foreground">
+            日本企業向けインド市場インテリジェンス
           </p>
-          <div className="flex items-center gap-4 opacity-90">
-            <span className="hidden sm:inline">
-              日本企業向けインド市場インテリジェンス
-            </span>
+          <div className="flex shrink-0 items-center gap-3 opacity-90">
             <time className="font-mono" suppressHydrationWarning>
               {dateStr}
             </time>
+            <span className="hidden h-3 w-px bg-primary-foreground/30 md:block" />
+            <div className="hidden items-center md:flex">
+              <HeaderAuthControls surface="topbar" />
+            </div>
+            <span className="hidden h-3 w-px bg-primary-foreground/30 md:block" />
+            <Link
+              href="/contact?leadType=expansion"
+              className="hidden rounded-sm bg-accent px-3 py-1 text-[11px] font-bold text-accent-foreground transition-colors hover:bg-accent/90 sm:inline-flex"
+            >
+              お問い合わせ
+            </Link>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <span className="relative size-12 shrink-0 overflow-visible">
-              <span className="absolute left-1/2 top-1/2 size-20 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-md border border-border bg-background">
-                <Image
-                  src="/goindia.png"
-                  alt="IndoBiz Japan logo"
-                  width={70}
-                  height={70}
-                  className="size-full object-contain"
-                  priority
-                />
-              </span>
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-end">
+          <Link href="/" className="inline-flex min-w-0 items-center gap-4">
+            <span className="relative size-14 shrink-0 overflow-hidden rounded-md border border-border bg-background">
+              <Image
+                src="/goindia.png"
+                alt="IndoBiz Japan logo"
+                width={56}
+                height={56}
+                className="size-full object-contain"
+                priority
+              />
             </span>
-            <span className="ml-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 leading-tight">
+            <span className="min-w-0 leading-tight">
               <BrandWordmark />
-              <span className="text-xs text-muted-foreground">
+              <span className="mt-1 block truncate text-xs text-muted-foreground">
                 日本企業向けインド市場インテリジェンス · 編集部監修
               </span>
             </span>
           </Link>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <HeaderAuthControls />
-            <Button asChild size="sm">
-              <Link href="/contact?leadType=expansion">お問い合わせ</Link>
-            </Button>
+          <div className="flex min-w-0 flex-col gap-3 lg:items-end">
+            <form
+              action="/"
+              className="relative hidden w-full max-w-[220px] items-center md:flex"
+            >
+              <Search className="pointer-events-none absolute right-3 size-4 text-muted-foreground" />
+              <input
+                type="search"
+                name="q"
+                placeholder="記事を検索..."
+                className="h-10 w-full rounded-md border border-input bg-background px-3 pr-10 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+            </form>
+            <nav
+              aria-label="主要カテゴリ"
+              className="flex w-full min-w-0 items-center justify-start gap-5 overflow-x-auto text-sm font-semibold lg:justify-end [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <Link href="/" className="shrink-0 hover:text-accent">
+                トップ
+              </Link>
+              {CATEGORY_SECTIONS.map((section) => (
+                <Link
+                  key={section.key}
+                  href={`/?category=${section.key}`}
+                  className="shrink-0 hover:text-accent"
+                >
+                  {section.label}
+                </Link>
+              ))}
+            </nav>
           </div>
         </div>
       </div>

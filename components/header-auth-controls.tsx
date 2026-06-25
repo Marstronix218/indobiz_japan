@@ -25,7 +25,11 @@ function toDisplayUser(user: {
   return { label: name || email || "アカウント" }
 }
 
-export function HeaderAuthControls() {
+export function HeaderAuthControls({
+  surface = "default",
+}: {
+  surface?: "default" | "topbar"
+}) {
   const router = useRouter()
   const [user, setUser] = useState<DisplayUser>(null)
   const [loaded, setLoaded] = useState(false)
@@ -59,7 +63,43 @@ export function HeaderAuthControls() {
   }
 
   if (!loaded) {
-    return <div className="h-8 w-32" aria-hidden />
+    return surface === "topbar" ? null : <div className="h-8 w-32" aria-hidden />
+  }
+
+  if (surface === "topbar") {
+    if (user) {
+      return (
+        <div className="flex items-center gap-3 text-[11px] text-primary-foreground/90">
+          <span
+            className="hidden max-w-[10rem] truncate sm:inline"
+            title={user.label}
+          >
+            {user.label}
+          </span>
+          <Link href="/profile" className="hover:text-primary-foreground">
+            マイページ
+          </Link>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="hover:text-primary-foreground"
+          >
+            ログアウト
+          </button>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex items-center gap-3 text-[11px] text-primary-foreground/90">
+        <Link href="/login" className="hover:text-primary-foreground">
+          ログイン
+        </Link>
+        <Link href="/signup" className="hover:text-primary-foreground">
+          新規登録
+        </Link>
+      </div>
+    )
   }
 
   if (user) {

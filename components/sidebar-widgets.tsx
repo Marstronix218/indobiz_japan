@@ -3,7 +3,15 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight, Feather } from "lucide-react"
+import {
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  Feather,
+  LineChart,
+  Mail,
+  MapPin,
+} from "lucide-react"
 import {
   articleDisplayDate,
   formatArticleShortDate,
@@ -31,10 +39,10 @@ function RailHead({
   icon: React.ReactNode
 }) {
   return (
-    <div className="mb-3 flex items-center justify-between border-b-2 border-foreground pb-2">
+    <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
       <div className="flex items-center gap-2">
         <span className="text-accent">{icon}</span>
-        <h3 className="font-serif text-base font-bold">{label}</h3>
+        <h3 className="font-serif text-sm font-bold">{label}</h3>
       </div>
       <span className="font-mono text-[9px] tracking-[0.2em] text-muted-foreground">
         {en}
@@ -51,7 +59,11 @@ export function TrendingWidget() {
 
   return (
     <div className="rounded-md border border-border bg-card p-5">
-      <RailHead label="アクセスランキング" en="TRENDING" icon="📈" />
+      <RailHead
+        label="アクセスランキング"
+        en="RANKING"
+        icon={<BarChart3 className="size-4" />}
+      />
       <ul className="space-y-3.5">
         {trending.map((article, index) => (
           <li key={article.id} className="flex gap-3">
@@ -90,8 +102,7 @@ type IndicatorRow = {
 }
 
 function rowsFromLive(snapshot: MarketSnapshotLive): IndicatorRow[] {
-  // pick top 4: INR/JPY, USD/INR, Nifty, Brent
-  const wanted = ["INR/JPY", "USD/INR", "Nifty 50", "Brent"]
+  const wanted = ["INR/JPY", "USD/INR", "Nifty 50", "Sensex", "Brent"]
   const map = new Map(snapshot.items.map((q) => [q.label, q]))
   return wanted
     .map((w) => map.get(w))
@@ -194,7 +205,7 @@ export function MarketIndicatorWidget() {
       <RailHead
         label={snapshot ? "マーケット指標(ライブ)" : "マーケット指標"}
         en="MARKET"
-        icon="📊"
+        icon={<LineChart className="size-4" />}
       />
       <ul className="divide-y divide-border">
         {rows.map((row) => (
@@ -362,7 +373,11 @@ export function CitySpotlightWidget() {
 
   return (
     <div className="rounded-md border border-border bg-card p-5">
-      <RailHead label="都市スポットライト" en="CITY FOCUS" icon="📍" />
+      <RailHead
+        label="都市スポットライト"
+        en="CITY FOCUS"
+        icon={<MapPin className="size-4" />}
+      />
       <div className="relative mb-3 aspect-[16/10] overflow-hidden rounded-sm bg-muted">
         {city.imageUrl ? (
           <Image
@@ -588,18 +603,25 @@ export function SocialWidget() {
 
 export function NewsletterCTA() {
   return (
-    <div className="rounded-md bg-accent p-5 text-white">
-      <div className="mb-2 font-mono text-[10px] tracking-[0.22em] opacity-80">
-        DAILY · 6:30 JST
+    <div className="rounded-md border border-primary/20 bg-primary/10 p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid size-11 shrink-0 place-items-center rounded-sm bg-primary text-primary-foreground">
+          <Mail className="size-5" />
+        </span>
+        <div>
+          <div className="font-mono text-[10px] tracking-[0.22em] text-primary/70">
+            WEEKLY · FREE
+          </div>
+          <h3 className="mt-1 font-serif text-lg font-bold leading-tight text-primary">
+            週刊インドビジネス
+          </h3>
+        </div>
       </div>
-      <h3 className="font-serif text-lg font-bold leading-tight">
-        朝6:30、5分で読むインド経済。
-      </h3>
-      <p className="mt-2 text-xs opacity-90">
-        編集部が当日の重要記事を3本に絞って解説。
+      <p className="mt-3 text-xs leading-6 text-foreground/75">
+        インドビジネスの「今」をまとめて、毎週金曜日に配信。
       </p>
       <form
-        className="mt-3 flex"
+        className="mt-4 space-y-2"
         onSubmit={(event) => event.preventDefault()}
       >
         <input
@@ -607,13 +629,13 @@ export function NewsletterCTA() {
           name="email"
           required
           placeholder="email@company.co.jp"
-          className="flex-1 rounded-l-sm bg-white/95 px-3 py-2 text-xs text-foreground outline-none placeholder:text-muted-foreground"
+          className="h-9 w-full rounded-sm border border-primary/20 bg-background px-3 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
         />
         <button
           type="submit"
-          className="rounded-r-sm bg-foreground px-3 text-xs font-bold text-background"
+          className="h-9 w-full rounded-sm bg-primary px-3 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          登録
+          今すぐ購読する
         </button>
       </form>
     </div>

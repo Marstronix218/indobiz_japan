@@ -1,8 +1,7 @@
 "use client"
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { Search } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { NewsCardHero, NewsCardMosaic } from "@/components/news-card"
 import { TopicCarousel } from "@/components/topic-carousel"
 import { TopicHeader } from "@/components/topic-header"
@@ -16,7 +15,6 @@ import {
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { SiteIntro } from "@/components/site-intro"
-import { Input } from "@/components/ui/input"
 import { usePublicArticles } from "@/lib/article-store"
 import {
   CATEGORY_OPTIONS,
@@ -31,6 +29,7 @@ import {
 } from "@/lib/news-data"
 
 export function NewsList() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
   const [selectedIndustries, setSelectedIndustries] = useState<IndustryTag[]>([])
@@ -52,6 +51,7 @@ export function NewsList() {
 
     setActiveCategory(nextCategory)
     setSelectedIndustries(nextTags)
+    setSearchQuery(searchParams.get("q") ?? "")
   }, [searchParams])
 
   const showIndustryFilter = activeCategory === "economy" || selectedIndustries.length > 0
@@ -116,17 +116,19 @@ export function NewsList() {
     return buckets
   }, [rest])
 
-  function selectCategory(category: Category | null) {
-    setActiveCategory(category)
-    if (category !== "economy") setSelectedIndustries([])
-  }
-
   function toggleIndustry(tag: IndustryTag) {
     setSelectedIndustries((current) =>
       current.includes(tag)
         ? current.filter((item) => item !== tag)
         : [...current, tag],
     )
+  }
+
+  function clearFilters() {
+    setActiveCategory(null)
+    setSelectedIndustries([])
+    setSearchQuery("")
+    router.push("/")
   }
 
   const industryFilterApplied =
@@ -137,45 +139,23 @@ export function NewsList() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       {!filterActive && <SiteIntro />}
-      <FilterRibbon
-        activeCategory={activeCategory}
-        onSelectCategory={selectCategory}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
       <MarketTicker />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {showIndustryFilter && (
-          <div className="-mx-1 mb-4 flex gap-4 overflow-x-auto px-1 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {INDUSTRY_OPTIONS.map((tag) => (
-              <CategoryLink
-                key={tag}
-                active={selectedIndustries.includes(tag)}
-                onClick={() => toggleIndustry(tag)}
-                label={INDUSTRY_LABELS[tag]}
-                size="sm"
-              />
-            ))}
-          </div>
-        )}
-
-        {(activeCategory || industryFilterApplied || searchQuery) && (
-          <div className="mb-4 flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{sortedArticles.length}件を表示中</span>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveCategory(null)
-                setSelectedIndustries([])
-                setSearchQuery("")
-              }}
-              className="text-accent underline-offset-4 hover:underline"
-            >
-              フィルタを解除
-            </button>
-          </div>
-        )}
+      <main
+        className={`mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8 ${
+          filterActive ? "pt-4" : "pt-8"
+        }`}
+      >
+        {showIndustryFilter ? (
+          <IndustryFilterPanel
+            selectedIndustries={selectedIndustries}
+            resultCount={sortedArticles.length}
+            onToggle={toggleIndustry}
+            onClear={clearFilters}
+          />
+        ) : filterActive ? (
+          <FilterSummary resultCount={sortedArticles.length} onClear={clearFilters} />
+        ) : null}
 
         {hasResults ? (
           <>
@@ -279,71 +259,98 @@ function FilteredResults({ articles }: { articles: NewsArticle[] }) {
   )
 }
 
-function FilterRibbon({
-  activeCategory,
-  onSelectCategory,
-  searchQuery,
-  onSearchChange,
+function FilterSummary({
+  resultCount,
+  onClear,
 }: {
-  activeCategory: Category | null
-  onSelectCategory: (category: Category | null) => void
-  searchQuery: string
-  onSearchChange: (value: string) => void
+  resultCount: number
+  onClear: () => void
 }) {
   return (
-    <div className="border-b border-border bg-secondary/40">
-      <div className="mx-auto flex max-w-7xl items-center gap-5 overflow-x-auto px-4 py-2 text-xs sm:px-6 lg:px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <span className="shrink-0 font-mono tracking-widest text-muted-foreground">
-          FILTER
-        </span>
-        <CategoryLink
-          active={activeCategory === null}
-          onClick={() => onSelectCategory(null)}
-          label="すべて"
-        />
-        {CATEGORY_SECTIONS.map((section) => (
-          <CategoryLink
-            key={section.key}
-            active={activeCategory === section.key}
-            onClick={() => onSelectCategory(section.key)}
-            label={section.label}
-          />
-        ))}
-        <div className="ml-auto flex shrink-0 items-center gap-2 text-muted-foreground">
-          <Search className="size-3.5" />
-          <Input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="記事を検索…"
-            className="h-7 w-40 border-none bg-transparent px-0 text-xs shadow-none focus-visible:ring-0"
-          />
-        </div>
-      </div>
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-card px-4 py-3">
+      <span className="font-mono text-xs text-muted-foreground">
+        {resultCount}件を表示中
+      </span>
+      <button
+        type="button"
+        onClick={onClear}
+        className="text-xs font-semibold text-accent underline-offset-4 hover:underline"
+      >
+        フィルタを解除
+      </button>
     </div>
   )
 }
 
-function CategoryLink({
+function IndustryFilterPanel({
+  selectedIndustries,
+  resultCount,
+  onToggle,
+  onClear,
+}: {
+  selectedIndustries: IndustryTag[]
+  resultCount: number
+  onToggle: (tag: IndustryTag) => void
+  onClear: () => void
+}) {
+  return (
+    <section className="mb-6 rounded-md border border-border bg-card px-4 py-3 sm:px-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="font-mono text-[10px] font-semibold tracking-[0.22em] text-primary">
+              INDUSTRY
+            </span>
+            <span className="text-xs text-muted-foreground">
+              業界で絞り込み
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {INDUSTRY_OPTIONS.map((tag) => (
+              <IndustryChip
+                key={tag}
+                active={selectedIndustries.includes(tag)}
+                onClick={() => onToggle(tag)}
+                label={INDUSTRY_LABELS[tag]}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center justify-between gap-4 border-t border-border pt-3 lg:min-w-44 lg:justify-end lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+          <span className="font-mono text-xs font-semibold text-foreground">
+            {resultCount}件を表示中
+          </span>
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-xs font-semibold text-accent underline-offset-4 hover:underline"
+          >
+            フィルタを解除
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function IndustryChip({
   active,
   onClick,
   label,
-  size = "default",
 }: {
   active: boolean
   onClick: () => void
   label: string
-  size?: "default" | "sm"
 }) {
-  const padding = size === "sm" ? "py-1.5 text-xs" : "py-1.5 text-xs"
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 whitespace-nowrap border-b-2 ${padding} transition-colors ${
+      className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition-colors ${
         active
-          ? "border-accent font-semibold text-foreground"
-          : "border-transparent text-muted-foreground hover:text-foreground"
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background text-muted-foreground hover:border-primary hover:text-foreground"
       }`}
     >
       {label}
