@@ -57,17 +57,19 @@ export function SiteHeader() {
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <Link href="/" className="inline-flex items-center gap-3">
-            <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-background">
-              <Image
-                src="/goindia.png"
-                alt="IndoBiz Japan logo"
-                width={48}
-                height={48}
-                className="size-full object-contain"
-                priority
-              />
+            <span className="relative size-12 shrink-0 overflow-visible">
+              <span className="absolute left-1/2 top-1/2 size-20 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-md border border-border bg-background">
+                <Image
+                  src="/goindia.png"
+                  alt="IndoBiz Japan logo"
+                  width={70}
+                  height={70}
+                  className="size-full object-contain"
+                  priority
+                />
+              </span>
             </span>
-            <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1 leading-tight">
+            <span className="ml-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 leading-tight">
               <BrandWordmark />
               <span className="text-xs text-muted-foreground">
                 日本企業向けインド市場インテリジェンス · 編集部監修
