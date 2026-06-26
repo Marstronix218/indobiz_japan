@@ -41,9 +41,9 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
   const obj = parsed as Record<string, unknown>
   const title = asString(obj.title)
   const summary = asString(obj.summary)
-  // 「日本企業への示唆」は最も重要な1件のみ。プロンプトで1件指示しているが、
-  // LLMが複数返すことがあるため、コード側で先頭1件に強制する。
-  const implications = asStringArray(obj.implications).slice(0, 1)
+  // `implications` はDB互換のフィールド名だが、現在は記事冒頭に出す
+  // 「本記事のまとめ」3件として扱う。過剰に返った場合だけ先頭3件に絞る。
+  const implications = asStringArray(obj.implications).slice(0, 3)
   const industryTags = asStringArray(obj.industryTags ?? [])
   const category = asString(obj.category)
   const sourceUsage = asSourceUsage(obj.sourceUsage)

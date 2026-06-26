@@ -8,7 +8,7 @@ import {
   type WorkflowStatus,
   normalizeLegacyCategory,
 } from "@/lib/news-data"
-import { cleanText, ensureMinimumSummaryLength } from "@/lib/summary-utils"
+import { cleanText } from "@/lib/summary-utils"
 import { isLikelyArticleUrl } from "@/lib/source-url-utils"
 import { clusterArticles, readClusterOptionsFromEnv } from "@/lib/clustering"
 import {
@@ -129,7 +129,7 @@ export function translateToJapanesePreview(bodyText: string) {
 /** @deprecated fallback only — LLM失敗時の暫定要約に使用 */
 export function buildSummary(bodyText: string) {
   const translated = translateToJapanesePreview(bodyText)
-  return ensureMinimumSummaryLength(translated, 500)
+  return cleanText(translated).slice(0, 560)
 }
 
 /** @deprecated fallback only — LLM失敗時の示唆テンプレート */
@@ -149,9 +149,9 @@ export function buildImplications(
   }
 
   return [
-    `勝機あり: ${tagLabel} 領域の提案材料として活用できる。`,
-    "注意点: 一次ソースと現地オペレーションの差分確認が必要。",
-    "次アクション: 自社の進出・採用計画に引き付けて優先度を付ける。",
+    `${tagLabel}領域の提案材料になり得る。`,
+    "一次ソースと現地実務の差分確認が必要だ。",
+    "進出・採用計画への影響を優先度付けする。",
   ]
 }
 
@@ -433,7 +433,7 @@ function buildSynthesizedDraft(
   return {
     dedupeKey: buildDedupeKey(primary.title),
     title: output.title || primary.title,
-    summary: ensureMinimumSummaryLength(output.summary, 500),
+    summary: output.summary.trim(),
     imageUrl: primary.imageUrl,
     provenance: sources[0],
     sources,
@@ -520,6 +520,17 @@ async function buildDraft(
       finalOutput = qcResult.output
       qualityCheck = qcResult.qualityCheck
       forceReview = qcResult.forceReview
+    } else {
+      const deterministicQc = runDeterministicQualityGuard(output, synthInput)
+      if (deterministicQc) {
+        qualityCheck = {
+          verdict: deterministicQc.verdict,
+          notes: deterministicQc.issues.join("\n"),
+          revisionCount: 0,
+          checkedAt: new Date().toISOString(),
+        }
+        forceReview = true
+      }
     }
 
     primary.imageUrl = await tryGenerateImage(

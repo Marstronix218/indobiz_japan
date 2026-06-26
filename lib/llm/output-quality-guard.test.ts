@@ -20,12 +20,27 @@ const cluster: SynthesisSource[] = [
   },
 ]
 
+const validSummary = [
+  "インドルピーは1ドル＝94.63ルピーまで下落し、インド準備銀行が外為市場で介入した。",
+  "通貨安は輸入企業のドル建て支払いを重くし、部材を海外から調達する製造業には採算管理の見直しを迫る。",
+  "短期では支払い時期、ヘッジ比率、販売契約の価格転嫁条項を同じ前提レートで点検する必要がある。",
+  "インド市場で販売と調達を併せ持つ日本企業にとっては、為替の一時的な振れを営業だけで吸収するのではなく、財務、調達、販売が同じシナリオで判断することが重要となる。",
+  "今後もルピー相場が不安定に推移すれば、在庫水準や見積もり有効期限の設定にも影響が広がる。",
+  "現地で部材を調達する企業も、輸入品との価格差が変われば仕入れ先の選定や顧客への提示価格を見直す必要がある。",
+  "金融当局の介入が続く局面では、短期の反発を前提にした楽観的な予算より、複数の為替レンジを置いた管理が現実的である。",
+  "販売現場では値上げ時期を遅らせるほど採算悪化が蓄積するため、契約更新のタイミングを早めに洗い出すことが求められる。",
+  "為替変動を単発の市場ニュースとして扱わず、調達計画と価格政策を結ぶ管理指標として見る姿勢が問われている。",
+  "そのため、各部門の前提レートを毎週更新する体制が欠かせない。",
+].join("")
+
 function output(overrides: Partial<SynthesisOutput>): SynthesisOutput {
   return {
     title: "ルピーが94.63まで下落、RBIが外為市場に介入",
-    summary: "インドルピーは1ドル＝94.63ルピーまで下落し、インド準備銀行が外為市場で介入した。輸入企業にはドル建てコストの上振れが意識される局面である。",
+    summary: validSummary,
     implications: [
-      "94ルピー台までの下落は輸入採算と短期資金繰りに波及するため、日系製造業はドル建て部材の支払い時期とヘッジ比率を今週中に見直し、価格転嫁条件を販売契約と連動させる必要がある。調達、財務、営業が同じ前提レートで判断することが重要である。",
+      "ルピー下落で輸入採算の確認が必要だ。",
+      "ドル建て部材の支払い時期を見直す局面だ。",
+      "価格転嫁条件を販売契約と連動させるべきだ。",
     ],
     industryTags: [],
     category: "market",
@@ -42,10 +57,52 @@ test("passes a well-supported article", () => {
   assert.equal(runDeterministicQualityGuard(output({}), cluster), null)
 })
 
+test("flags generated body text outside the target length", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: "インドルピーは1ドル＝94.63ルピーまで下落した。",
+    }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("summary の文字数")))
+})
+
+test("flags takeaways longer than 50 characters", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      implications: [
+        "ルピー下落で輸入採算の確認が必要だ。",
+        "ドル建て部材の支払い時期を見直す局面だ。",
+        "為替変動が調達費と販売価格に同時に波及するため契約条件と見積もり有効期限を早急に再確認する必要がある。",
+      ],
+    }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("50字")))
+})
+
+test("flags takeaway count other than three", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      implications: [
+        "ルピー下落で輸入採算の確認が必要だ。",
+      ],
+    }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("3件")))
+})
+
 test("flags unsupported numbers introduced from outside the provided sources", () => {
   const qc = runDeterministicQualityGuard(
     output({
-      summary: "インドは過去にイランから原油の約10%を輸入していたが、今回の協議進展で製造コストに影響する可能性がある。",
+      summary: validSummary + "インドは過去にイランから原油の約10%を輸入していた。",
     }),
     cluster,
   )
@@ -57,7 +114,11 @@ test("flags unsupported numbers introduced from outside the provided sources", (
 test("flags rupee articles that accidentally use yen-level wording", () => {
   const qc = runDeterministicQualityGuard(
     output({
-      implications: ["ルピー安が輸入採算に影響するため、94円台後半を前提にヘッジ比率と価格転嫁条件を見直す必要がある。"],
+      implications: [
+        "94円台後半を前提にヘッジ比率を見直す。",
+        "ドル建て部材の支払い時期を見直す局面だ。",
+        "価格転嫁条件を販売契約と連動させるべきだ。",
+      ],
     }),
     cluster,
   )
@@ -86,7 +147,9 @@ test("flags concrete names introduced only in implications", () => {
     output({
       summary: "第8次給与委員会の勧告時期が前倒しされれば、耐久財消費の回復期待が高まる。",
       implications: [
-        "所得増が乗用車と二輪の買い替え需要に波及するため、マルチ・スズキとホンダ系ディーラー網を持つ日系企業は販売金融と在庫配分を前倒しで見直す必要がある。",
+        "マルチ・スズキの販売金融を点検すべきだ。",
+        "二輪需要の回復シナリオを見直す局面だ。",
+        "在庫配分を前倒しで確認する必要がある。",
       ],
     }),
     [{

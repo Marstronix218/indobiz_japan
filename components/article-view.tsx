@@ -448,7 +448,7 @@ export function ArticleView({
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-balance font-serif text-[28px] font-bold leading-[1.45] tracking-tight text-foreground sm:text-4xl">
+                <h1 className="text-balance font-serif text-[32px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[42px]">
                   {article.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -458,6 +458,21 @@ export function ArticleView({
                 </div>
               </div>
             </div>
+
+            {takeawayBullets.length > 0 && (
+              <section className="mt-5 rounded-md border border-primary/25 bg-primary/5 p-4 sm:p-5">
+                <h2 className="text-base font-bold text-primary">
+                  本記事のまとめ
+                </h2>
+                <ul className="mt-3 space-y-2.5 pl-4 text-base leading-8 text-foreground sm:text-[17px]">
+                  {takeawayBullets.map((item, index) => (
+                    <li key={`${index}-${item}`} className="list-disc">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             {imageSrc && (
               <div className="relative mx-auto mt-5 aspect-[16/9] w-full max-w-[620px] overflow-hidden rounded-md border border-border bg-muted">
@@ -472,26 +487,11 @@ export function ArticleView({
               </div>
             )}
 
-            {takeawayBullets.length > 0 && (
-              <section className="mt-5 rounded-md border border-primary/25 bg-primary/5 p-4 sm:p-5">
-                <h2 className="text-sm font-bold text-primary">
-                  本記事のまとめ
-                </h2>
-                <ul className="mt-3 space-y-2 pl-4 text-sm leading-7 text-foreground">
-                  {takeawayBullets.map((item) => (
-                    <li key={item} className="list-disc">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
             <section className="mt-6 space-y-4">
               {summaryParagraphs.map((paragraph, idx) => (
                 <p
                   key={idx}
-                  className="whitespace-pre-line text-[15px] leading-8 text-foreground"
+                  className="whitespace-pre-line text-[17px] leading-9 text-foreground sm:text-lg"
                 >
                   {paragraph}
                 </p>

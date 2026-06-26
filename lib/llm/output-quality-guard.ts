@@ -7,6 +7,10 @@ import type {
 import { normalizeSourceTitle, normalizeSourceUrl } from "./source-policy.ts"
 
 const MAX_ISSUES = 8
+const ARTICLE_BODY_MIN_CHARS = 500
+const ARTICLE_BODY_MAX_CHARS = 560
+const TAKEAWAY_COUNT = 3
+const TAKEAWAY_MAX_CHARS = 50
 const SIGNIFICANT_NUMBER_MIN = 13
 const GENERIC_KATAKANA_TERMS = new Set([
   "インド",
@@ -36,11 +40,11 @@ export function runDeterministicQualityGuard(
   cluster: SynthesisSource[],
 ): QualityCheckOutput | null {
   const issues: DeterministicIssue[] = [
+    ...checkArticleFormat(output),
     ...checkReferenceMapping(output, cluster),
     ...checkUnsupportedNumbers(output, cluster),
     ...checkCurrencyConfusion(output),
     ...checkSourceUsageEvidence(output, cluster),
-    ...checkImplicationDepth(output),
     ...checkImplicationIntroducesNewNames(output),
   ].slice(0, MAX_ISSUES)
 
@@ -57,6 +61,40 @@ export function runDeterministicQualityGuard(
       ? issues.map((issue) => `- ${issue.instruction}`).join("\n")
       : undefined,
   }
+}
+
+function checkArticleFormat(output: SynthesisOutput): DeterministicIssue[] {
+  const issues: DeterministicIssue[] = []
+  const bodyLength = output.summary.trim().length
+
+  if (
+    bodyLength < ARTICLE_BODY_MIN_CHARS ||
+    bodyLength > ARTICLE_BODY_MAX_CHARS
+  ) {
+    issues.push({
+      issue: `summary の文字数が指定範囲外である: ${bodyLength}字`,
+      instruction: `summary は${ARTICLE_BODY_MIN_CHARS}〜${ARTICLE_BODY_MAX_CHARS}字程度に収めること。短すぎる場合は本文中の事実・背景を補い、長すぎる場合は重複や一般論を削ること。`,
+    })
+  }
+
+  if (output.implications.length !== TAKEAWAY_COUNT) {
+    issues.push({
+      issue: `本記事のまとめが${TAKEAWAY_COUNT}件ではない: ${output.implications.length}件`,
+      instruction: `implications は本記事のまとめとして${TAKEAWAY_COUNT}件ちょうど返すこと。`,
+    })
+  }
+
+  output.implications.forEach((item, index) => {
+    const length = item.trim().length
+    if (length > TAKEAWAY_MAX_CHARS) {
+      issues.push({
+        issue: `本記事のまとめ${index + 1}が${TAKEAWAY_MAX_CHARS}字を超えている: ${length}字`,
+        instruction: `implications[${index}] は${TAKEAWAY_MAX_CHARS}字以内に短く要約すること。`,
+      })
+    }
+  })
+
+  return issues
 }
 
 function outputText(output: SynthesisOutput): string {
@@ -204,36 +242,10 @@ function checkSourceUsageEvidence(
   return issues
 }
 
-function checkImplicationDepth(output: SynthesisOutput): DeterministicIssue[] {
-  const implication = output.implications[0] ?? ""
-  if (!implication) return []
-
-  const issues: DeterministicIssue[] = []
-  if (implication.length < 100) {
-    issues.push({
-      issue: "implications が短く、記事固有の分析としての厚みが不足している",
-      instruction: "implications は120〜220字を目安に、記事中の事実→作用経路→具体的判断・行動を1件の中で説明すること。",
-    })
-  }
-
-  const hasMechanism = /(ため|ことで|により|通じて|押し下げ|押し上げ|波及|影響|リスク|コスト|需要|調達|投資|為替|金利|関税|人件費|消費)/.test(implication)
-  const hasAction = /(見直|確認|検討|比較|交渉|設計|優先|着手|織り込|ヘッジ|在庫|契約|調達|投資判断|KPI|シナリオ)/.test(implication)
-  if (!hasMechanism || !hasAction) {
-    issues.push({
-      issue: "implications が一般的な行動指示に寄っており、事実から行動までの因果が弱い",
-      instruction: "implications は『何が変わるのか』という作用経路と、『どの部門が何を見直すか』という実務判断を両方含めること。",
-    })
-  }
-
-  return issues
-}
-
 function checkImplicationIntroducesNewNames(output: SynthesisOutput): DeterministicIssue[] {
-  const implication = output.implications[0] ?? ""
-  if (!implication) return []
-
   const body = `${output.title}\n${output.summary}`
-  const newNames = extractJapaneseNameLikeTerms(implication)
+  const newNames = output.implications
+    .flatMap((implication) => extractJapaneseNameLikeTerms(implication))
     .filter((term) => !body.includes(term))
 
   if (newNames.length === 0) return []
