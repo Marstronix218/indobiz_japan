@@ -106,6 +106,8 @@ const KNOWN_INDUSTRY_TAGS: IndustryTag[] = [
   "logistics", "agriculture", "steel", "education", "entertainment", "talent",
 ]
 const KNOWN_TAG_SET = new Set<string>(KNOWN_INDUSTRY_TAGS)
+const MIN_EVIDENCE_BODY_CHARS = 220
+const MIN_CLUSTER_EVIDENCE_CHARS = 360
 
 const CJK_TITLE_REGEX = /[぀-ゟ゠-ヿ一-鿿㐀-䶿]/
 
@@ -198,6 +200,65 @@ function normalizeTagList(tags: string[]): IndustryTag[] {
     if (KNOWN_TAG_SET.has(t)) result.push(t as IndustryTag)
   }
   return Array.from(new Set(result))
+}
+
+function isGoogleNewsUrl(url: string | undefined): boolean {
+  if (!url) return false
+  try {
+    return new URL(url).hostname.toLowerCase() === "news.google.com"
+  } catch {
+    return false
+  }
+}
+
+function sentenceCount(text: string): number {
+  return text
+    .split(/[.!?。！？]+/)
+    .map((part) => part.trim())
+    .filter((part) => part.length >= 20).length
+}
+
+function isTitleOnlyEvidence(article: RawSourceArticle): boolean {
+  const title = cleanText(article.originalTitle ?? article.title)
+  const body = cleanText(article.bodyText ?? "")
+  if (!title || !body) return true
+
+  const titleKey = normalizeSourceTitle(title)
+  const bodyKey = normalizeSourceTitle(body)
+  if (!bodyKey) return true
+  if (bodyKey === titleKey) return true
+  if (body.length <= title.length + 40 && bodyKey.includes(titleKey)) return true
+  return sentenceCount(body) < 2 && body.length < MIN_EVIDENCE_BODY_CHARS
+}
+
+function evidenceProblem(article: RawSourceArticle): string | null {
+  const body = cleanText(article.bodyText ?? "")
+  if (isGoogleNewsUrl(article.url) || isGoogleNewsUrl(article.canonicalUrl)) {
+    return "Google NewsリダイレクトURLのまま本文根拠に使われている"
+  }
+  if (isTitleOnlyEvidence(article)) {
+    return "本文がタイトルのみ、または実質的な本文根拠が不足している"
+  }
+  if (body.length < MIN_EVIDENCE_BODY_CHARS) {
+    return `本文根拠が短すぎる (${body.length}字)`
+  }
+  return null
+}
+
+function filterEvidenceSources(cluster: RawSourceArticle[]) {
+  const usable: RawSourceArticle[] = []
+  const rejected: Array<{ title: string; reason: string }> = []
+
+  for (const article of cluster) {
+    const reason = evidenceProblem(article)
+    if (reason) {
+      rejected.push({ title: article.title, reason })
+    } else {
+      usable.push(article)
+    }
+  }
+
+  return { usable, rejected }
 }
 
 function buildFailedDraft(
@@ -457,9 +518,35 @@ async function buildDraft(
   llm: LLMClient | null,
   imageClient: ImageClient | null,
 ): Promise<PipelineDraft> {
-  const primary = pickPrimary(cluster)
+  const { usable, rejected } = filterEvidenceSources(cluster)
+  const evidenceCluster = usable.length > 0 ? usable : cluster
+  const primary = pickPrimary(evidenceCluster)
 
-  if (process.env.REQUIRE_MULTI_SOURCE === "1" && cluster.length < 2) {
+  if (usable.length === 0) {
+    const reasons = rejected
+      .map((item) => `${item.reason}: ${item.title}`)
+      .slice(0, 3)
+      .join(" / ")
+    return buildFailedDraft(
+      cluster,
+      primary,
+      `生成に足る本文根拠がないため除外: ${reasons}`,
+    )
+  }
+
+  const totalEvidenceChars = usable.reduce(
+    (sum, article) => sum + cleanText(article.bodyText ?? "").length,
+    0,
+  )
+  if (totalEvidenceChars < MIN_CLUSTER_EVIDENCE_CHARS) {
+    return buildFailedDraft(
+      cluster,
+      primary,
+      `生成に足る本文根拠が短すぎる (${totalEvidenceChars}字)`,
+    )
+  }
+
+  if (process.env.REQUIRE_MULTI_SOURCE === "1" && evidenceCluster.length < 2) {
     return buildFailedDraft(cluster, primary, "単独ソースのため著作権配慮で除外")
   }
 
@@ -478,8 +565,8 @@ async function buildDraft(
   try {
     // 主軸＋肉付け方式では核(本文最長=primary)を先頭に並べ、プロンプトの「資料1=核」前提と一致させる。
     const orderedCluster = isCoreFirstSynthesisEnabled()
-      ? [...cluster].sort((a, b) => (b.bodyText?.length ?? 0) - (a.bodyText?.length ?? 0))
-      : cluster
+      ? [...evidenceCluster].sort((a, b) => (b.bodyText?.length ?? 0) - (a.bodyText?.length ?? 0))
+      : evidenceCluster
     const synthInput: SynthesisSource[] = orderedCluster.map((a) => ({
       source: a.source,
       sourceUrl: a.url,
@@ -539,7 +626,7 @@ async function buildDraft(
       primary.title,
     ) ?? undefined
 
-    return buildSynthesizedDraft(cluster, primary, finalOutput, { qualityCheck, forceReview })
+    return buildSynthesizedDraft(evidenceCluster, primary, finalOutput, { qualityCheck, forceReview })
   } catch (error) {
     const msg = error instanceof LLMError
       ? error.message

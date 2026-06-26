@@ -14,12 +14,18 @@ const TAKEAWAY_MAX_CHARS = 50
 const SIGNIFICANT_NUMBER_MIN = 13
 const GENERIC_KATAKANA_TERMS = new Set([
   "インド",
+  "インフレ",
+  "エネルギー",
   "ルピー",
   "ドル",
   "リスク",
   "コスト",
+  "システム",
   "メーカー",
   "ディーラー",
+  "パートナー",
+  "タイムライン",
+  "ベース",
   "サプライヤー",
   "サプライチェーン",
   "ヘッジ",
@@ -28,6 +34,37 @@ const GENERIC_KATAKANA_TERMS = new Set([
   "マーケット",
   "レート",
 ])
+
+const META_COMMENTARY_PATTERNS = [
+  /参考(?:記事|資料|リンク|文献)/,
+  /原文を直接参照/,
+  /本文(?:から)?取得できた事実/,
+  /確認できないため(?:言及|断定)を控える/,
+  /ソースで提供された情報/,
+  /ソースに(?:明示|記載)されていない/,
+]
+
+const TEMPLATE_PHRASES = [
+  "背景として、政策運用や現地実務の差分",
+  "意思決定では、単一指標ではなく",
+  "日本企業の実務では、導入スピードと運用安定性",
+  "民間投資を誘発する構図が鮮明",
+  "この構図は当面続くとみられる",
+]
+
+const INDUSTRY_TAG_KEYWORDS: Record<string, string[]> = {
+  automotive: ["自動車", "乗用車", "二輪", "車両", "ev", "vehicle", "automotive"],
+  semiconductor: ["半導体", "チップ", "semiconductor", "chip"],
+  machine_tools: ["工作機械", "機械加工", "マシニング", "machine tool"],
+  food: ["食品", "食料", "飲料", "農産", "food"],
+  chemicals: ["化学", "化学品", "樹脂", "chemical"],
+  logistics: ["物流", "配送", "倉庫", "サプライチェーン", "logistics", "delivery"],
+  agriculture: ["農業", "農地", "農産", "agriculture", "farm"],
+  steel: ["鉄鋼", "鋼材", "steel"],
+  education: ["教育", "学校", "研修", "education", "school"],
+  entertainment: ["映画", "音楽", "娯楽", "entertainment"],
+  talent: ["人材", "採用", "労働", "雇用", "talent", "hiring"],
+}
 
 interface DeterministicIssue {
   issue: string
@@ -41,6 +78,8 @@ export function runDeterministicQualityGuard(
 ): QualityCheckOutput | null {
   const issues: DeterministicIssue[] = [
     ...checkArticleFormat(output),
+    ...checkMetaAndTemplateText(output),
+    ...checkIndustryTagAlignment(output, cluster),
     ...checkReferenceMapping(output, cluster),
     ...checkUnsupportedNumbers(output, cluster),
     ...checkCurrencyConfusion(output),
@@ -93,6 +132,49 @@ function checkArticleFormat(output: SynthesisOutput): DeterministicIssue[] {
       })
     }
   })
+
+  return issues
+}
+
+function checkMetaAndTemplateText(output: SynthesisOutput): DeterministicIssue[] {
+  const text = outputText(output)
+  const issues: DeterministicIssue[] = []
+
+  if (META_COMMENTARY_PATTERNS.some((pattern) => pattern.test(text))) {
+    issues.push({
+      issue: "生成記事にソース不足や参考資料への言及などのメタ注釈が含まれている",
+      instruction: "本文・まとめから『参考記事』『原文を直接参照』『確認できないため』などのメタ注釈を削除し、ソースで確認できる事実だけで記事を構成すること。根拠が足りない題材は生成しないこと。",
+      verdict: "REJECT",
+    })
+  }
+
+  const template = TEMPLATE_PHRASES.find((phrase) => text.includes(phrase))
+  if (template) {
+    issues.push({
+      issue: `汎用テンプレート表現が残っている: ${template}`,
+      instruction: "どの記事にも流用できる一般論・旧フィラー文を削除し、今回の参考記事で確認できる固有の事実に置き換えること。",
+    })
+  }
+
+  return issues
+}
+
+function checkIndustryTagAlignment(
+  output: SynthesisOutput,
+  cluster: SynthesisSource[],
+): DeterministicIssue[] {
+  const text = `${outputText(output)}\n${allSourceText(cluster)}`.toLowerCase()
+  const issues: DeterministicIssue[] = []
+
+  for (const tag of output.industryTags) {
+    const keywords = INDUSTRY_TAG_KEYWORDS[tag]
+    if (!keywords) continue
+    if (keywords.some((keyword) => text.includes(keyword.toLowerCase()))) continue
+    issues.push({
+      issue: `industryTags に記事内容と整合しないタグが含まれている: ${tag}`,
+      instruction: `industryTags から「${tag}」を削除し、対応する業界が本文・参考記事で明確に扱われているタグだけを残すこと。該当する許可タグがない場合は空配列でよい。`,
+    })
+  }
 
   return issues
 }

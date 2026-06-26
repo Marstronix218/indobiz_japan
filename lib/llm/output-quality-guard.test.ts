@@ -164,3 +164,35 @@ test("flags concrete names introduced only in implications", () => {
   assert.equal(qc?.verdict, "REVISION")
   assert(qc?.issues.some((issue) => issue.includes("マルチ・スズキ")))
 })
+
+test("rejects meta commentary about insufficient source evidence", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: `${validSummary}なお、参考記事では具体的な数値が確認できないため言及を控える。`,
+    }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REJECT")
+  assert(qc?.issues.some((issue) => issue.includes("メタ注釈")))
+})
+
+test("flags industry tags that do not match the article topic", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "クラウド投資がインドのデータセンター市場を押し上げる",
+      summary: validSummary.replaceAll("ルピー", "クラウド"),
+      industryTags: ["semiconductor", "machine_tools"],
+    }),
+    [{
+      source: "Example",
+      sourceUrl: "https://example.com/cloud",
+      publishedAt: "2026-06-25",
+      title: "Cloud companies invest in Indian data centres",
+      bodyText: "Large technology companies are investing in Indian cloud computing and data centre infrastructure.",
+    }],
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("industryTags")))
+})
