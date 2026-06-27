@@ -5,6 +5,11 @@ import { isLikelyArticleUrl } from "@/lib/source-url-utils"
 const USER_AGENT =
   "Mozilla/5.0 (compatible; IndoBizJapan/1.0; +https://example.com/bot)"
 
+// 記事本文の実取得・Google News デコードでは、ボットUAだと配信内容が変わる/弾かれる
+// サイトがあるため、ブラウザ相当のUAを使う。
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+
 interface Connector {
   connectorId: string
   source: string
@@ -336,6 +341,172 @@ function stripHtml(value: string): string {
 const MIN_BODY_CHARS = 40
 function pickBody(strippedBody: string, title: string): string {
   return strippedBody.length >= MIN_BODY_CHARS ? strippedBody : title
+}
+
+// === 記事本文の実取得(article-body fetch) ===
+// RSS の description は Google News 等では見出し相当しか含まれず、これだけを根拠に
+// 合成すると LLM が一般知識で穴埋めし、品質チェックで弾かれる。そこで合成前に
+// 実際の記事ページを取得し、本文(段落テキスト)を抽出して根拠を厚くする。
+
+// stripHtml は <a>…</a> を中身ごと削除する(クラスタリングのゴミ対策)。
+// 本文抽出ではアンカーの文字は残したいので、タグだけ除去するクリーナを用意する。
+function htmlFragmentToText(fragment: string): string {
+  return fragment
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0*39;|&apos;|&rsquo;|&lsquo;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+const ARTICLE_BODY_MAX_CHARS = 4000
+const ARTICLE_BODY_MIN_USABLE_CHARS = 200
+
+function extractMainText(html: string): string {
+  const cleaned = html
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<(script|style|noscript|svg|template|form|iframe)\b[\s\S]*?<\/\1>/gi, " ")
+
+  // 本文は <article> 内にあることが多い。十分な長さがあればそこに絞る。
+  const articleMatch = cleaned.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)
+  const scope = articleMatch && articleMatch[1].length > 400 ? articleMatch[1] : cleaned
+
+  const paragraphs = [...scope.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map((match) => htmlFragmentToText(match[1]))
+    // ナビ・キャプション・著作権表記などの短い断片を除外し、本文段落だけ残す。
+    .filter((text) => text.length >= 40)
+
+  let text = paragraphs.join("\n")
+  if (text.length < ARTICLE_BODY_MIN_USABLE_CHARS) {
+    // <p> が無いサイト向けのフォールバック: スコープ全体をテキスト化する。
+    text = htmlFragmentToText(scope)
+  }
+  return text.slice(0, ARTICLE_BODY_MAX_CHARS)
+}
+
+export function isGoogleNewsArticleUrl(url: string): boolean {
+  try {
+    const u = new URL(url)
+    return u.hostname.toLowerCase() === "news.google.com" && /\/articles\//.test(u.pathname)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Google News の記事リダイレクトURL(news.google.com/rss/articles/CBMi...)を、
+ * 実際の配信元URLにデコードする。単純なHTTPリダイレクトでは解決できないため、
+ * 記事ページから署名(data-n-a-sg)とタイムスタンプ(data-n-a-ts)を取得し、
+ * Google News の batchexecute エンドポイントに問い合わせて実URLを得る。
+ * 失敗時は null(呼び出し側は元のURLのまま継続= fail-open)。
+ */
+export async function resolveGoogleNewsUrl(
+  url: string,
+  timeoutMs = 9_000,
+): Promise<string | null> {
+  const id = url.match(/\/articles\/([^?/]+)/)?.[1]
+  if (!id) return null
+
+  const pageController = new AbortController()
+  const pageTimer = setTimeout(() => pageController.abort(), timeoutMs)
+  let html: string
+  try {
+    const res = await fetch(url, {
+      headers: { "user-agent": BROWSER_UA },
+      signal: pageController.signal,
+    })
+    if (!res.ok) return null
+    html = await res.text()
+  } catch {
+    return null
+  } finally {
+    clearTimeout(pageTimer)
+  }
+
+  const sig = html.match(/data-n-a-sg="([^"]+)"/)?.[1]
+  const ts = html.match(/data-n-a-ts="([^"]+)"/)?.[1]
+  if (!sig || !ts) return null
+
+  const inner = JSON.stringify([
+    "garturlreq",
+    [["X", "X", ["X", "X"], null, null, 1, 1, "US:en", null, 1, null, null, null, null, null, 0, 1], "X", "X", 1, [1, 1, 1], 1, 1, null, 0, 0, null, 0],
+    id,
+    Number(ts),
+    sig,
+  ])
+  const freq = JSON.stringify([[["Fbv4je", inner, null, "generic"]]])
+
+  const batchController = new AbortController()
+  const batchTimer = setTimeout(() => batchController.abort(), timeoutMs)
+  try {
+    const res = await fetch(
+      "https://news.google.com/_/DotsSplashUi/data/batchexecute",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "user-agent": BROWSER_UA,
+        },
+        body: `f.req=${encodeURIComponent(freq)}`,
+        signal: batchController.signal,
+      },
+    )
+    if (!res.ok) return null
+    const text = await res.text()
+    // 応答は )]}' 前置きのJSON内に、さらにJSON文字列としてエスケープされた
+    // ["garturlres","<実URL>",1] が入る。エスケープの揺れに強いよう、garturlres の
+    // 直後に現れる最初の http(s) URL を、次のバックスラッシュ/クォートまで取り出す。
+    const match = text.match(/garturlres[\\",\s]*?(https?:\/\/[^\\"]+)/)
+    return match ? match[1] : null
+  } catch {
+    return null
+  } finally {
+    clearTimeout(batchTimer)
+  }
+}
+
+/**
+ * 記事ページを実取得し、本文テキストを抽出して返す。
+ * 取得失敗・非HTML・抽出量が不十分な場合は "" を返す(呼び出し側は既存の薄い本文を維持= fail-open)。
+ * Google News のリダイレクトURLは本文抽出できないので、先に resolveGoogleNewsUrl で実URLに
+ * 変換してから渡すこと(この関数自体は news.google.com を弾く)。
+ */
+export async function fetchArticleBody(url: string, timeoutMs = 6_000): Promise<string> {
+  if (!url || !isLikelyArticleUrl(url)) return ""
+  try {
+    if (new URL(url).hostname.toLowerCase() === "news.google.com") return ""
+  } catch {
+    return ""
+  }
+
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const response = await fetch(url, {
+      redirect: "follow",
+      headers: {
+        "user-agent": BROWSER_UA,
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+      signal: controller.signal,
+    })
+    if (!response.ok) return ""
+    const contentType = response.headers.get("content-type") ?? ""
+    if (!contentType.toLowerCase().includes("html")) return ""
+    const html = await response.text()
+    const text = extractMainText(html)
+    return text.length >= ARTICLE_BODY_MIN_USABLE_CHARS ? text : ""
+  } catch {
+    return ""
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 function buildEvidenceSnippets(text: string, maxItems = 3): string[] {

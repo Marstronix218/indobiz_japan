@@ -25,7 +25,12 @@ import {
   type ImageClient,
 } from "@/lib/image-gen"
 import { buildSafeImagePrompt } from "@/lib/image-gen/safe-prompt"
-import { fetchSimilarArticles } from "@/lib/scrapers/fetch-india-news"
+import {
+  fetchArticleBody,
+  fetchSimilarArticles,
+  isGoogleNewsArticleUrl,
+  resolveGoogleNewsUrl,
+} from "@/lib/scrapers/fetch-india-news"
 import { isCoreFirstSynthesisEnabled } from "@/lib/llm/prompt"
 import { normalizeSourceTitle } from "@/lib/llm/source-policy"
 import { runDeterministicQualityGuard } from "@/lib/llm/output-quality-guard"
@@ -727,6 +732,71 @@ async function mapWithConcurrency<T, R>(
   return results
 }
 
+// 合成前に薄い本文(RSSのdescriptionが見出し相当のもの)を実記事取得で厚くする。
+// これがないと根拠不足で LLM が一般知識を補い、品質チェックで REVISION/REJECT になる。
+const THIN_BODY_CHARS = 500
+
+function isThinBody(article: RawSourceArticle): boolean {
+  const body = cleanText(article.bodyText ?? "")
+  if (body.length < THIN_BODY_CHARS) return true
+  const title = cleanText(article.originalTitle ?? article.title ?? "")
+  if (title && normalizeSourceTitle(body) === normalizeSourceTitle(title)) return true
+  return false
+}
+
+// 合成対象に残ったクラスタの薄いソースだけを実取得して本文を差し替える。
+// fail-open(失敗・非HTML・抽出不足なら元の本文を維持)かつ全体に時間・件数の上限を設け、
+// cron の maxDuration(300s)を脅かさないようにする。FETCH_ARTICLE_BODIES=0 で無効化。
+async function enrichClusterBodies(clusters: RawSourceArticle[][]): Promise<number> {
+  if (process.env.FETCH_ARTICLE_BODIES === "0") return 0
+  const timeoutMs = Number(process.env.BODY_FETCH_TIMEOUT_MS ?? 6_000)
+  const phaseBudgetMs = Number(process.env.BODY_FETCH_BUDGET_MS ?? 45_000)
+  const maxFetch = Number(process.env.BODY_FETCH_MAX ?? 40)
+  const concurrency = Math.max(1, Number(process.env.BODY_FETCH_CONCURRENCY ?? 5))
+
+  const targets: RawSourceArticle[] = []
+  const seen = new Set<string>()
+  for (const cluster of clusters) {
+    for (const article of cluster) {
+      if (!isThinBody(article)) continue
+      const key = (article.canonicalUrl ?? article.url ?? "").split("?")[0]
+      if (!key || seen.has(key)) continue
+      seen.add(key)
+      targets.push(article)
+    }
+  }
+
+  const slice = targets.slice(0, Math.max(0, maxFetch))
+  if (slice.length === 0) return 0
+
+  const phaseStart = Date.now()
+  let enriched = 0
+  await mapWithConcurrency(slice, concurrency, async (article) => {
+    if (Date.now() - phaseStart > phaseBudgetMs) return
+
+    // Google News のリダイレクトURLは本文抽出できないので、先に実URLへ解決する。
+    // 解決できたら表示用の参考リンク(url/canonicalUrl)も実URLに更新する
+    // (「参考URLがGoogle Newsリダイレクト」という品質チェック指摘の解消も兼ねる)。
+    let targetUrl = article.canonicalUrl ?? article.url
+    if (isGoogleNewsArticleUrl(targetUrl)) {
+      const resolved = await resolveGoogleNewsUrl(targetUrl, timeoutMs)
+      if (resolved) {
+        targetUrl = resolved
+        article.url = resolved
+        article.canonicalUrl = resolved
+      }
+    }
+
+    const fetched = await fetchArticleBody(targetUrl, timeoutMs)
+    if (fetched && fetched.length > cleanText(article.bodyText ?? "").length) {
+      article.bodyText = fetched
+      article.extractedBy = "article-body-fetch"
+      enriched += 1
+    }
+  })
+  return enriched
+}
+
 export async function runAutomationPipeline(
   rawArticles: RawSourceArticle[],
   deps?: {
@@ -805,6 +875,19 @@ export async function runAutomationPipeline(
   })
   const clusters = prioritized.slice(0, maxClusters)
   const droppedClusters = prioritized.slice(maxClusters)
+
+  // 合成対象クラスタの薄い本文を実記事取得で厚くする(パイプライン時間予算の計測前に実行し、
+  // 自前のフェーズ予算で上限を持つ)。失敗しても元の本文で従来どおり進む。
+  try {
+    const enrichedCount = await enrichClusterBodies(clusters)
+    if (enrichedCount > 0) {
+      console.info(`[automation] 本文実取得で ${enrichedCount} 件のソース本文を補強`)
+    }
+  } catch (error) {
+    console.warn(
+      `[automation] 本文実取得フェーズで例外、薄い本文のまま継続: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
 
   const concurrency = Math.max(1, Number(process.env.PIPELINE_CONCURRENCY ?? 2))
   const budgetMs = Number(process.env.PIPELINE_BUDGET_MS ?? 220_000)

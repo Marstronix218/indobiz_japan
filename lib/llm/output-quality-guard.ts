@@ -7,8 +7,10 @@ import type {
 import { normalizeSourceTitle, normalizeSourceUrl } from "./source-policy.ts"
 
 const MAX_ISSUES = 8
-const ARTICLE_BODY_MIN_CHARS = 500
-const ARTICLE_BODY_MAX_CHARS = 560
+// 本文長の許容幅。狙いは約500〜620字だが、情報量の多い規制・通商記事は自然に長くなる。
+// 厳密な560字上限だと公開水準の記事まで review に落ちていたため、ゲートの許容幅を広げる。
+const ARTICLE_BODY_MIN_CHARS = 450
+const ARTICLE_BODY_MAX_CHARS = 700
 const TAKEAWAY_COUNT = 3
 const TAKEAWAY_MAX_CHARS = 50
 const SIGNIFICANT_NUMBER_MIN = 13
@@ -256,6 +258,8 @@ function checkUnsupportedNumbers(
   const sourceNumbers = extractNumbers(allSourceText(cluster))
   const issues: DeterministicIssue[] = []
   for (const number of extractNumbers(outputText(output))) {
+    // 西暦(1900〜2099)は捏造データではなく文脈表現として使われるため対象外にする。
+    if (/^(?:19|20)\d{2}$/.test(number.normalized)) continue
     if (isSupportedNumber(number, sourceNumbers)) continue
     issues.push({
       issue: `参考記事本文にない数値が生成記事に含まれている: ${number.raw}`,
