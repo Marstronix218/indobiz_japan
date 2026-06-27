@@ -14,7 +14,11 @@ export function ColumnAuthorCard({ author }: { author: AuthorProfile }) {
       <div className="mt-4 flex gap-4 rounded-md border border-border bg-secondary/30 p-4 sm:p-5">
         <Avatar className="size-14 shrink-0 border border-border">
           {author.avatarUrl && (
-            <AvatarImage src={author.avatarUrl} alt={author.name} />
+            <AvatarImage
+              src={author.avatarUrl}
+              alt={author.name}
+              className="object-cover"
+            />
           )}
           <AvatarFallback className="bg-primary/10 text-base font-bold text-primary">
             {authorInitial(author.name)}
