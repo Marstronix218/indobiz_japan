@@ -1,3 +1,5 @@
+import type { AuthorProfile } from "@/lib/authors"
+
 export type Category =
   | "economy"
   | "regulation"
@@ -83,6 +85,10 @@ export interface NewsArticle {
   contentType: ContentType
   visibility: Visibility
   workflowStatus: WorkflowStatus
+  /** Roster author for editorial/column articles (see lib/authors.ts). */
+  authorId?: string
+  /** Per-article author override / one-off contributor (merged over the roster entry). */
+  author?: Partial<AuthorProfile>
   imageUrl?: string
   featured?: boolean
   marketSnapshot?: MarketSnapshot
@@ -612,6 +618,7 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "次アクション: 販売代理店ではなく保守実行体制まで商談時に確認する。",
     ],
     contentType: "column",
+    authorId: "procurement_lead",
     visibility: "member",
     workflowStatus: "published",
     imageUrl: "/images/article-6.jpg",
@@ -673,6 +680,7 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "次アクション: 現地管理職向けに面談スクリプトと評価説明資料を整備する。",
     ],
     contentType: "interview",
+    authorId: "interview_desk",
     visibility: "member",
     workflowStatus: "published",
     imageUrl: "/images/article-13.jpg",

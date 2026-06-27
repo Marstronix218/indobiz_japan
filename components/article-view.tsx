@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import { MarketTicker } from "@/components/market-ticker"
+import { ColumnAuthorCard } from "@/components/column-author-card"
 import { NewsCardTile } from "@/components/news-card"
 import {
   CitySpotlightWidget,
@@ -29,6 +30,7 @@ import {
 import { formatSummaryParagraphs } from "@/lib/summary-utils"
 import { ensureMinimumSummaryLength } from "@/lib/summary-utils"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
+import { resolveArticleAuthor } from "@/lib/authors"
 
 const TITLE_SOURCE_SUFFIX =
   /\s+(?:[-–—|])\s+(?:reuters|associated press|ap news|bloomberg|bbc|cnn|cnbc|financial times|the hindu|hindustan times|times of india|the economic times|the new indian express|indian express|mint|moneycontrol|business standard|ndtv|deccan herald|firstpost|the print|pib)$/i
@@ -355,6 +357,7 @@ export function ArticleView({
     .slice(0, 3)
   const isEditorial =
     article.contentType !== "news" || article.category === "column"
+  const columnAuthor = isEditorial ? resolveArticleAuthor(article) : null
   const detailedSummary = isEditorial
     ? article.summary.trim()
     : ensureMinimumSummaryLength(article.summary, 500)
@@ -497,6 +500,8 @@ export function ArticleView({
                 </p>
               ))}
             </section>
+
+            {columnAuthor && <ColumnAuthorCard author={columnAuthor} />}
 
             {article.marketSnapshot && (
               <section className="mt-7 border-t border-border pt-6">

@@ -5,6 +5,7 @@ import {
   type UpdateArticleInput,
 } from "@/lib/supabase/article-repository"
 import { isAdminRequest } from "@/lib/admin-auth"
+import { coerceAuthorInput } from "@/lib/authors"
 import {
   type Category,
   type ContentType,
@@ -41,6 +42,9 @@ function pickUpdate(body: Record<string, unknown>): UpdateArticleInput {
     input.imageUrl = (body.imageUrl as string | null) ?? undefined
   }
   if (typeof body.featured === "boolean") input.featured = body.featured
+  // Only column articles carry an author profile. When present, parse it;
+  // category-driven clearing for non-column edits is handled in updateArticle.
+  if ("author" in body) input.author = coerceAuthorInput(body.author)
   return input
 }
 

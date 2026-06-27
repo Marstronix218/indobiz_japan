@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { getArticleById } from "@/lib/article-store"
+import { AUTHORS } from "@/lib/authors"
 import {
   CATEGORY_LABELS,
   CATEGORY_OPTIONS,
@@ -86,6 +87,10 @@ interface ArticleFormState {
   featured: boolean
   marketSnapshot: MarketSnapshot
   referenceSources: SourceProvenance[]
+  authorName: string
+  authorTitle: string
+  authorBio: string
+  authorAvatarUrl: string
 }
 
 const EMPTY_FORM: ArticleFormState = {
@@ -103,6 +108,10 @@ const EMPTY_FORM: ArticleFormState = {
   featured: false,
   marketSnapshot: DEFAULT_MARKET_SNAPSHOT,
   referenceSources: [],
+  authorName: "",
+  authorTitle: "",
+  authorBio: "",
+  authorAvatarUrl: "",
 }
 
 export function ArticleFormDialog({
@@ -114,6 +123,7 @@ export function ArticleFormDialog({
   const [form, setForm] = useState<ArticleFormState>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [generatingImage, setGeneratingImage] = useState(false)
   const isEditing = editingId !== null
 
@@ -180,6 +190,37 @@ export function ArticleFormDialog({
     }
   }
 
+  async function handleAvatarUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+    setUploadingAvatar(true)
+    try {
+      const formData = new FormData()
+      formData.append("image", file)
+      const response = await fetch("/api/admin/upload-image", {
+        method: "POST",
+        credentials: "same-origin",
+        body: formData,
+      })
+      const data = (await response.json()) as {
+        ok?: boolean
+        url?: string
+        error?: string
+      }
+      if (!response.ok || !data.ok || !data.url) {
+        throw new Error(data.error ?? `HTTP ${response.status}`)
+      }
+      setForm((current) => ({ ...current, authorAvatarUrl: data.url ?? "" }))
+      toast.success("顔写真をアップロードしました。")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "不明なエラー"
+      toast.error(`アップロード失敗: ${message}`)
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   useEffect(() => {
     if (!open) return
 
@@ -211,6 +252,10 @@ export function ArticleFormDialog({
       featured: article.featured ?? false,
       marketSnapshot: article.marketSnapshot ?? DEFAULT_MARKET_SNAPSHOT,
       referenceSources: getAllSources(article),
+      authorName: article.author?.name ?? "",
+      authorTitle: article.author?.title ?? "",
+      authorBio: article.author?.bio ?? "",
+      authorAvatarUrl: article.author?.avatarUrl ?? "",
     })
   }, [editingId, open])
 
@@ -276,6 +321,17 @@ export function ArticleFormDialog({
       featured: form.featured,
       marketSnapshot:
         form.category === "market" ? form.marketSnapshot : undefined,
+      // Author profile applies to column articles only. Always send the key
+      // (null when not a column) so switching category away clears a stale one.
+      author:
+        form.category === "column" && form.authorName.trim()
+          ? {
+              name: form.authorName.trim(),
+              title: form.authorTitle.trim() || undefined,
+              bio: form.authorBio.trim() || undefined,
+              avatarUrl: form.authorAvatarUrl.trim() || undefined,
+            }
+          : null,
     }
 
     setSubmitting(true)
@@ -497,6 +553,139 @@ export function ArticleFormDialog({
               </p>
             </div>
           </div>
+
+          {form.category === "column" && (
+            <div className="space-y-4 rounded-2xl border border-border bg-secondary/20 p-4">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">
+                  執筆者プロフィール（コラム用・任意）
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  入力すると記事ページ下部に「この記事の執筆者」枠として表示されます。名前を空にすると表示されません。
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>ロスターから選択（任意）</Label>
+                <Select
+                  onValueChange={(value) => {
+                    const preset = AUTHORS[value]
+                    if (!preset) return
+                    setForm((current) => ({
+                      ...current,
+                      authorName: preset.name,
+                      authorTitle: preset.title ?? "",
+                      authorBio: preset.bio ?? "",
+                      authorAvatarUrl: preset.avatarUrl ?? "",
+                    }))
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="よく使う執筆者を選んで自動入力" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(AUTHORS).map((author) => (
+                      <SelectItem key={author.id} value={author.id}>
+                        {author.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  選ぶと下の欄に流し込みます。流し込んだ後に自由に編集できます。
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="authorName">執筆者名</Label>
+                  <Input
+                    id="authorName"
+                    value={form.authorName}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        authorName: event.target.value,
+                      }))
+                    }
+                    placeholder="山田 太郎 / IndoBiz Japan編集部 など"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="authorTitle">肩書・所属</Label>
+                  <Input
+                    id="authorTitle"
+                    value={form.authorTitle}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        authorTitle: event.target.value,
+                      }))
+                    }
+                    placeholder="現地法人 社長 / 編集部 など"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="authorBio">自己紹介文</Label>
+                <Textarea
+                  id="authorBio"
+                  value={form.authorBio}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      authorBio: event.target.value,
+                    }))
+                  }
+                  placeholder="経歴や専門領域を1〜2文で。"
+                  className="min-h-20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="authorAvatarUrl">顔写真（任意）</Label>
+                <Input
+                  id="authorAvatarUrl"
+                  type="url"
+                  value={form.authorAvatarUrl}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      authorAvatarUrl: event.target.value,
+                    }))
+                  }
+                  placeholder="https://... または下のボタンからアップロード"
+                />
+                <div className="flex items-center gap-3">
+                  <Input
+                    id="authorAvatarFile"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleAvatarUpload}
+                    disabled={uploadingAvatar}
+                    className="cursor-pointer text-xs file:mr-3 file:cursor-pointer"
+                  />
+                  {uploadingAvatar && (
+                    <span className="text-xs text-muted-foreground">
+                      アップロード中…
+                    </span>
+                  )}
+                </div>
+                {form.authorAvatarUrl && !uploadingAvatar && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={form.authorAvatarUrl}
+                    alt="執筆者プレビュー"
+                    className="mt-1 size-16 rounded-full object-cover"
+                  />
+                )}
+                <p className="text-xs text-muted-foreground">
+                  未設定の場合は名前の頭文字がアイコンとして表示されます。
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="imageUrl">画像（任意）</Label>

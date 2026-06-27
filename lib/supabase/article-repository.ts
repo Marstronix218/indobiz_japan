@@ -10,6 +10,7 @@ import {
   type Visibility,
   type WorkflowStatus,
 } from "@/lib/news-data"
+import type { AuthorProfile } from "@/lib/authors"
 import type { PipelineDraft } from "@/lib/automation"
 import { extractKeywords } from "@/lib/clustering"
 import { getAnonClient, getServiceClient, hasSupabaseConfig } from "./client"
@@ -30,6 +31,10 @@ interface ArticleRow {
   image_url: string | null
   featured: boolean
   is_synthesized: boolean
+  author_name: string | null
+  author_title: string | null
+  author_bio: string | null
+  author_avatar_url: string | null
   dedupe_key: string | null
   quality_verdict: string | null
   quality_notes: string | null
@@ -58,6 +63,7 @@ const ARTICLE_SELECT = `
   industry_tags,
   implications, content_type, visibility, workflow_status,
   image_url, featured, is_synthesized, dedupe_key,
+  author_name, author_title, author_bio, author_avatar_url,
   quality_verdict, quality_notes, revision_count, last_quality_check_at,
   created_at,
   article_sources (
@@ -78,6 +84,16 @@ function rowToQualityCheck(row: ArticleRow): QualityCheckMeta | undefined {
     notes: row.quality_notes ?? undefined,
     revisionCount: row.revision_count ?? 0,
     checkedAt: row.last_quality_check_at ?? undefined,
+  }
+}
+
+function rowToAuthor(row: ArticleRow): Partial<AuthorProfile> | undefined {
+  if (!row.author_name) return undefined
+  return {
+    name: row.author_name,
+    title: row.author_title ?? undefined,
+    bio: row.author_bio ?? undefined,
+    avatarUrl: row.author_avatar_url ?? undefined,
   }
 }
 
@@ -118,6 +134,7 @@ function rowToArticle(row: ArticleRow): NewsArticle {
     imageUrl: row.image_url ?? undefined,
     featured: row.featured,
     isSynthesized: row.is_synthesized,
+    author: rowToAuthor(row),
     provenance: sources[0],
     sources: sources.length > 0 ? sources : undefined,
     qualityCheck: rowToQualityCheck(row),
@@ -198,6 +215,7 @@ export interface InsertArticleInput {
   imageUrl?: string
   featured?: boolean
   isSynthesized?: boolean
+  author?: Partial<AuthorProfile>
   dedupeKey?: string
   sources?: SourceProvenance[]
   qualityCheck?: QualityCheckMeta
@@ -219,6 +237,10 @@ function toRowInsert(input: InsertArticleInput) {
     image_url: input.imageUrl ?? null,
     featured: input.featured ?? false,
     is_synthesized: input.isSynthesized ?? false,
+    author_name: input.author?.name ?? null,
+    author_title: input.author?.title ?? null,
+    author_bio: input.author?.bio ?? null,
+    author_avatar_url: input.author?.avatarUrl ?? null,
     dedupe_key: input.dedupeKey ?? null,
     quality_verdict: input.qualityCheck?.verdict ?? null,
     quality_notes: input.qualityCheck?.notes ?? null,
@@ -460,6 +482,18 @@ export async function updateArticle(
   if (input.imageUrl !== undefined) row.image_url = input.imageUrl ?? null
   if (input.featured !== undefined) row.featured = input.featured
   if (input.isSynthesized !== undefined) row.is_synthesized = input.isSynthesized
+  if (input.author !== undefined) {
+    row.author_name = input.author.name ?? null
+    row.author_title = input.author.title ?? null
+    row.author_bio = input.author.bio ?? null
+    row.author_avatar_url = input.author.avatarUrl ?? null
+  } else if (input.category !== undefined && input.category !== "column") {
+    // Category switched away from column — drop any stale author profile.
+    row.author_name = null
+    row.author_title = null
+    row.author_bio = null
+    row.author_avatar_url = null
+  }
   if (input.qualityCheck !== undefined) {
     row.quality_verdict = input.qualityCheck?.verdict ?? null
     row.quality_notes = input.qualityCheck?.notes ?? null

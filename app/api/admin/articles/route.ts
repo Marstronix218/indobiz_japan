@@ -5,6 +5,7 @@ import {
   type InsertArticleInput,
 } from "@/lib/supabase/article-repository"
 import { isAdminRequest } from "@/lib/admin-auth"
+import { coerceAuthorInput } from "@/lib/authors"
 import {
   type Category,
   type ContentType,
@@ -38,6 +39,7 @@ interface CreateBody {
   workflowStatus?: unknown
   imageUrl?: unknown
   featured?: unknown
+  author?: unknown
 }
 
 function normalize(body: CreateBody): InsertArticleInput | { error: string } {
@@ -82,6 +84,8 @@ function normalize(body: CreateBody): InsertArticleInput | { error: string } {
     imageUrl: typeof body.imageUrl === "string" && body.imageUrl ? body.imageUrl : undefined,
     featured: body.featured === true,
     isSynthesized: false,
+    author:
+      body.category === "column" ? coerceAuthorInput(body.author) : undefined,
   }
 }
 
