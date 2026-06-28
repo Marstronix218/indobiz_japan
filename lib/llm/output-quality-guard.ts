@@ -286,6 +286,7 @@ function checkSourceUsageEvidence(
 ): DeterministicIssue[] {
   const issues: DeterministicIssue[] = []
   const articleText = outputText(output)
+  const flaggedUnusedSources = new Set<number>()
 
   for (const usage of output.sourceUsage ?? []) {
     const source = cluster[usage.sourceIndex - 1]
@@ -311,15 +312,16 @@ function checkSourceUsageEvidence(
 
       const factEvidenceTokens = [
         ...factNumbers.map((number) => number.normalized),
-        ...extractLatinNames(fact),
       ]
       if (
         factEvidenceTokens.length > 0 &&
-        !factEvidenceTokens.some((token) => articleText.toLowerCase().includes(token.toLowerCase()))
+        !factEvidenceTokens.some((token) => articleText.toLowerCase().includes(token.toLowerCase())) &&
+        !flaggedUnusedSources.has(usage.sourceIndex)
       ) {
+        flaggedUnusedSources.add(usage.sourceIndex)
         issues.push({
           issue: `sourceUsage の事実が生成本文で実質的に使われていない: 参考記事${usage.sourceIndex}`,
-          instruction: `本文で使っていない参考記事${usage.sourceIndex}は sourceUsage と referenceUrls から外すこと。使う場合は、その事実を本文中に明確に反映すること。`,
+          instruction: `本文で使っていない参考記事${usage.sourceIndex}は sourceUsage と referenceUrls から外すこと。使う場合は、factsUsed に書いた数値・事実を本文中に明確に反映し、factsUsed は本文と同じ表記で書くこと。`,
         })
       }
     }
@@ -382,19 +384,25 @@ function isSupportedNumber(
   })
 }
 
-function extractLatinNames(text: string): string[] {
-  return [...text.matchAll(/\b[A-Z][A-Za-z0-9&.-]*(?:\s+[A-Z][A-Za-z0-9&.-]*)*\b/g)]
-    .map((match) => match[0].trim())
-    .filter((term) => term.length >= 3 && !/^(The|A|An|In|On|At|Of|For|And|Or|But)$/.test(term))
-}
-
+// このチェックは「まとめが本文にない固有名詞を突然導入していないか」を高精度に拾うのが目的。
+// 単独のカタカナ語(システム/パートナー/ベース 等)や単独の略語は汎用語との区別がつかず誤検知の温床
+// だったため、明らかに固有名詞の構造を持つものだけを対象にする:
+//   - カタカナは「・」で連結された複合名(例: マルチ・スズキ)のみ。ただし全パートが汎用語なら除外。
+//   - ラテン文字は複数語の固有名(例: Tata Communications)のみ。単独語・単独略語は対象外。
+// 曖昧な固有名詞判定は LLM 品質チェック側(quality-prompts.ts)に委ねる。
 function extractJapaneseNameLikeTerms(text: string): string[] {
-  const candidates = [
-    ...text.matchAll(/[ァ-ヴー]{3,}(?:・[ァ-ヴー]{2,})*/g),
-    ...text.matchAll(/[A-Z][A-Za-z0-9&.-]*(?:\s+[A-Z][A-Za-z0-9&.-]*)*/g),
-  ].map((match) => match[0])
+  const katakanaNames = [...text.matchAll(/[ァ-ヴー]{2,}(?:・[ァ-ヴー]{2,})+/g)].map((m) => m[0])
+  const latinNames = [...text.matchAll(/[A-Z][A-Za-z0-9&.-]*(?:\s+[A-Z][A-Za-z0-9&.-]*)+/g)].map((m) => m[0])
 
-  return [...new Set(candidates)]
-    .filter((term) => term.length >= 3)
-    .filter((term) => !GENERIC_KATAKANA_TERMS.has(term))
+  const result: string[] = []
+  for (const term of new Set([...katakanaNames, ...latinNames])) {
+    if (term.length < 3) continue
+    if (GENERIC_KATAKANA_TERMS.has(term)) continue
+    // 「・」連結でも全パートが汎用語なら固有名詞ではない(例: インフレ・エネルギー)
+    if (term.includes("・") && term.split("・").every((part) => GENERIC_KATAKANA_TERMS.has(part))) {
+      continue
+    }
+    result.push(term)
+  }
+  return result
 }

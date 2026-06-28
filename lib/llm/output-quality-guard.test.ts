@@ -142,6 +142,40 @@ test("flags references that are not backed by sourceUsage", () => {
   assert(qc?.issues.some((issue) => issue.includes("sourceUsage")))
 })
 
+test("does not require exact English sourceUsage names when body uses Japanese wording", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      sourceUsage: [{
+        sourceIndex: 1,
+        factsUsed: ["Reserve Bank of India intervened in the foreign exchange market"],
+      }],
+    }),
+    cluster,
+  )
+
+  assert.equal(qc, null)
+})
+
+test("deduplicates unused sourceUsage number issues per source", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      sourceUsage: [{
+        sourceIndex: 1,
+        factsUsed: ["94.63 per dollar", "94.63 after intervention"],
+      }],
+      title: "ルピーが94台まで下落、RBIが外為市場に介入",
+      summary: validSummary.replaceAll("94.63", "94"),
+    }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert.equal(
+    qc?.issues.filter((issue) => issue.includes("sourceUsage の事実が生成本文")).length,
+    1,
+  )
+})
+
 test("flags concrete names introduced only in implications", () => {
   const qc = runDeterministicQualityGuard(
     output({
