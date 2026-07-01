@@ -12,6 +12,7 @@ import {
   MarketIndicatorWidget,
   CitySpotlightWidget,
 } from "@/components/sidebar-widgets"
+import { GooeyGradientBackground } from "@/components/gooey-gradient-background"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { SiteIntro } from "@/components/site-intro"
@@ -137,8 +138,17 @@ export function NewsList() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader />
-      {!filterActive && <SiteIntro />}
+      {filterActive ? (
+        <SiteHeader />
+      ) : (
+        <GooeyGradientBackground
+          className="text-white"
+          contentClassName="bg-black/25"
+        >
+          <SiteHeader withBackground={false} />
+          <SiteIntro withBackground={false} />
+        </GooeyGradientBackground>
+      )}
       <MarketTicker />
 
       <main

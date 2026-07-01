@@ -1,84 +1,91 @@
 import Link from "next/link"
+import { GooeyGradientBackground } from "@/components/gooey-gradient-background"
 import { Separator } from "@/components/ui/separator"
 import { CATEGORY_OPTIONS, CATEGORY_LABELS } from "@/lib/news-data"
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 bg-primary text-primary-foreground">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-3">
-          <div className="space-y-3">
-            <h4 className="font-serif text-xl font-bold">
-              IndoBiz Japan
-            </h4>
-            <p className="max-w-sm text-base leading-8 text-primary-foreground/75">
-              日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける β版プロダクトです。
-            </p>
-          </div>
+    <footer className="mt-16">
+      <GooeyGradientBackground
+        className="text-white"
+        contentClassName="bg-black/30"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-3">
+            <div className="space-y-3">
+              <h4 className="font-serif text-xl font-bold">IndoBiz Japan</h4>
+              <p className="max-w-sm text-base leading-8 text-white/75">
+                日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける β版プロダクトです。
+              </p>
+            </div>
 
-          <div className="space-y-3">
-            <h5 className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
-              Categories
-            </h5>
-            <ul className="space-y-2 text-[13px] leading-6 text-primary-foreground/75">
-              {CATEGORY_OPTIONS.map((category) => (
-                <li key={category}>
-                  <Link
-                    href={`/?category=${category}`}
-                    className="transition-opacity hover:opacity-100"
-                  >
-                    {CATEGORY_LABELS[category]}
+            <div className="space-y-3">
+              <h5 className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
+                Categories
+              </h5>
+              <ul className="space-y-2 text-[13px] leading-6 text-white/75">
+                {CATEGORY_OPTIONS.map((category) => (
+                  <li key={category}>
+                    <Link
+                      href={`/?category=${category}`}
+                      className="transition-opacity hover:opacity-100"
+                    >
+                      {CATEGORY_LABELS[category]}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h5 className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
+                Navigation
+              </h5>
+              <ul className="space-y-2 text-[13px] leading-6 text-white/75">
+                <li>
+                  <Link href="/pricing" className="transition-opacity hover:opacity-100">
+                    無料会員登録
                   </Link>
                 </li>
-              ))}
-            </ul>
+                <li>
+                  <Link href="/pricing" className="transition-opacity hover:opacity-100">
+                    料金プラン
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="transition-opacity hover:opacity-100">
+                    お問い合わせ
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/company" className="transition-opacity hover:opacity-100">
+                    運営会社
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="transition-opacity hover:opacity-100">
+                    利用規約・プライバシーポリシー
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/legal/tokushoho"
+                    className="transition-opacity hover:opacity-100"
+                  >
+                    特定商取引法に基づく表記
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            <h5 className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
-              Navigation
-            </h5>
-            <ul className="space-y-2 text-[13px] leading-6 text-primary-foreground/75">
-              <li>
-                <Link href="/pricing" className="transition-opacity hover:opacity-100">
-                  無料会員登録
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="transition-opacity hover:opacity-100">
-                  料金プラン
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="transition-opacity hover:opacity-100">
-                  お問い合わせ
-                </Link>
-              </li>
-              <li>
-                <Link href="/company" className="transition-opacity hover:opacity-100">
-                  運営会社
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="transition-opacity hover:opacity-100">
-                  利用規約・プライバシーポリシー
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/tokushoho" className="transition-opacity hover:opacity-100">
-                  特定商取引法に基づく表記
-                </Link>
-              </li>
-            </ul>
-          </div>
+          <Separator className="my-8 bg-white/20" />
+
+          <p className="text-center font-mono text-[11px] text-white/60">
+            &copy; {new Date().getFullYear()} IndoBiz Japan. All rights reserved.
+          </p>
         </div>
-
-        <Separator className="my-8 bg-primary-foreground/15" />
-
-        <p className="text-center font-mono text-[11px] text-primary-foreground/60">
-          &copy; {new Date().getFullYear()} IndoBiz Japan. All rights reserved.
-        </p>
-      </div>
+      </GooeyGradientBackground>
     </footer>
   )
 }
