@@ -451,7 +451,7 @@ export function ArticleView({
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-balance font-serif text-[32px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[42px]">
+                <h1 className="text-balance font-serif text-[28px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[38px]">
                   {article.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -465,7 +465,7 @@ export function ArticleView({
             {takeawayBullets.length > 0 && (
               <section className="mt-5 rounded-md border border-primary/25 bg-primary/5 p-4 sm:p-5">
                 <h2 className="text-base font-bold text-primary">
-                  本記事のまとめ
+                  本記事のポイント
                 </h2>
                 <ul className="mt-3 space-y-2.5 pl-4 text-base leading-8 text-foreground sm:text-[17px]">
                   {takeawayBullets.map((item, index) => (
