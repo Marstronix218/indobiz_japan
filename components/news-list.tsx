@@ -261,7 +261,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                 )}
               </div>
 
-              <aside className="space-y-5 self-start lg:sticky lg:top-4">
+              <aside className="space-y-5 self-start">
                 <ImportantNewsWidget />
                 <AccessRankingWidget rankedIds={rankedViewIds} />
                 <MarketIndicatorPanel />
