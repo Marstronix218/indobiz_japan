@@ -7,11 +7,7 @@ import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import { MarketTicker } from "@/components/market-ticker"
 import { ColumnAuthorCard } from "@/components/column-author-card"
 import { NewsCardTile } from "@/components/news-card"
-import {
-  CitySpotlightWidget,
-  MarketIndicatorWidget,
-  TrendingWidget,
-} from "@/components/sidebar-widgets"
+import { PortalSidebar } from "@/components/portal-sidebar"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Badge } from "@/components/ui/badge"
@@ -332,8 +328,10 @@ function SourceArticleCarousel({
 
 export function ArticleView({
   id,
+  rankedViewIds = [],
 }: {
   id: string
+  rankedViewIds?: string[]
 }) {
   const articles = usePublicArticles()
   const article = articles.find((item) => item.id === id)
@@ -590,11 +588,7 @@ export function ArticleView({
             )}
           </article>
 
-          <aside className="space-y-4 self-start lg:sticky lg:top-4">
-            <TrendingWidget />
-            <MarketIndicatorWidget />
-            <CitySpotlightWidget />
-          </aside>
+          <PortalSidebar rankedViewIds={rankedViewIds} />
         </div>
       </main>
 

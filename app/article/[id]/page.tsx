@@ -6,6 +6,7 @@ import { DataUnavailable } from "@/components/data-unavailable"
 import { FREE_VIEW_COOKIE, parseViewedIds } from "@/lib/free-view"
 import {
   getArticleById,
+  getTopViewedArticleIds,
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
@@ -60,7 +61,10 @@ export default async function ArticlePage({
     // Within the free allowance: fall through to the full article view.
   }
 
-  const articles = await listPublishedArticles()
+  const [articles, rankedViewIds] = await Promise.all([
+    listPublishedArticles(),
+    getTopViewedArticleIds(24, 5),
+  ])
 
   // `listPublishedArticles()` only returns the newest 100 published articles,
   // so any older published article (e.g. once the site has >100 articles)
@@ -82,7 +86,7 @@ export default async function ArticlePage({
 
   return (
     <ArticleStoreProvider initial={storeArticles}>
-      <ArticleView id={id} />
+      <ArticleView id={id} rankedViewIds={rankedViewIds} />
     </ArticleStoreProvider>
   )
 }

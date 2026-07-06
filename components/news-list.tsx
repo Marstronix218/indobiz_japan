@@ -6,11 +6,7 @@ import Link from "next/link"
 import { NewsCardHero, NewsCardMosaic, NewsCardTile } from "@/components/news-card"
 import { CategoryLinkBlock } from "@/components/category-link-block"
 import { MarketTicker } from "@/components/market-ticker"
-import { EditorialColumnWidget } from "@/components/sidebar-widgets"
-import { ImportantNewsWidget } from "@/components/important-news-widget"
-import { AccessRankingWidget } from "@/components/access-ranking-widget"
-import { MarketIndicatorPanel } from "@/components/market-indicator-panel"
-import { LineCtaBox } from "@/components/line-cta-box"
+import { PortalSidebar } from "@/components/portal-sidebar"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { SiteIntro } from "@/components/site-intro"
@@ -262,13 +258,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                 )}
               </div>
 
-              <aside className="space-y-5 self-start">
-                <EditorialColumnWidget />
-                <ImportantNewsWidget />
-                <AccessRankingWidget rankedIds={rankedViewIds} />
-                <MarketIndicatorPanel />
-                <LineCtaBox />
-              </aside>
+              <PortalSidebar rankedViewIds={rankedViewIds} />
             </div>
           </>
         ) : (
