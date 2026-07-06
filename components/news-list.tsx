@@ -2,16 +2,14 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { NewsCardHero, NewsCardMosaic } from "@/components/news-card"
-import { TopicCarousel } from "@/components/topic-carousel"
-import { TopicHeader } from "@/components/topic-header"
+import Link from "next/link"
+import { NewsCardHero, NewsCardMosaic, NewsCardTile } from "@/components/news-card"
+import { CategoryLinkBlock } from "@/components/category-link-block"
 import { MarketTicker } from "@/components/market-ticker"
-import {
-  EditorialColumnWidget,
-  TrendingWidget,
-  MarketIndicatorWidget,
-  CitySpotlightWidget,
-} from "@/components/sidebar-widgets"
+import { ImportantNewsWidget } from "@/components/important-news-widget"
+import { AccessRankingWidget } from "@/components/access-ranking-widget"
+import { MarketIndicatorPanel } from "@/components/market-indicator-panel"
+import { LineCtaBox } from "@/components/line-cta-box"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { SiteIntro } from "@/components/site-intro"
@@ -28,7 +26,7 @@ import {
   type NewsArticle,
 } from "@/lib/news-data"
 
-export function NewsList() {
+export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
@@ -100,7 +98,7 @@ export function NewsList() {
     showIndustryFilter,
   ])
 
-  const [hero, mosaic1, mosaic2, mosaic3, ...rest] = sortedArticles
+  const [hero, m1, m2, m3, m4] = sortedArticles
 
   const filterActive =
     activeCategory !== null ||
@@ -110,11 +108,22 @@ export function NewsList() {
   const sectionsByCategory = useMemo(() => {
     const buckets = new Map<Category, NewsArticle[]>()
     for (const section of CATEGORY_SECTIONS) buckets.set(section.key, [])
-    for (const article of rest) {
+    for (const article of sortedArticles) {
       buckets.get(article.category)?.push(article)
     }
     return buckets
-  }, [rest])
+  }, [sortedArticles])
+
+  const latest = useMemo(
+    () =>
+      [...sortedArticles]
+        .sort(
+          (a, b) =>
+            Date.parse(articleDisplayDate(b)) - Date.parse(articleDisplayDate(a)),
+        )
+        .slice(0, 6),
+    [sortedArticles],
+  )
 
   function toggleIndustry(tag: IndustryTag) {
     setSelectedIndustries((current) =>
@@ -158,69 +167,74 @@ export function NewsList() {
         ) : null}
 
         {hasResults ? (
-          <>
-            {hero && (
-              <section className="mb-12 grid gap-3 lg:grid-cols-2">
-                <div className="lg:min-h-[30rem]">
-                  <NewsCardHero
-                    article={hero}
-                    className="h-full lg:aspect-auto"
-                  />
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:min-h-[30rem] lg:grid-rows-2">
-                  {mosaic1 && (
-                    <div className="sm:col-span-2">
-                      <NewsCardMosaic
-                        article={mosaic1}
-                        className="aspect-[16/10] lg:aspect-auto"
-                        priority
-                      />
+          filterActive ? (
+            <FilteredResults articles={sortedArticles} />
+          ) : (
+            <>
+              {/* Hero: 1 large + 4 medium */}
+              {hero && (
+                <section className="mb-10 grid gap-3 lg:grid-cols-2">
+                  <div className="lg:min-h-[26rem]">
+                    <NewsCardHero article={hero} className="h-full lg:aspect-auto" />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:min-h-[26rem]">
+                    {[m1, m2, m3, m4].map(
+                      (a, i) =>
+                        a && (
+                          <NewsCardMosaic
+                            key={a.id}
+                            article={a}
+                            className="aspect-[16/10] lg:aspect-auto"
+                            priority={i < 2}
+                          />
+                        ),
+                    )}
+                  </div>
+                </section>
+              )}
+
+              <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="min-w-0 space-y-10">
+                  {/* Category blocks: 3-col x 2-row */}
+                  <section>
+                    <SectionHeading title="カテゴリ別ニュース" en="BY CATEGORY" />
+                    <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                      {CATEGORY_SECTIONS.map((section) => (
+                        <CategoryLinkBlock
+                          key={section.key}
+                          section={section}
+                          articles={sectionsByCategory.get(section.key) ?? []}
+                        />
+                      ))}
                     </div>
-                  )}
-                  {mosaic2 && (
-                    <NewsCardMosaic
-                      article={mosaic2}
-                      className="aspect-[16/10] lg:aspect-auto"
-                      priority
-                    />
-                  )}
-                  {mosaic3 && (
-                    <NewsCardMosaic
-                      article={mosaic3}
-                      className="aspect-[16/10] lg:aspect-auto"
-                    />
-                  )}
+                  </section>
+
+                  {/* Latest news: thumbnail 2-col grid */}
+                  <section>
+                    <SectionHeading title="最新ニュース" en="LATEST" />
+                    <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+                      {latest.map((article) => (
+                        <NewsCardTile key={article.id} article={article} />
+                      ))}
+                    </div>
+                    <Link
+                      href="/?q="
+                      className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
+                    >
+                      最新ニュースをもっと見る
+                    </Link>
+                  </section>
                 </div>
-              </section>
-            )}
 
-            <div className="grid min-w-0 gap-10 lg:grid-cols-4">
-              <div className="min-w-0 space-y-12 lg:col-span-3">
-                {filterActive ? (
-                  <FilteredResults articles={rest} />
-                ) : (
-                  CATEGORY_SECTIONS.map((section) => {
-                    const items = sectionsByCategory.get(section.key) ?? []
-                    if (items.length === 0) return null
-                    return (
-                      <section key={section.key} className="min-w-0">
-                        <TopicHeader section={section} count={items.length} />
-                        <TopicCarousel articles={items} />
-                      </section>
-                    )
-                  })
-                )}
-
+                <aside className="space-y-5 self-start lg:sticky lg:top-4">
+                  <ImportantNewsWidget />
+                  <AccessRankingWidget rankedIds={rankedViewIds} />
+                  <MarketIndicatorPanel />
+                  <LineCtaBox />
+                </aside>
               </div>
-
-              <aside className="space-y-5 self-start lg:col-span-1 lg:sticky lg:top-4">
-                <EditorialColumnWidget />
-                <TrendingWidget />
-                <MarketIndicatorWidget />
-                <CitySpotlightWidget />
-              </aside>
-            </div>
-          </>
+            </>
+          )
         ) : (
           <div className="rounded-2xl border border-border bg-card p-8 text-base leading-8 text-muted-foreground">
             条件に合う記事が見つかりませんでした。
@@ -236,26 +250,34 @@ export function NewsList() {
 function FilteredResults({ articles }: { articles: NewsArticle[] }) {
   if (articles.length === 0) return null
   return (
-    <section className="min-w-0">
-      <div className="mb-4">
-        <div className="mb-2 flex items-end justify-between gap-4">
-          <div className="flex items-baseline gap-3">
-            <span className="size-2.5 rounded-sm bg-accent" />
-            <h2 className="font-serif text-2xl font-bold tracking-tight">
-              検索結果
-            </h2>
-            <span className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-              // RESULTS
-            </span>
-          </div>
-          <span className="font-mono text-xs text-muted-foreground">
-            {articles.length}記事
-          </span>
-        </div>
-        <div className="topic-rule" />
+    <div className="lg:col-span-full">
+      <div className="mb-4 flex items-end justify-between">
+        <SectionHeading title="検索結果" en="RESULTS" />
+        <span className="font-mono text-xs text-muted-foreground">
+          {articles.length}記事
+        </span>
       </div>
-      <TopicCarousel articles={articles} />
-    </section>
+      <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+        {articles.map((article) => (
+          <NewsCardTile key={article.id} article={article} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SectionHeading({ title, en }: { title: string; en: string }) {
+  return (
+    <div className="mb-4">
+      <div className="mb-2 flex items-baseline gap-3">
+        <span className="size-2.5 rounded-sm bg-accent" />
+        <h2 className="font-serif text-2xl font-bold tracking-tight">{title}</h2>
+        <span className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+          // {en}
+        </span>
+      </div>
+      <div className="topic-rule" />
+    </div>
   )
 }
 
