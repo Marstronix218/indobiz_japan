@@ -60,7 +60,7 @@
 ## 閲覧計測（新規サブシステム）
 
 ### DB
-- マイグレーション `supabase/migrations/0006_view_events.sql`
+- マイグレーション `supabase/migrations/0007_view_events.sql`
 - テーブル `article_view_events`: `id uuid pk default gen_random_uuid()`, `article_id uuid references articles(id) on delete cascade`, `viewed_at timestamptz not null default now()`。
 - インデックス: `(viewed_at)` および `(article_id, viewed_at)`。
 - RLS 有効・クライアント直アクセスなし。書き込み/読み取りはサービスロール（API ルート／サーバーコンポーネント）経由のみ。

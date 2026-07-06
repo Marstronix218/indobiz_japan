@@ -22,7 +22,7 @@
 ## File Structure
 
 **新規作成:**
-- `supabase/migrations/0006_view_events.sql` — 閲覧イベントテーブル
+- `supabase/migrations/0007_view_events.sql` — 閲覧イベントテーブル
 - `lib/home-selection.ts` — 純粋選定関数（型のみ import）
 - `scripts/test-home-selection.mjs` — 上記の単体テスト
 - `app/api/articles/[id]/view/route.ts` — 閲覧記録 POST エンドポイント
@@ -99,7 +99,7 @@ git commit -m "feat: add LINE add-friend URL constant and rename regulation labe
 ## Task 2: 閲覧イベントの DB マイグレーションとリポジトリ関数
 
 **Files:**
-- Create: `supabase/migrations/0006_view_events.sql`
+- Create: `supabase/migrations/0007_view_events.sql`
 - Modify: `lib/supabase/article-repository.ts`（末尾に関数追加、`getServiceClient` は 16行目で import 済み）
 
 **Interfaces:**
@@ -109,7 +109,7 @@ git commit -m "feat: add LINE add-friend URL constant and rename regulation labe
 
 - [ ] **Step 1: マイグレーションSQLを書く**
 
-`supabase/migrations/0006_view_events.sql`:
+`supabase/migrations/0007_view_events.sql`:
 
 ```sql
 -- 記事の閲覧イベント（ベータ期のアクセスランキング用）。
@@ -204,15 +204,15 @@ Expected: エラーなし（exit 0）
 
 - [ ] **Step 5: マイグレーションを Supabase に適用**
 
-Supabase SQL Editor に `supabase/migrations/0006_view_events.sql` の内容を貼り付けて実行（またはローカルで `supabase db push`）。
+Supabase SQL Editor に `supabase/migrations/0007_view_events.sql` の内容を貼り付けて実行（またはローカルで `supabase db push`）。
 Expected: `article_view_events` テーブルが作成される。
 
-> 注: 実行環境に Supabase 認証情報が無い場合はこのステップをスキップし、コミットメッセージ／PR に「0006 マイグレーション未適用 — 手動適用が必要」と明記する。
+> 注: 実行環境に Supabase 認証情報が無い場合はこのステップをスキップし、コミットメッセージ／PR に「0007 マイグレーション未適用 — 手動適用が必要」と明記する。
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add supabase/migrations/0006_view_events.sql lib/supabase/article-repository.ts
+git add supabase/migrations/0007_view_events.sql lib/supabase/article-repository.ts
 git commit -m "feat: add article_view_events table and view-count repository fns"
 ```
 
