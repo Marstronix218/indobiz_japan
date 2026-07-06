@@ -195,78 +195,80 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
         ) : null}
 
         {hasResults ? (
-          filterActive ? (
-            <FilteredResults
-              articles={filteredList}
-              title={filteredTitle}
-              en={filteredEn}
-            />
-          ) : (
-            <>
-              {/* Hero: 1 large + 4 medium */}
-              {hero && (
-                <section className="mb-10 grid gap-3 lg:grid-cols-2">
-                  <div className="lg:min-h-[26rem]">
-                    <NewsCardHero article={hero} className="h-full lg:aspect-auto" />
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:min-h-[26rem]">
-                    {[m1, m2, m3, m4].map(
-                      (a, i) =>
-                        a && (
-                          <NewsCardMosaic
-                            key={a.id}
-                            article={a}
-                            className="aspect-[16/10] lg:aspect-auto"
-                            priority={i < 2}
-                          />
-                        ),
-                    )}
-                  </div>
-                </section>
-              )}
-
-              <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="min-w-0 space-y-10">
-                  {/* Category blocks: 3-col x 2-row */}
-                  <section>
-                    <SectionHeading title="カテゴリ別ニュース" en="BY CATEGORY" />
-                    <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-                      {CATEGORY_SECTIONS.map((section) => (
-                        <CategoryLinkBlock
-                          key={section.key}
-                          section={section}
-                          articles={sectionsByCategory.get(section.key) ?? []}
-                        />
-                      ))}
-                    </div>
-                  </section>
-
-                  {/* Latest news: thumbnail 2-col grid */}
-                  <section>
-                    <SectionHeading title="最新ニュース" en="LATEST" />
-                    <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
-                      {latest.map((article) => (
-                        <NewsCardTile key={article.id} article={article} />
-                      ))}
-                    </div>
-                    <Link
-                      href="/?view=latest"
-                      className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
-                    >
-                      最新ニュースをもっと見る
-                    </Link>
-                  </section>
+          <>
+            {/* Hero: portal view only (hidden while filtering) */}
+            {!filterActive && hero && (
+              <section className="mb-10 grid gap-3 lg:grid-cols-2">
+                <div className="lg:min-h-[26rem]">
+                  <NewsCardHero article={hero} className="h-full lg:aspect-auto" />
                 </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:min-h-[26rem]">
+                  {[m1, m2, m3, m4].map(
+                    (a, i) =>
+                      a && (
+                        <NewsCardMosaic
+                          key={a.id}
+                          article={a}
+                          className="aspect-[16/10] lg:aspect-auto"
+                          priority={i < 2}
+                        />
+                      ),
+                  )}
+                </div>
+              </section>
+            )}
 
-                <aside className="space-y-5 self-start lg:sticky lg:top-4">
-                  <ImportantNewsWidget />
-                  <AccessRankingWidget rankedIds={rankedViewIds} />
-                  <MarketIndicatorPanel />
-                  <LineCtaBox />
-                </aside>
+            <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+              <div className="min-w-0 space-y-10">
+                {filterActive ? (
+                  <FilteredResults
+                    articles={filteredList}
+                    title={filteredTitle}
+                    en={filteredEn}
+                  />
+                ) : (
+                  <>
+                    {/* Category blocks: 3-col x 2-row */}
+                    <section>
+                      <SectionHeading title="カテゴリ別ニュース" en="BY CATEGORY" />
+                      <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                        {CATEGORY_SECTIONS.map((section) => (
+                          <CategoryLinkBlock
+                            key={section.key}
+                            section={section}
+                            articles={sectionsByCategory.get(section.key) ?? []}
+                          />
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* Latest news: thumbnail 2-col grid */}
+                    <section>
+                      <SectionHeading title="最新ニュース" en="LATEST" />
+                      <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+                        {latest.map((article) => (
+                          <NewsCardTile key={article.id} article={article} />
+                        ))}
+                      </div>
+                      <Link
+                        href="/?view=latest"
+                        className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
+                      >
+                        最新ニュースをもっと見る
+                      </Link>
+                    </section>
+                  </>
+                )}
               </div>
-            </>
-          )
+
+              <aside className="space-y-5 self-start lg:sticky lg:top-4">
+                <ImportantNewsWidget />
+                <AccessRankingWidget rankedIds={rankedViewIds} />
+                <MarketIndicatorPanel />
+                <LineCtaBox />
+              </aside>
+            </div>
+          </>
         ) : (
           <div className="rounded-2xl border border-border bg-card p-8 text-base leading-8 text-muted-foreground">
             条件に合う記事が見つかりませんでした。
@@ -297,7 +299,7 @@ function FilteredResults({
           {articles.length}記事
         </span>
       </div>
-      <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
           <NewsCardTile key={article.id} article={article} />
         ))}
