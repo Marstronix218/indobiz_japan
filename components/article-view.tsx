@@ -31,6 +31,7 @@ import { formatSummaryParagraphs } from "@/lib/summary-utils"
 import { ensureMinimumSummaryLength } from "@/lib/summary-utils"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { resolveArticleAuthor } from "@/lib/authors"
+import { recordArticleViewClient } from "@/lib/view-tracking"
 
 const TITLE_SOURCE_SUFFIX =
   /\s+(?:[-–—|])\s+(?:reuters|associated press|ap news|bloomberg|bbc|cnn|cnbc|financial times|the hindu|hindustan times|times of india|the economic times|the new indian express|indian express|mint|moneycontrol|business standard|ndtv|deccan herald|firstpost|the print|pib)$/i
@@ -336,6 +337,11 @@ export function ArticleView({
 }) {
   const articles = usePublicArticles()
   const article = articles.find((item) => item.id === id)
+
+  useEffect(() => {
+    if (!article) return
+    recordArticleViewClient(article.id)
+  }, [article?.id])
 
   if (!article) {
     return (
