@@ -7,6 +7,12 @@ export type DigestFrequency = "daily" | "weekly"
  */
 export const FREE_ARTICLE_LIMIT = 5
 
+/**
+ * 公式LINEアカウントの友だち追加URL。トップページの LINE CTA ボックス
+ * (`components/line-cta-box.tsx`) から外部リンクで開く。
+ */
+export const LINE_ADD_FRIEND_URL = "https://qr.paps.jp/KRwFx"
+
 export interface LeadInquiry {
   companyName: string
   contactName: string

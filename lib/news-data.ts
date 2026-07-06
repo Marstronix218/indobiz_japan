@@ -108,7 +108,7 @@ export function getAllSources(article: NewsArticle): SourceProvenance[] {
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   economy: "経済",
-  regulation: "規制",
+  regulation: "規制・政策",
   social: "社会",
   culture: "文化",
   market: "市況",
@@ -214,7 +214,7 @@ export const CATEGORY_SECTIONS: CategorySection[] = [
   },
   {
     key: "regulation",
-    label: "規制",
+    label: "規制・政策",
     enLabel: "Regulation",
     kicker: "進出・調達・採用に影響する制度変更を整理。",
     accent: "oklch(0.55 0.12 250)",
