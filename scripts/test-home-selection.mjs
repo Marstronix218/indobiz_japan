@@ -10,11 +10,17 @@ import {
 const NOW = Date.parse("2026-07-06T00:00:00Z")
 const hoursAgo = (h) => new Date(NOW - h * 3600_000).toISOString()
 
-// Deterministic stub scorer: featured articles rank above non-featured;
-// ties broken by recency (newer = higher). Independent of the real
-// computePopularityScore so this test exercises only selection/merge logic.
-const scoreOf = (a, now) =>
-  (a.featured ? 1_000_000 : 0) + Date.parse(a.createdAt ?? a.publishedAt)
+// Deterministic stub scorer mirroring computePopularityScore's SHAPE: a
+// bounded recency bucket plus an additive featured bonus large enough that a
+// featured out-of-window article can outscore a plain in-window one. That is
+// exactly the case the 24h-window logic must handle, so the stub must be able
+// to express it (a raw-timestamp score never could — recency would always
+// dwarf the bonus). Independent of the real computePopularityScore.
+const scoreOf = (a, now) => {
+  const days = (now - Date.parse(a.createdAt ?? a.publishedAt)) / 86_400_000
+  const recency = days <= 1 ? 100 : days <= 3 ? 70 : 15
+  return recency + (a.featured ? 200 : 0)
+}
 
 function make(id, opts = {}) {
   return {
