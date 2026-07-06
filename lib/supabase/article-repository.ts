@@ -584,3 +584,55 @@ export async function getDailyGenerationStats(
 
   return [...buckets.values()]
 }
+
+/**
+ * Record a single article view for the beta access-ranking widget.
+ * Fail-open: never throws, so a logging failure can't break the reader page.
+ */
+export async function recordArticleView(articleId: string): Promise<void> {
+  if (!hasSupabaseConfig()) return
+  try {
+    const { error } = await getServiceClient()
+      .from("article_view_events")
+      .insert({ article_id: articleId })
+    if (error) {
+      console.error("[supabase] recordArticleView failed:", error.message)
+    }
+  } catch (err) {
+    console.error("[supabase] recordArticleView threw:", err)
+  }
+}
+
+/**
+ * Article IDs with the most views in the last `hours`, most-viewed first.
+ * Used by the homepage access-ranking widget. Fails open to an empty array,
+ * in which case the widget falls back to popularity-score ordering.
+ */
+export async function getTopViewedArticleIds(
+  hours = 24,
+  limit = 5,
+): Promise<string[]> {
+  if (!hasSupabaseConfig()) return []
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
+  try {
+    const { data, error } = await getServiceClient()
+      .from("article_view_events")
+      .select("article_id")
+      .gte("viewed_at", since)
+    if (error) {
+      console.error("[supabase] getTopViewedArticleIds failed:", error.message)
+      return []
+    }
+    const counts = new Map<string, number>()
+    for (const row of (data as { article_id: string }[] | null) ?? []) {
+      counts.set(row.article_id, (counts.get(row.article_id) ?? 0) + 1)
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([id]) => id)
+  } catch (err) {
+    console.error("[supabase] getTopViewedArticleIds threw:", err)
+    return []
+  }
+}
