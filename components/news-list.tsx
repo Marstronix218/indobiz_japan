@@ -6,6 +6,7 @@ import Link from "next/link"
 import { NewsCardHero, NewsCardMosaic, NewsCardTile } from "@/components/news-card"
 import { CategoryLinkBlock } from "@/components/category-link-block"
 import { MarketTicker } from "@/components/market-ticker"
+import { EditorialColumnWidget } from "@/components/sidebar-widgets"
 import { ImportantNewsWidget } from "@/components/important-news-widget"
 import { AccessRankingWidget } from "@/components/access-ranking-widget"
 import { MarketIndicatorPanel } from "@/components/market-indicator-panel"
@@ -262,6 +263,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
               </div>
 
               <aside className="space-y-5 self-start">
+                <EditorialColumnWidget />
                 <ImportantNewsWidget />
                 <AccessRankingWidget rankedIds={rankedViewIds} />
                 <MarketIndicatorPanel />
