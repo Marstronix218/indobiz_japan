@@ -43,7 +43,7 @@ export function ImportantNewsWidget() {
         ))}
       </ul>
       <Link
-        href="/"
+        href="/?view=latest"
         className="mt-3 block text-center text-[11px] font-semibold text-primary hover:underline"
       >
         もっと見る

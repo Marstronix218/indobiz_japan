@@ -15,6 +15,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteIntro } from "@/components/site-intro"
 import { usePublicArticles } from "@/lib/article-store"
 import {
+  CATEGORY_LABELS,
   CATEGORY_OPTIONS,
   CATEGORY_SECTIONS,
   INDUSTRY_LABELS,
@@ -115,6 +116,22 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
       )
     : sortedArticles
 
+  const searchActive = deferredSearchQuery.trim().length > 0
+  const filteredTitle = latestView
+    ? "最新ニュース"
+    : searchActive
+      ? "検索結果"
+      : activeCategory
+        ? CATEGORY_LABELS[activeCategory]
+        : "検索結果"
+  const filteredEn = latestView
+    ? "LATEST"
+    : searchActive
+      ? "RESULTS"
+      : activeCategory
+        ? "CATEGORY"
+        : "RESULTS"
+
   const sectionsByCategory = useMemo(() => {
     const buckets = new Map<Category, NewsArticle[]>()
     for (const section of CATEGORY_SECTIONS) buckets.set(section.key, [])
@@ -181,8 +198,8 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
           filterActive ? (
             <FilteredResults
               articles={filteredList}
-              title={latestView ? "最新ニュース" : "検索結果"}
-              en={latestView ? "LATEST" : "RESULTS"}
+              title={filteredTitle}
+              en={filteredEn}
             />
           ) : (
             <>
