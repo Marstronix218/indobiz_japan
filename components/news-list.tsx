@@ -2,21 +2,21 @@
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { NewsCardHero, NewsCardMosaic } from "@/components/news-card"
-import { TopicCarousel } from "@/components/topic-carousel"
-import { TopicHeader } from "@/components/topic-header"
+import Link from "next/link"
+import { NewsCardHero, NewsCardMosaic, NewsCardTile } from "@/components/news-card"
+import { CategoryLinkBlock } from "@/components/category-link-block"
 import { MarketTicker } from "@/components/market-ticker"
-import {
-  EditorialColumnWidget,
-  TrendingWidget,
-  MarketIndicatorWidget,
-  CitySpotlightWidget,
-} from "@/components/sidebar-widgets"
+import { EditorialColumnWidget } from "@/components/sidebar-widgets"
+import { ImportantNewsWidget } from "@/components/important-news-widget"
+import { AccessRankingWidget } from "@/components/access-ranking-widget"
+import { MarketIndicatorPanel } from "@/components/market-indicator-panel"
+import { LineCtaBox } from "@/components/line-cta-box"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { SiteIntro } from "@/components/site-intro"
 import { usePublicArticles } from "@/lib/article-store"
 import {
+  CATEGORY_LABELS,
   CATEGORY_OPTIONS,
   CATEGORY_SECTIONS,
   INDUSTRY_LABELS,
@@ -28,12 +28,13 @@ import {
   type NewsArticle,
 } from "@/lib/news-data"
 
-export function NewsList() {
+export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
   const [selectedIndustries, setSelectedIndustries] = useState<IndustryTag[]>([])
   const [searchQuery, setSearchQuery] = useState("")
+  const [latestView, setLatestView] = useState(false)
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const publicArticles = usePublicArticles()
 
@@ -52,6 +53,7 @@ export function NewsList() {
     setActiveCategory(nextCategory)
     setSelectedIndustries(nextTags)
     setSearchQuery(searchParams.get("q") ?? "")
+    setLatestView(searchParams.get("view") === "latest")
   }, [searchParams])
 
   const showIndustryFilter = activeCategory === "economy" || selectedIndustries.length > 0
@@ -100,21 +102,56 @@ export function NewsList() {
     showIndustryFilter,
   ])
 
-  const [hero, mosaic1, mosaic2, mosaic3, ...rest] = sortedArticles
+  const [hero, m1, m2, m3, m4] = sortedArticles
 
   const filterActive =
     activeCategory !== null ||
     (showIndustryFilter && selectedIndustries.length > 0) ||
-    deferredSearchQuery.trim().length > 0
+    deferredSearchQuery.trim().length > 0 ||
+    latestView
+
+  const filteredList = latestView
+    ? [...sortedArticles].sort(
+        (a, b) =>
+          Date.parse(articleDisplayDate(b)) - Date.parse(articleDisplayDate(a)),
+      )
+    : sortedArticles
+
+  const searchActive = deferredSearchQuery.trim().length > 0
+  const filteredTitle = latestView
+    ? "最新ニュース"
+    : searchActive
+      ? "検索結果"
+      : activeCategory
+        ? CATEGORY_LABELS[activeCategory]
+        : "検索結果"
+  const filteredEn = latestView
+    ? "LATEST"
+    : searchActive
+      ? "RESULTS"
+      : activeCategory
+        ? "CATEGORY"
+        : "RESULTS"
 
   const sectionsByCategory = useMemo(() => {
     const buckets = new Map<Category, NewsArticle[]>()
     for (const section of CATEGORY_SECTIONS) buckets.set(section.key, [])
-    for (const article of rest) {
+    for (const article of sortedArticles) {
       buckets.get(article.category)?.push(article)
     }
     return buckets
-  }, [rest])
+  }, [sortedArticles])
+
+  const latest = useMemo(
+    () =>
+      [...sortedArticles]
+        .sort(
+          (a, b) =>
+            Date.parse(articleDisplayDate(b)) - Date.parse(articleDisplayDate(a)),
+        )
+        .slice(0, 6),
+    [sortedArticles],
+  )
 
   function toggleIndustry(tag: IndustryTag) {
     setSelectedIndustries((current) =>
@@ -128,6 +165,7 @@ export function NewsList() {
     setActiveCategory(null)
     setSelectedIndustries([])
     setSearchQuery("")
+    setLatestView(false)
     router.push("/")
   }
 
@@ -159,65 +197,77 @@ export function NewsList() {
 
         {hasResults ? (
           <>
-            {hero && (
-              <section className="mb-12 grid gap-3 lg:grid-cols-2">
-                <div className="lg:min-h-[30rem]">
-                  <NewsCardHero
-                    article={hero}
-                    className="h-full lg:aspect-auto"
-                  />
+            {/* Hero: portal view only (hidden while filtering) */}
+            {!filterActive && hero && (
+              <section className="mb-10 grid gap-3 lg:grid-cols-2">
+                <div className="lg:min-h-[26rem]">
+                  <NewsCardHero article={hero} className="h-full lg:aspect-auto" />
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:min-h-[30rem] lg:grid-rows-2">
-                  {mosaic1 && (
-                    <div className="sm:col-span-2">
-                      <NewsCardMosaic
-                        article={mosaic1}
-                        className="aspect-[16/10] lg:aspect-auto"
-                        priority
-                      />
-                    </div>
-                  )}
-                  {mosaic2 && (
-                    <NewsCardMosaic
-                      article={mosaic2}
-                      className="aspect-[16/10] lg:aspect-auto"
-                      priority
-                    />
-                  )}
-                  {mosaic3 && (
-                    <NewsCardMosaic
-                      article={mosaic3}
-                      className="aspect-[16/10] lg:aspect-auto"
-                    />
+                <div className="grid gap-3 sm:grid-cols-2 lg:min-h-[26rem]">
+                  {[m1, m2, m3, m4].map(
+                    (a, i) =>
+                      a && (
+                        <NewsCardMosaic
+                          key={a.id}
+                          article={a}
+                          className="aspect-[16/10] lg:aspect-auto"
+                          priority={i < 2}
+                        />
+                      ),
                   )}
                 </div>
               </section>
             )}
 
-            <div className="grid min-w-0 gap-10 lg:grid-cols-4">
-              <div className="min-w-0 space-y-12 lg:col-span-3">
+            <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+              <div className="min-w-0 space-y-10">
                 {filterActive ? (
-                  <FilteredResults articles={rest} />
+                  <FilteredResults
+                    articles={filteredList}
+                    title={filteredTitle}
+                    en={filteredEn}
+                  />
                 ) : (
-                  CATEGORY_SECTIONS.map((section) => {
-                    const items = sectionsByCategory.get(section.key) ?? []
-                    if (items.length === 0) return null
-                    return (
-                      <section key={section.key} className="min-w-0">
-                        <TopicHeader section={section} count={items.length} />
-                        <TopicCarousel articles={items} />
-                      </section>
-                    )
-                  })
-                )}
+                  <>
+                    {/* Category blocks: 3-col x 2-row */}
+                    <section>
+                      <SectionHeading title="カテゴリ別ニュース" en="BY CATEGORY" />
+                      <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                        {CATEGORY_SECTIONS.map((section) => (
+                          <CategoryLinkBlock
+                            key={section.key}
+                            section={section}
+                            articles={sectionsByCategory.get(section.key) ?? []}
+                          />
+                        ))}
+                      </div>
+                    </section>
 
+                    {/* Latest news: thumbnail 2-col grid */}
+                    <section>
+                      <SectionHeading title="最新ニュース" en="LATEST" />
+                      <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+                        {latest.map((article) => (
+                          <NewsCardTile key={article.id} article={article} />
+                        ))}
+                      </div>
+                      <Link
+                        href="/?view=latest"
+                        className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
+                      >
+                        最新ニュースをもっと見る
+                      </Link>
+                    </section>
+                  </>
+                )}
               </div>
 
-              <aside className="space-y-5 self-start lg:col-span-1 lg:sticky lg:top-4">
+              <aside className="space-y-5 self-start">
                 <EditorialColumnWidget />
-                <TrendingWidget />
-                <MarketIndicatorWidget />
-                <CitySpotlightWidget />
+                <ImportantNewsWidget />
+                <AccessRankingWidget rankedIds={rankedViewIds} />
+                <MarketIndicatorPanel />
+                <LineCtaBox />
               </aside>
             </div>
           </>
@@ -233,29 +283,45 @@ export function NewsList() {
   )
 }
 
-function FilteredResults({ articles }: { articles: NewsArticle[] }) {
+function FilteredResults({
+  articles,
+  title,
+  en,
+}: {
+  articles: NewsArticle[]
+  title: string
+  en: string
+}) {
   if (articles.length === 0) return null
   return (
-    <section className="min-w-0">
-      <div className="mb-4">
-        <div className="mb-2 flex items-end justify-between gap-4">
-          <div className="flex items-baseline gap-3">
-            <span className="size-2.5 rounded-sm bg-accent" />
-            <h2 className="font-serif text-2xl font-bold tracking-tight">
-              検索結果
-            </h2>
-            <span className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-              // RESULTS
-            </span>
-          </div>
-          <span className="font-mono text-xs text-muted-foreground">
-            {articles.length}記事
-          </span>
-        </div>
-        <div className="topic-rule" />
+    <div>
+      <div className="mb-4 flex items-end justify-between">
+        <SectionHeading title={title} en={en} />
+        <span className="font-mono text-xs text-muted-foreground">
+          {articles.length}記事
+        </span>
       </div>
-      <TopicCarousel articles={articles} />
-    </section>
+      <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        {articles.map((article) => (
+          <NewsCardTile key={article.id} article={article} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SectionHeading({ title, en }: { title: string; en: string }) {
+  return (
+    <div className="mb-4">
+      <div className="mb-2 flex items-baseline gap-3">
+        <span className="size-2.5 rounded-sm bg-accent" />
+        <h2 className="font-serif text-2xl font-bold tracking-tight">{title}</h2>
+        <span className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+          // {en}
+        </span>
+      </div>
+      <div className="topic-rule" />
+    </div>
   )
 }
 
