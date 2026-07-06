@@ -356,9 +356,28 @@ export function ArticleView({
     )
   }
 
-  const relatedArticles = articles
-    .filter((item) => item.category === article.category && item.id !== article.id)
-    .slice(0, 3)
+  // Related articles: same category first, then top up with the most recent
+  // articles from other categories so sparse categories (e.g. コラム with only
+  // one published article) still show a related section. The two sets are
+  // disjoint by construction (same-category vs. other-category), so no dupes.
+  const sameCategoryRelated = articles.filter(
+    (item) => item.category === article.category && item.id !== article.id,
+  )
+  const relatedFillers =
+    sameCategoryRelated.length >= 3
+      ? []
+      : articles
+          .filter(
+            (item) =>
+              item.id !== article.id && item.category !== article.category,
+          )
+          .sort(
+            (a, b) =>
+              Date.parse(articleDisplayDate(b)) -
+              Date.parse(articleDisplayDate(a)),
+          )
+          .slice(0, 3 - sameCategoryRelated.length)
+  const relatedArticles = [...sameCategoryRelated, ...relatedFillers].slice(0, 3)
   const isEditorial =
     article.contentType !== "news" || article.category === "column"
   const columnAuthor = isEditorial ? resolveArticleAuthor(article) : null
