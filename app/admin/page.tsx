@@ -16,7 +16,6 @@ import {
   RefreshCw,
   Search,
   Send,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react"
@@ -605,15 +604,10 @@ function AdminArticleCard({
           >
             {WORKFLOW_STATUS_LABELS[article.workflowStatus]}
           </Badge>
-          {article.isSynthesized ? (
-            <Badge variant="outline" className="border-emerald-500/50 text-emerald-700">
-              <Sparkles className="size-3" />
-              AI生成
-            </Badge>
-          ) : (
+          {article.isSynthesized === false && (
             <Badge variant="outline" className="border-amber-500/50 text-amber-700">
               <AlertTriangle className="size-3" />
-              未合成
+              未合成の下書き
             </Badge>
           )}
           {article.qualityCheck && (

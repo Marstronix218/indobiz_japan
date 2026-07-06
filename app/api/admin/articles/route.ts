@@ -83,7 +83,11 @@ function normalize(body: CreateBody): InsertArticleInput | { error: string } {
     workflowStatus,
     imageUrl: typeof body.imageUrl === "string" && body.imageUrl ? body.imageUrl : undefined,
     featured: body.featured === true,
-    isSynthesized: false,
+    // Admin-authored articles are finished content, not raw pipeline drafts.
+    // `isSynthesized: false` is reserved for un-synthesized pipeline drafts that
+    // the admin cleanup flags/bulk-deletes, so manual posts must be `true` to
+    // avoid being counted as "未合成の下書き" and swept up by that cleanup.
+    isSynthesized: true,
     author:
       body.category === "column" ? coerceAuthorInput(body.author) : undefined,
   }
