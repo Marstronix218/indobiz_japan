@@ -32,6 +32,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
   const [selectedIndustries, setSelectedIndustries] = useState<IndustryTag[]>([])
   const [searchQuery, setSearchQuery] = useState("")
+  const [latestView, setLatestView] = useState(false)
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const publicArticles = usePublicArticles()
 
@@ -50,6 +51,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
     setActiveCategory(nextCategory)
     setSelectedIndustries(nextTags)
     setSearchQuery(searchParams.get("q") ?? "")
+    setLatestView(searchParams.get("view") === "latest")
   }, [searchParams])
 
   const showIndustryFilter = activeCategory === "economy" || selectedIndustries.length > 0
@@ -103,7 +105,15 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
   const filterActive =
     activeCategory !== null ||
     (showIndustryFilter && selectedIndustries.length > 0) ||
-    deferredSearchQuery.trim().length > 0
+    deferredSearchQuery.trim().length > 0 ||
+    latestView
+
+  const filteredList = latestView
+    ? [...sortedArticles].sort(
+        (a, b) =>
+          Date.parse(articleDisplayDate(b)) - Date.parse(articleDisplayDate(a)),
+      )
+    : sortedArticles
 
   const sectionsByCategory = useMemo(() => {
     const buckets = new Map<Category, NewsArticle[]>()
@@ -137,6 +147,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
     setActiveCategory(null)
     setSelectedIndustries([])
     setSearchQuery("")
+    setLatestView(false)
     router.push("/")
   }
 
@@ -168,7 +179,11 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
 
         {hasResults ? (
           filterActive ? (
-            <FilteredResults articles={sortedArticles} />
+            <FilteredResults
+              articles={filteredList}
+              title={latestView ? "最新ニュース" : "検索結果"}
+              en={latestView ? "LATEST" : "RESULTS"}
+            />
           ) : (
             <>
               {/* Hero: 1 large + 4 medium */}
@@ -218,7 +233,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                       ))}
                     </div>
                     <Link
-                      href="/?q="
+                      href="/?view=latest"
                       className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
                     >
                       最新ニュースをもっと見る
@@ -247,12 +262,20 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
   )
 }
 
-function FilteredResults({ articles }: { articles: NewsArticle[] }) {
+function FilteredResults({
+  articles,
+  title,
+  en,
+}: {
+  articles: NewsArticle[]
+  title: string
+  en: string
+}) {
   if (articles.length === 0) return null
   return (
-    <div className="lg:col-span-full">
+    <div>
       <div className="mb-4 flex items-end justify-between">
-        <SectionHeading title="検索結果" en="RESULTS" />
+        <SectionHeading title={title} en={en} />
         <span className="font-mono text-xs text-muted-foreground">
           {articles.length}記事
         </span>
