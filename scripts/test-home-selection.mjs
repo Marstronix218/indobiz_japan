@@ -45,6 +45,20 @@ function make(id, opts = {}) {
   assert.equal(out[2].id, "c", "old article backfills last")
 }
 
+// Out-of-window high-score article must be EXCLUDED when the 24h window
+// already fills `limit` — a naive global score-sort would wrongly include it.
+{
+  const winA = make("wa", { at: hoursAgo(2) })
+  const winB = make("wb", { at: hoursAgo(3) })
+  const oldHot = make("oh", { at: hoursAgo(50), featured: true }) // huge stub score
+  const out = selectImportantNews([oldHot, winA, winB], NOW, 2, scoreOf)
+  assert.equal(out.length, 2, "capped at limit")
+  assert.ok(
+    !out.some((x) => x.id === "oh"),
+    "high-score out-of-window article excluded when window fills limit",
+  )
+}
+
 // mergeRankedArticles: ranked order first, then backfill by score, no dupes.
 {
   const a = make("a", { featured: true })
@@ -55,6 +69,16 @@ function make(id, opts = {}) {
   assert.equal(merged.length, 3, "backfills to limit")
   assert.equal(new Set(merged.map((x) => x.id)).size, 3, "no duplicates")
   assert.ok(!merged.slice(1).some((x) => x.id === "c"), "no dup of ranked id")
+}
+
+// Ranked order is preserved for matched ids even when a later id outscores
+// an earlier one (backfill-by-score must not reorder the ranked prefix).
+{
+  const a = make("a", { featured: true }) // high stub score
+  const b = make("b")
+  const merged = mergeRankedArticles(["b", "a"], [a, b], 2, scoreOf)
+  assert.equal(merged[0].id, "b", "ranked order preserved even when a outscores b")
+  assert.equal(merged[1].id, "a", "second ranked id follows")
 }
 
 console.log("PASS home-selection")
