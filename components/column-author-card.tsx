@@ -12,7 +12,7 @@ export function ColumnAuthorCard({ author }: { author: AuthorProfile }) {
         この記事の執筆者
       </p>
       <div className="mt-4 flex gap-4 rounded-md border border-border bg-secondary/30 p-4 sm:p-5">
-        <Avatar className="size-14 shrink-0 border border-border">
+        <Avatar className="size-24 shrink-0 border border-border">
           {author.avatarUrl && (
             <AvatarImage
               src={author.avatarUrl}
@@ -20,7 +20,7 @@ export function ColumnAuthorCard({ author }: { author: AuthorProfile }) {
               className="object-cover"
             />
           )}
-          <AvatarFallback className="bg-primary/10 text-base font-bold text-primary">
+          <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">
             {authorInitial(author.name)}
           </AvatarFallback>
         </Avatar>

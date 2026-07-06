@@ -474,7 +474,7 @@ export function ArticleView({
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-balance font-serif text-[28px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[38px]">
+                <h1 className="text-balance font-serif text-[26px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[34px]">
                   {article.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
