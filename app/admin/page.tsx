@@ -622,6 +622,9 @@ function AdminArticleCard({
             </Badge>
           )}
           <Badge variant="outline">{CATEGORY_LABELS[article.category]}</Badge>
+          <span className="break-all font-mono text-xs text-muted-foreground">
+            記事ID {article.id}
+          </span>
           {article.createdAt && (
             <span className="text-xs text-muted-foreground tabular-nums">
               生成 {formatJstDateTime(article.createdAt)}
