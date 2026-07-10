@@ -31,6 +31,9 @@ export async function fetchCityWeather(): Promise<CityWeatherMap | null> {
 
     const map: CityWeatherMap = {}
     payload.forEach((entry, index) => {
+      // null/undefined 要素へのプロパティ読み出しは throw する。catch はされるが、
+      // その1都市のために残る8都市の正常な天気まで捨ててしまう。ここで飛ばす。
+      if (entry === null || typeof entry !== "object") return
       const current = (entry as { current?: { temperature_2m?: number; weather_code?: number } })
         .current
       if (typeof current?.temperature_2m !== "number") return
