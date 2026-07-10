@@ -200,3 +200,53 @@
 | 日系企業拠点・「最も集積」表現 | 「日本語メディアはグルガオンをインド国内で日系企業拠点が最も集積する都市の一つと紹介しており」 | ❌ 削除（ヘッジ表現が裏付けのない主張を覆っていたパターン） | "グルガオン 日系企業 拠点数 インド 最多 都市" ／ "\"グルガオン\" 日系企業 拠点 最も 集積" | 出典として確認できたのは @DIME（https://dime.jp/genre/756728/）1件のみで、本文は「拠点が450以上」「インドの都市の中で最も日系企業の拠点が多い都市」と断定するが、一次資料（JETRO・在インド日本大使館の統計）による裏付けは見つからなかった（在インド日本大使館PDF https://www.in.emb-japan.go.jp/files/100866957.pdf はアクセス不可＝403）。miraist-india.com・abroaders.jp等の関連記事も同じ主張を反復するのみで独立の一次データを示しておらず、単一の消費者向けメディア発の未検証の順位主張と判断。「〜の一つと紹介」というヘッジ表現がこの未確認の主張を覆っていたため、`data.ts` の `corporateNote` から当該節を削除した |
 
 修正・削除1件（`corporateNote` の日系企業拠点「最も集積」ヘッジ主張の削除）を除き、全項目が独立ソース・独立クエリで確認できた。特に、バルジーが「デリーのサダルバザール」ではなく「グルガオン自身のサダルバザール」の店であること（Delhi bleedの誤りでないこと）を複数ソースで確認した。空港・大気汚染がデリーとの共通事項としてクロスリファレンスされている点は正しい記述であり、変更していない。`bestMonths`／`avoidMonths`／`lib/cities/climate.ts` の数値には触れていない。
+
+## ベンガルール（第1パス、執筆者自身によるセルフチェック）
+
+`lib/cities/data.ts` の `bengaluru` エントリに記載した固有名詞・数値の検証記録。`bestMonths`/`avoidMonths` は `lib/cities/climate.ts` の観測平均（最高気温が年間を通じて34℃を超えず、降水も6〜9月に138〜165mmと分散し、ムンバイ・デリーのような極端な季節性がない）を根拠に判断した。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 都市 | 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|---|
+| ベンガルール | 渡航適期の判断根拠 | climate.tsでは最高気温が年間通じて26〜34℃、降水も4〜165mmと穏やかに分散しており、ムンバイ・デリーのような「必ず避けるべき月」が存在しない。最も涼しく乾燥する12〜2月（最高26〜30℃、降水4〜37mm）をbestMonthsとし、avoidMonthsは空配列とした | ✅（climate.tsの数値のみに基づく判断、外部ソースなし） | — | lib/cities/climate.ts（bengaluru slug） |
+| ベンガルール | エリア | Indiranagar・Whitefieldが駐在員向けエリア。Indiranagarは地下鉄パープルライン沿いの中心部高級エリア、Whitefieldは東部ITパーク隣接の新興エリア | ✅ | "Bengaluru expat neighborhoods Indiranagar Whitefield rent 2BHK monthly" | https://www.globemoving.net/international/moving-to-india/where-to-live-bangalore/ ／ https://expatlife.ai/india/cities/bangalore/neighborhoods/whitefield |
+| ベンガルール | 家賃 | 2BHK（Indiranagar、駐在員向け）$335〜680/月 | ✅ | "Bengaluru expat neighborhoods Indiranagar Whitefield rent 2BHK monthly" ＋独立検証 "Indiranagar Bangalore 2BHK monthly rent rupees squareyards nobroker 2026" | ₹35,000〜65,000/月（globemoving.net記載）およびnestriqo.comの₹32,000〜55,000/月と概ね一致、1USD≈95.5円換算 |
+| ベンガルール | 家賃 | 2BHK（Whitefield・ゲーテッドコミュニティ、駐在員向け）$188〜367/月 | ✅ | "Whitefield Bangalore 2BHK gated community rent per month rupees nobroker" | ₹18,000〜35,000/月（ゲーテッドコミュニティ帯、nobroker.in記載）、1USD≈95.5円換算 |
+| ベンガルール | 為替換算 | USD/INR ≈ 95.5（2026年7月時点） | ✅ | "USD INR exchange rate July 2026" | https://www.exchangerates.org.uk/USD-INR-spot-exchange-rates-history-2026.html（2026年7月9日時点95.5060） |
+| ベンガルール | 病院 | Sakra World Hospital（アウター・リング・ロード、マラタハリ）2014年開業、豊田通商・セコムの合弁でインド初の外資100%出資病院、国際患者向けに日本語通訳サービスを提供 | ✅ | "Sakra World Hospital Bangalore Japan Fujita Health University Japanese investment" ＋公式ページ直接取得 | https://www.sakraworldhospital.com/international-patient-services（"Arabic, Japanese and French interpretation services are made available to International patients."と明記）／ https://www.toyota-tsusho.com/english/about/project/02.html（2014年3月開業、JBIC融資） |
+| ベンガルール | 病院 | Sakra World Hospitalの出資比率（セコム60%・豊田通商40%）、NABH認定 | ✅（JCIは公式ページに記載なしのため記載せず） | "Sakra World Hospital JCI NABH accreditation Marathahalli Outer Ring Road" | https://www.theweek.in/theweek/business/2024/07/13/india-s-first-fully-fdi-hospital-sakra-bengaluru.html（出資比率）／ https://www.sakraworldhospital.com/quality-safety（NABH認定・AACI認定を明記、JCIの記載なし） |
+| ベンガルール | 病院 | Fortis Hospital（バンネルガッタ・ロード）2006年開業、2008年にカルナータカ州で初めてJCI認定取得 | ✅ | "Fortis Bannerghatta Road first JCI accredited hospital Karnataka year" | https://www.medijourney.co.in/hospital/fortis-hospital-bg-road-bangalore（2006年設立・カルナータカ州初のJCI認定を明記） |
+| ベンガルール | 病院 | Apollo Hospitals（バンネルガッタ・ロード）2007年開業、JCI・NABH認定、250床 | ✅ | "Apollo Hospital Bannerghatta Road Bangalore JCI accreditation year founded" | https://www.medijourney.co.in/hospital/apollo-hospital-bangalore-bannerghatta-road（2007年設立、JCI・NABH認定、250床、50以上の診療科を確認） |
+| ベンガルール | 治安 | 比較的治安は安定、コマーシャル・ストリート／MG Road周辺でのスリに注意、マジェスティック・シヴァジナガルは夜間の単独行動を避ける | ✅ | "Bangalore safety expats crime pickpocket area avoid night" | https://www.travelsafe-abroad.com/india/bangalore/ ／ https://travel.india.com/guide/destination/shocking-find-out-which-10-places-in-bengaluru-you-should-stay-away-from-7039202/（マジェスティック・シヴァジナガルを名指しで注意喚起） |
+| ベンガルール | 空港アクセス | KIAからIndiranagarまで車で約35〜36分、Whitefieldまで約35分（通常時） | ✅ | "Bengaluru airport KIA to Whitefield Indiranagar drive time minutes" ／ "Bengaluru airport to Indiranagar drive time minutes distance" | https://www.rome2rio.com/s/Bengaluru-Airport-BLR/Whitefield-India（35分）／ https://www.rome2rio.com/s/Bengaluru-Airport-BLR/IndiraNagar（36分） |
+| ベンガルール | 域内交通 | Namma Metroパープルラインが2023年10月にWhitefield(Kadugodi)〜Challaghatta間で全線開業 | ✅ | "Bengaluru Namma Metro Purple Line Whitefield Challaghatta stations" | https://en.wikipedia.org/wiki/Purple_Line_(Namma_Metro)（2023年10月9日全線開業、43.49km・37駅を確認） |
+| ベンガルール | 直行便 | JAL(日本航空)が成田―ベンガルール間に2020年3月就航、ボーイング787-8型機、インドで2番目のJAL直行路線 | ✅ | "成田 ベンガルール 直行便 ANA" ＋独立検証 "JAL Narita Bengaluru route launched March 2020 first flight history" | https://www.bengaluru.in.emb-japan.go.jp/itpr_en/00_000136.html（在ベンガルール日本国総領事館公式ページで2020年就航を確認）／ ANAはベンガルール線を運航していないことも確認 |
+| ベンガルール | 直行便 | 2026年は時期により週3便〜毎日運航の間で変動、9月から毎日運航化予定、所要時間は成田発9時間55分・ベンガルール発7時間45分 | ✅ | "JAL Narita Bengaluru flight schedule frequency aircraft duration 2026" | https://press.jal.co.jp/en/release/202606/009571.html（2026年3月29日〜8月31日は週3便、9月1日〜10月24日は毎日運航に増便） |
+| ベンガルール | 渋滞 | TomTomトラフィック指数2025でベンガルールは世界2位の渋滞都市（スコア74.4）、ラッシュ時平均時速16.6km/h、通勤者は年間168時間を渋滞で損失 | ✅ | "Bengaluru traffic congestion commute time TomTom index" | https://www.downtoearth.org.in/urbanisation/bengaluru-kolkata-among-worlds-slowest-cities-as-india-ranks-high-on-congestion-index（TomTomトラフィック指数2025のデータとして数値を確認） |
+| ベンガルール | 冠水 | 2022年9月、Microsoft・Intel・Goldman Sachsなどが集まるOuter Ring Road一帯で大雨による冠水、ボートでの救助が発生 | ✅ | "Bengaluru monsoon flooding Outer Ring Road tech park waterlogging boats" | https://scroll.in/latest/1032055/bengaluru-roads-flooded-again-after-overnight-heavy-rainfall（ORR沿いのMicrosoft・Intel・Goldman Sachs等の拠点周辺の冠水、Varthurでのボート救助を確認） |
+| ベンガルール | 日本人会 | バンガロール日本人会（bangalore-nihonjinkai.com） | ✅ | "バンガロール 日本人学校 日本人会" | https://www.bangalore-nihonjinkai.com/ |
+| ベンガルール | 補習校 | バンガロール補習授業校（土曜校、Trio World Academy内・Sahakar Nagar所在）、設置主体はバンガロール日本人会 | ✅ | "バンガロール 日本人学校 日本人会" | https://sites.google.com/site/bangalorehoshuko/info（デリー・ムンバイと異なり全日制の日本人学校はなく補習校のみと明記） |
+| ベンガルール | 日本語グロサリー | 実店舗を確認できず | ❌（削除） | "日本食料品店 バンガロール 日系スーパー Bangalore Japanese grocery" | オンライン販売のMaindish.in等は確認できたが、実店舗の日系スーパー名は特定できず、`groceries` は空配列とした |
+| ベンガルール | GCC・日系企業 | ベンガルールはインド最大のGCC集積地。在ベンガルール日本国総領事・名和浩史氏が2026年、同市のGCCエコシステムが日系企業を引き付ける自然な魅力になっていると発言、半導体・製造・研究開発・人材育成を重点分野として言及 | ✅（GCCの総数はソースにより870〜1,100超と幅があり数値は本文に採用せず、総領事の発言のみを事実として記載） | "Bengaluru Japanese GCC global capability centre leading city corporate" ＋独立検証 ""Consul General" Nawata Bengaluru Japanese companies GCC Deccan Herald" | https://www.deccanherald.com/india/karnataka/bengaluru/bengalurus-gcc-ecosystem-a-natural-lure-for-japanese-companies-says-new-consul-general-4029211（記事見出し・要旨を確認）／ https://www.bengaluru.in.emb-japan.go.jp/itpr_ja/11_000001_00604.html（総領事・名和浩史氏の実在と活動を独立に確認） |
+| ベンガルール | 名物料理 | MTR（マーヴァッリ・ティフィン・ルームズ）、1924年マイヤ兄弟が「ブラーミン・コーヒー・クラブ」として創業、第二次大戦中の米不足からラヴァ・イドリーを考案 | ✅ | "MTR Mavalli Tiffin Room masala dosa history 1924 Bangalore" | https://en.wikipedia.org/wiki/Mavalli_Tiffin_Rooms ／ https://thebetterindia.com/food/food-history/origin-invention-story-rava-idli-mtr-bengaluru-10649642 |
+| ベンガルール | 工芸 | チャンナパトナの木工玩具、2005年GI登録、18世紀ティプー・スルターンが招いたペルシャ職人の技法に起源とされる | ✅（ペルシャ職人起源説は一部専門家の間で異論もあるため「とされる」と表現） | "Channapatna toys GI tag craft Bangalore Karnataka" | https://en.wikipedia.org/wiki/Channapatna_toys（2005年GI登録）／ http://www.sahapedia.org/channapatna-toys-and-tipu-sultans-persian-connection（ペルシャ起源説は広く流布する一方、地元専門家には異論もあると明記） |
+| ベンガルール | 祭事 | ベンガルール・カルガ祭、旧市街ティガラルペーテのダルマラーヤ・スワーミ寺院、チャイトラ月（3〜4月）、寺院は800年以上の歴史 | ✅ | "Karaga festival Bengaluru Dharmaraya Swamy Temple history" | https://en.wikipedia.org/wiki/Dharmaraya_Swamy_Temple ／ https://en.wikipedia.org/wiki/Bangalore_Karaga |
+| ベンガルール | 土産 | デヴァナハッリ・ポメロ（チャコッタ）、空港所在地デヴァナハッリ周辺のみで栽培、2009〜10年GI登録、1個2〜2.5kg（最大10kg近く） | ✅ | "Devanahalli Pomelo GI tag Bengaluru" | https://en.wikipedia.org/wiki/Devanahalli_pomelo ／ https://www.shankariasparliament.com/current-affairs/daily-upsc-current-affairs-prelim-bits-27-04-2020（GI登録2009〜10年を確認） |
+
+## ベンガルール（第2パス、執筆者自身による別クエリでの独立再検証）
+
+上記の表は第1パスのセルフチェック。以下は第1パスと異なる検索クエリを用いて、特に確信度の低かった項目（Sakra World Hospitalの出資比率とJCI有無、Fortis病院の開業年、カルガ祭の日程、チャンナパトナ玩具のGI年）を再検証した記録。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 病院 | Sakra World Hospital、豊田通商・セコムの合弁、インド初の100%外資病院、出資比率セコム60%・豊田通商40% | ✅ | ""Sakra World Hospital" "first" FDI hospital India Secom Toyota Tsusho ownership percentage" | https://www.theweek.in/theweek/business/2024/07/13/india-s-first-fully-fdi-hospital-sakra-bengaluru.html（出資比率を再確認）／ https://www.toyota-tsusho.com/english/press/detail/240318_006373.html（第2病院建設計画の発表記事で豊田通商・セコムの合弁関係を再確認） |
+| 病院 | Fortis Hospital（バンネルガッタ・ロード）2006年開業、カルナータカ州初のJCI認定 | ✅ | "Fortis Hospital Bangalore Bannerghatta Road opened 2006 history" | 検索結果で2006年設立・カルナータカ州初のJCI認定（6回のJCI認定歴、4回のNABH認定歴）を複数サイトで確認、284床という情報も得た（data.tsには病床数を記載していないため矛盾なし） |
+| 祭事 | ベンガルール・カルガ祭、チャイトラ月（3〜4月）、旧市街ティガラルペーテ中心 | ✅ | ""Bangalore Karaga" Thigalarpete Draupadi festival date April March" | https://en.wikipedia.org/wiki/Bangalore_Karaga（3月または4月、チャイトラ月と確認）／ 2026年の開催日程（3月26日〜4月1日）も確認、data.tsは特定年の日付を記載していないため矛盾なし |
+| 工芸 | チャンナパトナ木工玩具、2005年GI登録、ラーマナガラ県（ベンガルールから約60km） | ✅ | "Channapatna toys GI tag 2005 Tipu Sultan Persian artisans history" | https://5sensestours.com/channapatna-toys-tour-bangalore-tipu-sultan-folk-art/（ベンガルールから60km、2005年GI登録を再確認） |
+| 名物料理 | MTRのラヴァ・イドリー、第二次大戦中（日本軍のビルマ侵攻による）米不足を機に考案 | ✅ | ""Mavalli Tiffin Room" OR MTR rava idli invented World War rice shortage history" | https://thebetterindia.com/food/food-history/origin-invention-story-rava-idli-mtr-bengaluru-10649642（日本のビルマ侵攻による米不足が契機と明記、独立ソースで再確認） |
+| 域内交通 | Namma Metroパープルライン、Whitefield(Kadugodi)〜Challaghatta間、37駅・43.49km | ✅ | "Bengaluru Namma Metro Purple Line Whitefield Challaghatta stations" | https://en.wikipedia.org/wiki/Purple_Line_(Namma_Metro)（2023年10月9日全線開業を再確認） |
+
+修正・削除なし。全項目が独立ソース・独立クエリで確認できた。GCCの総数（870〜1,100超とソースにより幅がある）は本文に具体的数値として採用せず、在ベンガルール総領事の発言のみを事実として記載する判断を維持した。Sakra World HospitalのJCI認定は複数の第三者サイトが主張する一方、公式サイト（quality-safetyページ）にはNABH・AACIのみが明記されJCIの記載がないため、`data.ts` にはJCIを記載せずNABHのみとした。`bestMonths`/`avoidMonths`はclimate.tsの数値のみに基づき、外部ソースは使用していない（ベンガルールは年間を通じて温和な気候のため`avoidMonths`は空配列とした）。
