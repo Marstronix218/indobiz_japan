@@ -124,3 +124,47 @@
 | 祭事 | 共和国記念日パレード、1950年1月26日起源、カルタヴィヤ・パトで毎年1月26日開催 | ✅ | "Republic Day parade Kartavya Path history January 26 significance" | https://en.wikipedia.org/wiki/Delhi_Republic_Day_parade（1950年1月26日が起源、1951年以降現ラージパト＝カルタヴィヤ・パトで毎年開催） |
 
 修正・削除ともになし。全項目（26件）が独立ソース・独立クエリで確認できた。家賃2件は市場全体のレンジが広いためclaim値単体では下限〜中位に位置するが、複数の独立ソースで観測されるレンジ内に収まっており矛盾ではないと判断。大気汚染の数値（月次平均・AQIピーク）はCSE・aqi.in・CPCB系の一次報道で完全一致を確認し、「ピークを平均と誤記」の兆候もなし。`bestMonths`/`avoidMonths`の判断根拠を揺るがす修正は発生しなかった。
+
+## グルガオン（第1パス、執筆者自身によるセルフチェック）
+
+`lib/cities/data.ts` の `gurgaon` エントリに記載した固有名詞・数値の検証記録。グルガオンはデリー首都圏の一部だが、事実は原則としてグルガオン（グルグラム、ハリヤナ州）固有のものに限定し、デリーと共通する事実（空港・大気汚染の地域性）は明示的にクロスリファレンスした。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 都市 | 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|---|
+| グルガオン | 祭事 | シータラー・マーター寺院の祭礼、チャイトラ月（3〜4月）、地名「グルガオン」の起源伝承（グル・ドローナ／クリピー）と結びつく | ✅ | "Sheetla Mata Mandir Gurgaon fair mela history Chaitra" / "Sheetla Mata Gurgaon city name origin legend founding" | https://en.wikipedia.org/wiki/Sheetla_Mata_Mandir_Gurgaon ／ https://www.livehistoryindia.com/story/cover-story/gurugram-daughter-of-serendipity |
+| グルガオン | 料理 | バルジー（Baljee）、旧グルガオン・サダルバザール、1970年代創業のチョーレー・バトゥーレー老舗 | ✅（創業年は1973年説・1975年説で幅があるため「1970年代」と幅を持たせて記載） | "Baljee Restaurant Gurgaon 1973 history chole bhature old Gurgaon" ＋独立検証 ""Baljee" Gurgaon Sadar Bazar restaurant founded year history established" | https://wanderlog.com/place/details/2375583/baljee-restaurant（1973年） ／ 複数のグルメサイトで1975年説も併存（該当箇所は年を特定せず「1970年代」に丸めて記載） |
+| グルガオン | エリア | DLFゴルフコースロード（セクター42・53〜56）、スシャント・ロック（セクター43）、ゴルフコース・エクステンション・ロードが主要な駐在員居住エリア | ✅ | "Gurgaon expat housing DLF Golf Course Road rent" | https://www.apartmentsingurugram.com/rental_aprt/property_GolfcourseRoad.html ／ https://www.apartmentsingurugram.com/rental_aprt/property_GolfcourseExtRoad.html |
+| グルガオン | 家賃 | 2BHK（ゴルフコースロード、駐在員向け）$310〜840/月 | ✅ | "Golf Course Road Gurgaon 2BHK apartment rent per month rupees 2026" | https://www.squareyards.com/rent/2-bhk-for-rent-in-golf-course-road-gurgaon（₹30,000〜80,000/月、1USD≈95.5換算） ／ https://www.99acres.com/2-bhk-flats-for-rent-in-golf-course-road-gurgaon-ffid |
+| グルガオン | 家賃 | 3BHK（DLFパークプレイス・セクター54、駐在員向け）$960〜1,280/月 | ✅ | "DLF Park Place Sushant Lok Gurgaon 3BHK rent per month rupees 2026" | https://www.apartmentsingurugram.com/rental_aprt/dlf_park_place.html（₹92,000〜115,000/月） ／ https://www.99acres.com/3-bhk-flats-for-rent-in-dlf-park-place-sector-54-gurgaon-509-rnpffid（平均₹121,875/月、デリー首都圏エントリの第2パスで独立検証済みの数値を再確認） |
+| グルガオン | 日本人学校スクールバス | ニューデリー日本人学校のスクールバスが2024年度、グルガオン地区でベレール・ICON・パームスプリングス・パークプレイス・ピナクル・ウェストエンドハイツ・クレストに停車 | ✅ | "グルガオン 日本人学校 ニューデリー日本人学校 通学 スクールバス" | https://kaigai.starts.co.jp/india/life/200（本文を直接取得し停留所名を確認。ndjs.org本体には現行の停留所リストは非公開のため、この一次情報源に依拠） |
+| グルガオン | 病院 | Medanta – The Medicity（セクター38）2009年開業、JCI・NABH・NABL認定、43エーカー、年間2万人超の国際患者 | ✅ | "Medanta The Medicity Gurgaon Sector address CIN road" | https://www.medanta.org/hospitals-near-me/gurugram-hospital（セクター38所在を確認。開業年・認定・国際患者数はデリー首都圏エントリの第1・第2パスで確認済みの数値を再使用） |
+| グルガオン | 病院 | Fortis Memorial Research Institute（セクター44、HUDAシティセンター向かい）2013年開業、JCI・NABH認定 | ✅ | "Fortis Memorial Research Institute Gurgaon address sector JCI" | https://www.fortishealthcare.com/location/fortis-memorial-research-institute-gurgaon（セクター44、HUDAシティセンター向かいの住所を確認。2013年開業・JCI/NABH認定は複数のホスピタル紹介サイトで一致） |
+| グルガオン | 病院 | Artemis Hospital（セクター51）2007年開業、9エーカー、400床超、2013年グルガオン初のJCI認定、2017年NABH認定 | ✅ | "Artemis Hospital Gurgaon Sector 51 established 2007 beds acres JCI NABH" | https://en.wikipedia.org/wiki/Artemis_Hospital（2007年設立、9エーカー、2013年グルガオン初のJCI認定、2017年NABH認定） |
+| グルガオン | 大気汚染 | デリーと同様の季節性大気汚染に見舞われる（具体的な月次数値はグルグラム固有のものを確認できず記載せず） | ✅（数値は意図的に省略） | "Gurugram AQI air quality monitoring station separate from Delhi 2026" | https://aqicn.org/city/india/gurugram/sector-51/ ／ https://aqicn.org/city/india/gurugram/nise-gwal-pahari/（セクター51・NISEグワルパハリ・ヴィカス・サダンの3局の存在は確認できたが、月次平均値を報じる一次資料は見つからず、数値記載を見送った） |
+| グルガオン | 治安 | 新興セクターのゲーテッドコミュニティは比較的安全、旧市街・急速市街化エリアはやや治安が劣る、夜間は徒歩を避けUber/Ola推奨 | ✅ | "Gurgaon safety crime expat pickpocket night walking Uber Ola recommended" | https://rathiglobalrealty.com/is-gurgaon-safe-to-live（ゲーテッドコミュニティ・旧市街の治安差を明記） ／ https://www.travelsafe-abroad.com/india/gurgaon/ |
+| グルガオン | 空港アクセス | グルガオン自体に空港はなく最寄りはIGI、ゴルフコースロード方面まで車で約20〜45分 | ✅ | "Gurgaon no airport Delhi IGI drive time distance" | https://www.rome2rio.com/s/Delhi-Airport-DEL/Gurgaon（20〜45分） ／ https://a2prealtech.com/blog_detail/how-close-is-gurgaon-to-delhi-airport.php（15〜20km、渋滞時30〜45分） |
+| グルガオン | 直行便 | グルガオン発着の直行便はなく日本からはデリー（IGI）発着（JAL成田便・ANA羽田便） | ✅（デリー首都圏エントリで確認済みの事実をクロスリファレンス、数値を重複記載せず） | — | デリー首都圏エントリの直行便項目（上表参照） |
+| グルガオン | 交通（域内） | ラピッドメトロ・グルガオン、2013年開業・2017年セクター55-56まで延伸、デリーメトロ・イエローラインとシカンダルプル駅で接続 | ✅ | "Gurgaon Rapid Metro Delhi Metro Yellow Line extension Gurugram" | https://en.wikipedia.org/wiki/Rapid_Metro_Gurgaon（2013年11月開業、2017年3月31日にセクター55-56まで延伸、シカンダルプル駅でイエローラインと接続） |
+| グルガオン | 日本語グロサリー | 大和屋（Yamato-ya）グルガオン店（Boom Plaza 2F、セクター57） | ✅（デリー首都圏エントリの第1・第2パスで確認済みの事実を再使用） | — | https://magicpin.in/Gurgaon/Sector-57/Grocery/Yamato-ya-Intl.-Convenience-Store/store/391b43 |
+| グルガオン | 日系企業拠点・GCC集積 | グルガオンの日系企業拠点数（450以上）がインド国内で最多と複数メディアが紹介。DLFサイバーシティ・ゴルフコースロード・ウドヨグ・ビハールにGCCが集中。ハリヤナ州が2025年に「Haryana GCC Policy」を発表 | ✅（「450以上・最多」は@DIME単独ソースのため断定を避け「メディアが紹介」と紹介形式で記載） | "グルガオン 日系企業 拠点数 450 進出企業数 インド最多" / "Gurgaon Gurugram GCC global capability centre hub NCR" | https://dime.jp/genre/756728/（本文を直接取得し「拠点が450以上」「インドの都市の中で最も日系企業の拠点が多い都市」を確認） ／ https://wework.co.in/blogs/haryana-gcc-policy/（本文を直接取得し2025年発表・グルガオン中心の政策であることを確認） |
+| グルガオン | JETRO | グルガオン単独のJETRO事務所はなく、NCR全域はニューデリー事務所（Eros Corporate Tower）が担当 | ✅（デリー首都圏エントリの事実をクロスリファレンス、新規記載はせず） | "JETRO Gurgaon office location OR JETRO NCR Gurgaon 日系企業 拠点数" | 検索結果からグルガオン単独のJETRO事務所の存在は確認できず、`data.ts` のグルガオンエントリには記載しなかった |
+| グルガオン | 渡航適期の判断根拠 | climate.tsの気温・降水はデリーとほぼ同一パターン（1〜3月は涼しく乾燥、4〜6月酷暑、7〜9月モンスーン、10〜12月降水少）。大気汚染はデリーと同一地域圏の現象として2〜3月をbestMonths、1・4〜9・11〜12月をavoidMonthsとした（デリー首都圏エントリと同じ判断根拠をクロスリファレンス。グルガオン固有の月次大気質数値は確認できなかったため、季節パターンの記述に留めた） | ✅（気温・降水はclimate.ts、大気汚染の地域性はデリー首都圏エントリの根拠を援用） | — | lib/cities/climate.ts（気温・降水、gurgaon slug） ／ デリー首都圏エントリの渡航適期判断根拠行（上表参照） |
+
+削除した項目: グルガオン単独の日本人会（デリー日本人会と別に存在するか確認できず、`association` フィールドは記載せず）。グルガオン単独のニューデリー日本人学校とは別の現地校（存在を確認できず、スクールバスでの通学という形でのみ記載）。グルグラム固有の大気汚染月次数値（モニタリング局の存在は確認できたが月次平均を報じる一次資料が見つからず）。工芸・土産にあたる固有の物品（サダルバザールの一般的な骨董・雑貨市場という記述はあったが、グルガオン固有の特定の技法や品目に紐づく記述は見つからず、specialtiesには含めなかった）。
+
+## グルガオン（第2パス、執筆者自身による別クエリでの独立再検証）
+
+上記グルガオンの表は第1パスのセルフチェック。以下は第1パスと異なる検索クエリを用いて、特に確信度の低かった項目（GCC・日系企業拠点数、シータラー・マーター寺院の縁起、Fortis Memorial Research Institute、DLFパークプレイスの家賃）を再検証した記録。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 祭事 | シータラー・マーター寺院、地名「グルガオン」の起源伝承（グル・ドローナ／妻クリピー） | ✅ | ""Sheetla Mata Mandir" Gurugram temple wife Dronacharya Kripi smallpox goddess" | https://en.wikipedia.org/wiki/Sheetla_Mata_Mandir_Gurgaon ／ https://www.incredibleindia.gov.in/en/haryana/gurugram/sheetla-mata-mandir（インド政府観光公式サイトでも同一の縁起を確認） |
+| 日系企業拠点・GCC集積 | グルガオンの日系企業拠点数「450以上・インド最多」 | ⚠️ 修正（数値・順位の主張を削除） | "Gurugram Japanese companies presence largest number India city ranking 2025" | 在インド日本大使館・JETROの2025年6月公式資料（https://www.in.emb-japan.go.jp/files/100866957.pdf）や複数の企業リストサイトを確認したが、「450以上」「インド最多」を独立に裏付ける一次資料・二次資料は見つからなかった。第1パースで確認できたのは @DIME（dime.jp）単独のソースのみで、abroaders.jp／miraist-india.comは接続不能で本文を直接確認できなかったため、`data.ts` の該当箇所から具体的な数値・「最多」という順位主張を削除し、「日系企業拠点が最も集積する都市の一つ」という穏当な表現に修正した |
+| 病院 | Fortis Memorial Research Institute（セクター44）2013年開業、JCI・NABH・NABL認定、クアタナリーケア | ✅ | "Fortis Memorial Research Institute Gurugram opened 2013 quaternary care JCI accreditation status" | https://www.fortishealthcare.com/location/fortis-memorial-research-institute-gurgaon（2013年開業・quaternary care・JCI/NABH/NABL認定を確認。病床数は330床・11エーカーとの情報もあり`data.ts`側では病床数を記載していないため矛盾なし） |
+| 家賃 | 3BHK（DLFパークプレイス・セクター54）$960〜1,280/月（₹92,000〜122,000） | ✅（市場レンジはより広いが矛盾なし） | "Golf Course Road Gurugram DLF Park Place 3BHK rent nobroker squareyards 2026" | https://www.squareyards.com/rent/3-bhk-for-rent-in-golf-course-road-gurgaon（同物件で₹150,000/月の掲載例も確認。claim値はこのレンジの下限〜中位に位置し、デリー首都圏エントリの第2パスと同じ理由（市場全体は広いレンジを持つが claim 値はその範囲内）で矛盾ではないと判断） |
+
+修正1件（日系企業拠点数「450以上・最多」の削除）を除き、再検証した項目はすべて独立ソースで確認できた。`corporateNote` は数値・順位の主張を伴わない表現に修正済み。
