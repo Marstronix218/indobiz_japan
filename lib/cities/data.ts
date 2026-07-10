@@ -15,6 +15,75 @@ export const CITIES: City[] = [
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/2/2b/Mumbai_Bandra-Worli_Sea_Link.jpg",
     imageCredit: "Bandra-Worli Sea Link · Wikimedia",
+    bestMonths: [11, 12, 1, 2],
+    avoidMonths: [6, 7, 8, 9],
+    specialties: [
+      {
+        jp: "ヴァダパヴ",
+        kind: "料理",
+        note: "じゃがいものコロッケをパンに挟んだムンバイ発祥のファストフード。1966年にダーダル駅前で売られ始めたのが起源とされ、市内に屋台が多数ある。",
+      },
+      {
+        jp: "ボンビル（ボンベイダック）",
+        kind: "料理",
+        note: "ムンバイ沿岸で獲れるヒメエソ科の魚を揚げた郷土料理。「ボンベイダック」の名で知られるが実際は魚。",
+      },
+      {
+        jp: "コルハープリ・チャッパル",
+        kind: "工芸",
+        note: "隣接するコルハープル地方発祥の牛革サンダルで、2019年に地理的表示(GI)登録された。コラバ・コーズウェイなどムンバイ市内の老舗店で購入できる。",
+      },
+      {
+        jp: "ガネーシュ・チャトゥルティ",
+        kind: "祭事",
+        note: "8〜9月にムンバイで最大規模に祝われるヒンドゥー教の祭礼。市内だけで年間6,000体超の神像が作られ、海への神像投入で幕を閉じる。",
+      },
+    ],
+    living: {
+      housing: {
+        areas: ["Bandra West", "Powai", "Lower Parel"],
+        rents: [
+          { layout: "2BHK（Powai、駐在員向け）", minUsd: 580, maxUsd: 950 },
+          {
+            layout: "2BHK（Bandra West、駐在員向け）",
+            minUsd: 950,
+            maxUsd: 1900,
+          },
+        ],
+        note: "Powaiは日本人学校や日系オフィスの集積地として駐在員に人気。Bandra Westは商業施設やBKCへのアクセスに優れるが家賃はPowaiより高め。",
+      },
+      safetyHealth: {
+        safetyNote: "大都市としては比較的安全だが、駅や市場などの人混みでのスリ・置き引きに注意が必要。深夜はアプリ配車や指定タクシー乗り場を利用し、カマティプラやダラヴィなど治安の弱いエリアの単独徒歩は避けたい。",
+        hospitals: [
+          {
+            name: "Kokilaben Dhirubhai Ambani Hospital（アンデリー西）",
+            note: "JCI認定の総合病院で国際患者向け窓口を持つ。Powai・Bandra方面からもアクセス可能。",
+          },
+          {
+            name: "P. D. Hinduja Hospital（マーヒム）",
+            note: "1951年開業の大規模総合病院。国際患者部門があり通訳手配やビザ書類支援に対応。",
+          },
+          {
+            name: "Lilavati Hospital & Research Centre（バンドラ）",
+            note: "空港から車で約20分。国際患者向け専用デスクと通訳サポートを備える。",
+          },
+        ],
+        healthNote: "いずれの病院も国際患者向け窓口を備えるが、日本語対応スタッフが常駐しているとの確証は得られなかった。英語での症状説明に不安がある場合は、海外旅行保険の医療アシスタンスサービス経由で通訳付き受診を手配するのが安全。",
+      },
+      transport: {
+        fromAirport: "CSMIA（チャトラパティ・シヴァージー国際空港）からBandraまで車で約20〜45分、Powaiまで約25〜40分。渋滞状況により変動する。",
+        inCity: "郊外電車（西線・中央線）とムンバイメトロが基幹交通。Uber・Olaなどアプリ配車も広く普及しているが、道路渋滞が慢性的。",
+        directFlightFromJapan: "ANA（全日空）が成田―ムンバイ間で唯一の直行便を運航。2026年は季節により週3〜7便の間で変動する（3月末〜7月中旬は毎日運航に増便）。所要時間は片道約9〜10時間。",
+        commuteNote: "モンスーン期（6〜9月）は道路冠水や鉄道運休で通勤に大幅な遅れが生じやすく、雨季の出張日程には余裕を持たせたい。平常時も渋滞で移動に30〜60分の上乗せを見込む必要がある。",
+      },
+      japaneseCommunity: {
+        association: "ムンバイ日本人会（mumbai-japan.in）",
+        schools: ["ムンバイ日本人学校（Powai・ヒランダーニ地区）"],
+        groceries: [],
+        corporateNote: "JETROムンバイ事務所はBKC（バンドラ・クルラ・コンプレックス）に所在し、日系企業の進出相談窓口となっている。日本人学校や日本人会もPowai周辺に集積しており、駐在員はPowai・Bandra一帯に生活基盤を置くケースが多い。",
+      },
+      verifiedAt: "2026-07",
+    },
   },
   {
     slug: "delhi-ncr",
