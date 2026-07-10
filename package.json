@@ -15,7 +15,8 @@
     "test:clustering": "node --experimental-strip-types --test lib/clustering.test.ts",
     "test:source-policy": "node --experimental-strip-types --test lib/llm/source-policy.test.ts",
     "test:quality-guard": "node --experimental-strip-types --test lib/llm/output-quality-guard.test.ts",
-    "test:authors": "node --experimental-strip-types --test lib/authors.test.ts"
+    "test:authors": "node --experimental-strip-types --test lib/authors.test.ts",
+    "test:cities": "node --experimental-strip-types --test lib/cities/data.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
