@@ -96,8 +96,9 @@ export function ClimateCalendar({
                 </th>
                 <td className="w-28 py-1.5 pr-3">
                   <div
-                    className="relative h-2 w-full rounded-full bg-muted"
+                    className="relative h-2 w-full overflow-hidden rounded-full bg-muted"
                     title={`${month.avgLowC}°〜${month.avgHighC}°C`}
+                    aria-hidden="true"
                   >
                     <div
                       className="absolute h-2 rounded-full bg-accent/70"
@@ -110,12 +111,13 @@ export function ClimateCalendar({
                 </td>
                 <td className="w-20 py-1.5 pr-3">
                   <div
-                    className="relative h-2 w-full rounded-full bg-muted"
+                    className="relative h-2 w-full overflow-hidden rounded-full bg-muted"
                     title={`${month.avgRainMm}mm`}
+                    aria-hidden="true"
                   >
                     <div
                       className="absolute h-2 rounded-full bg-chart-3/70"
-                      style={{ width: `${Math.max(rainWidth, 3)}%` }}
+                      style={{ width: `${rainWidth}%` }}
                     />
                   </div>
                 </td>
