@@ -50,3 +50,22 @@ test("climate の値が現実的な範囲に収まる", () => {
     }
   }
 })
+
+test("mummbai の季節風降雨量が月別平均値として計算されている", () => {
+  const climate = getClimate("mumbai")
+  if (!climate) throw new Error("mumbai: climate なし")
+  const julyMonth = climate.months.find((m) => m.month === 7)
+  const januaryMonth = climate.months.find((m) => m.month === 1)
+  if (!julyMonth) throw new Error("mumbai: July なし")
+  if (!januaryMonth) throw new Error("mumbai: January なし")
+  // 日別平均では約26mm（781/30）となり、この値は300を下回る
+  assert.ok(
+    julyMonth.avgRainMm > 300,
+    `mumbbai July rainfall: expected > 300mm, got ${julyMonth.avgRainMm}`
+  )
+  // 季節風と乾季の降雨量比が50倍以上であることを検証（日別平均では26倍程度に縮む）
+  assert.ok(
+    julyMonth.avgRainMm >= januaryMonth.avgRainMm * 50,
+    `mumbai July/January ratio: expected >= 50, got ${julyMonth.avgRainMm / januaryMonth.avgRainMm}`
+  )
+})
