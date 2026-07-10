@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import { test } from "node:test"
 
 import { CITIES } from "./data.ts"
+import { CLIMATE, getClimate } from "./climate.ts"
 
 test("9都市が存在する", () => {
   assert.equal(CITIES.length, 9)
@@ -27,4 +28,25 @@ test("全都市が必須の基本フィールドを持つ", () => {
 
 test("mumbai の slug が引ける", () => {
   assert.equal(CITIES.find((city) => city.slug === "mumbai")?.jp, "ムンバイ")
+})
+
+test("climate は全 slug × 12ヶ月を持つ", () => {
+  assert.equal(CLIMATE.length, CITIES.length)
+  for (const city of CITIES) {
+    const climate = getClimate(city.slug)
+    if (!climate) throw new Error(`${city.slug}: climate なし`)
+    assert.equal(climate.months.length, 12, `${city.slug}: 月数`)
+    const months = climate.months.map((m) => m.month)
+    assert.deepEqual(months, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+  }
+})
+
+test("climate の値が現実的な範囲に収まる", () => {
+  for (const climate of CLIMATE) {
+    for (const m of climate.months) {
+      assert.ok(m.avgLowC <= m.avgHighC, `${climate.slug}/${m.month}: low > high`)
+      assert.ok(m.avgHighC > 0 && m.avgHighC < 55, `${climate.slug}/${m.month}: high 異常`)
+      assert.ok(m.avgRainMm >= 0, `${climate.slug}/${m.month}: rain 負値`)
+    }
+  }
 })
