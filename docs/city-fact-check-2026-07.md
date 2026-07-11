@@ -384,3 +384,64 @@
 - ❌ 削除: マルガリ音楽祭ノートの「約20のサバーで」（未確認のため削除、確認済みの「約600人の演者による1,200件超の演目」は維持）
 - ⚠️ 修正: safetyNoteから「ペランブール(Perambur)」を削除（危険エリア一覧記事に不掲載、個別レビューでは安全な住宅地との評価が優勢という矛盾する根拠に基づく）
 - ✅ 上記以外の全項目（病院3件の開業年・認証・国際患者対応、日本人会・補習校、家賃、直行便、空港アクセス・拡張、メトロ路線データ、治安（Perambur以外）、2015年洪水・11月降水量、特産3件（チェッティナード料理／カーンチープラム・シルク／マルガリ音楽祭の確認済み部分）、自動車クラスター（ルノー日産・ヤマハ・回廊シェア）、JETRO所在地）は独立クエリで再確認済み
+
+## プネ（Pune）第1パス（執筆者自身によるセルフチェック）
+
+`lib/cities/data.ts` の `pune` エントリに記載した固有名詞・数値の検証記録。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 直行便 | プネ発着の日本直行便は現状なし | ✅ | "Pune airport direct flight Japan Tokyo Narita Haneda" | https://www.flightroutes.com/PNQ-NRT ／ https://www.rome2rio.com/s/Pune/Japan（いずれもPNQ-NRT/HND間に直行便なし、デリー・ムンバイ・ベンガルール経由の乗継が一般的と一致） |
+| ムンバイ経由 | ムンバイ(CSMIA)〜プネ市街は陸路約150km、ヤシュワントラオ・チャヴァン(ムンバイ・プネ)高速道路経由で好条件下2〜2.5時間、渋滞時3時間超 | ✅ | "Pune Mumbai airport distance drive time train" ／ "Pune Mumbai expressway drive time hours traffic Yashwantrao Chavan" | https://www.yatra.com/distance-between/distance-from-pune-to-mumbai.html（148km）／ https://orbitmiles.in/blogs/mumbai-pune-expressway-best-time-to-travel/（高速道路利用で2〜2.5時間に短縮、金曜・日曜夕方は渋滞、モンスーン期は+30〜45分と明記） |
+| ミサル | プネリ・ミサルはゴダ・マサラを使い、カレー(カット)を具材と別添えで供す | ✅ | "Pune famous food misal pav specialty history origin" ／ "Puneri misal style spicy characteristics distinct from other misal" | https://en.wikipedia.org/wiki/Puneri_misal（独立記事として存在、goda masala・別添え提供の特徴を確認） |
+| ミサル（老舗） | ヴァイディヤ・ウパハル・グルハが1910年代創業 | ✅（1910/1912/1914年説が併存するため「1910年代」に丸めて記載） | "Vaidya Upahar Gruha Pune misal 1910 history oldest" | https://www.mypunepulse.com/vaidya-upahar-gruha-a-113-year-journey-of-perfecting-punes-classic-misal-pav/ ／ https://socialmaharaj.com/2023/11/02/vaidya-upahar-gruh-pune/（複数サイトで1910〜1914年の間で表記揺れがあり、確定できる範囲として「1910年代」を採用） |
+| 工芸 | タンバット・アリの銅細工、サワーイー・マーダヴラーオ期(1774〜1795年)にコンカン地方から移住した銅細工師(タンバット)の職人街 | ✅ | "Pune traditional craft Bohri Ali brass Tulshibaug handicraft" ／ "Tulshibaug Peshwa era coppersmith Kasar brass craft 18th century Pune history" | https://kevinstandagephotography.wordpress.com/2022/04/23/tambat-ali-the-coppersmiths-of-pune/（サワーイー・マーダヴラーオ治世に移住と明記。「約400年」という別の言及もあったが年代が矛盾するため採用せず） |
+| 祭事 | ダグドゥシェート・ハルワーイー・ガナパティ、1893年2月19日にティラクが開眼式を主宰、サルヴァジャニック(公共)祭への転換点 | ✅ | "Pune Ganeshotsav history Lokmanya Tilak 1893 public festival origin Dagdusheth" | https://newspatron.com/dagdusheth-halwai-ganpati-pune/ ／ https://zeezest.com/culture/how-death-and-devotion-created-pune-s-iconic-dagdusheth-halwai-ganpati-4247（開眼式の日付・主宰者が一致） |
+| 土産 | チタレー・バンドゥ、1950年バジラーオ・ロード創業、1970年からバクルワディ販売、当初1日200kg→現在約3,000kg/日 | ✅ | "Chitale Bandhu Mithaiwale Bakarwadi Pune history founded year" | https://en.wikipedia.org/wiki/Chitale_Bandhu_Mithaiwale（創業年・バクルワディ発売年・生産量の推移が一致） |
+| 病院 | Noble Hospitals and Research Centre（ハダプサル）、2023年11月JCI認定、プネ初の三次医療機関JCI・州10番目 | ✅ | "Pune hospitals international patients JCI accreditation" | https://medicalbuyer.co.in/noble-hrc-pune-bags-jci-accreditation/ |
+| 病院 | Ruby Hall Clinic（サッスーン・ロード）、1959年4床の診療所として開業、現在約600床、NABH・NABL認定 | ✅ | "Ruby Hall Clinic Pune Noble Hospital international patients accreditation" | https://rubyhall.com/（国際患者向けサービスを確認）／ https://tgine.com/about-ruby-hall-clinic.php（1959年開業を確認） |
+| 病院 | Jehangir Hospital（サッスーン・ロード）、1946年開業、350床、2013年NABH認定、国際患者窓口 | ✅ | "Jehangir Hospital Pune international patients accreditation NABH" | https://www.jehangirhospital.com/about-us/ |
+| エリア | Koregaon Park・Kalyani Nagarが駐在員向け人気エリア、空港から車で20〜35分 | ✅ | "Pune expat neighborhoods Koregaon Park rent" ／ "Pune airport PNQ Lohegaon to Koregaon Park Kalyani Nagar drive time minutes" | https://bhatnagars.co.in/top-expat-property-location-in-pune-to-invest-in-bhatnagars-real-estate/ ／ https://www.rome2rio.com/s/Pune-Airport-PNQ/Koregaon-Park |
+| 家賃 | 2BHK（Koregaon Park、駐在員向け）$300〜650/月 | ✅ | "Koregaon Park 2BHK rent per month rupees 2026" | https://www.99acres.com/2-bhk-flats-for-rent-in-koregaon-park-pune-ffid（₹22,000〜80,000/月のレンジ内。claim値はこのレンジの中位〜上位に位置） |
+| 家賃 | 2BHK（Kalyani Nagar、駐在員向け）$300〜550/月 | ✅ | "Kalyani Nagar 2BHK rent per month rupees 2026" | https://www.99acres.com/2-bhk-flats-for-rent-in-kalyani-nagar-pune-ffid（₹22,000〜75,000/月のレンジ内。claim値はこのレンジの中位に位置） |
+| 為替換算 | USD/INR ≈ 95.5（ムンバイ・デリー案件と同時点のレートを再使用） | ✅ | ムンバイ・デリー首都圏エントリのファクトチェック時に確認済み | https://www.exchangerates.org.uk/USD-INR-spot-exchange-rates-history-2026.html |
+| メトロ | プネメトロ、パープルライン(PCMCバワン〜スワルゲート、17.4km・12駅)とアクアライン(ヴァナズ〜ラームワディ、15.7km・16駅)、2022年3月開業 | ✅ | "Pune Metro lines status 2026 operational length" | https://en.wikipedia.org/wiki/Pune_Metro（別ソースでは17.5km/14駅という表記もあったが、Wikipedia本文の一次記載を採用） |
+| 通勤 | 自動車工業団地チャカン(Chakan MIDC)までKoregaon Parkから車で約30〜40分 | ✅ | "Koregaon Park Chakan MIDC drive time minutes commute" | https://www.rome2rio.com/s/Koregaon-Park/Ch%C4%81kan（30〜38分の複数推計） |
+| モンスーン | 6〜9月はプネ市警察が指定する市内26カ所の冠水多発地点で道路冠水・渋滞が発生 | ✅ | "Pune traffic congestion monsoon waterlogging flooding rainy season problem" | https://www.mypunepulse.com/pune-traffic-police-flag-26-waterlogging-hotspots-ahead-of-peak-monsoon-seek-pmcs-urgent-intervention/ |
+| 日本人会 | プネ日本人会（punejapan.com、2025年12月にpune-japan.comから移転） | ✅ | "プネ 日本人会 日本人学校" ／ "\"pune-japan.com\" プネ日本人会 概要 設立" | https://www.punejapan.com/（旧pune-japan.comは第三者によるなりすましサイトとして注意喚起されている旨を本文で確認） |
+| 日本人会（理事会企業） | 川崎重工(インドカワサキモータース)・矢崎(Yazaki India)・エンケイホイールズ・JFE商事スチールインディア・三菱電機インディア・ニプロインディア・オリエンタル酵母インディア・ブリヂストンインディア・ヤマザキマザックインディア・タタオートコンプGYバッテリーズが理事会企業として掲載 | ✅ | プネ日本人会公式サイトを直接取得 | https://www.punejapan.com/rijikai |
+| 補習校・日本語グロサリー | プネに補習授業校・特定グロサリー店舗の存在は確認できず | ✅（未確認のため空配列を採用） | "Pune Japanese school hoshuko 補習校 日本食料品店" | 検索結果に該当情報なし。`schools`／`groceries` は空配列とした |
+| JETRO | プネ単独のJETRO事務所は確認できず | ✅（未確認のため記載せず） | "JETRO プネ事務所 所在地" | ジェトロの拠点はニューデリー・ムンバイ・ベンガルール・チェンナイ・アーメダバードの5カ所のみで、プネ単独事務所は検索結果に見当たらなかったため`data.ts`には記載しなかった |
+| 工作機械 | ヤマザキマザックが2023年3月からプネ近郊ランジャンガーオン工業団地(タルカ・シルール)で新工場の生産を開始、国内市場向け立形マシニングセンタ | ✅ | "Yamazaki Mazak India Pune plant OR Makino India Pune OR DMG Mori India Pune machine tool" ／ "Yamazaki Mazak Pune plant address Talegaon Chakan location" | https://seisanzai-japan.com/article/p3958/（2023年3月操業開始、VC-Ezシリーズ、月産40台）／ https://www.mazak.com/in-en/about-us/production-facilities/india/（ランジャンガーオン工業団地の住所を確認。当初想定していたチャカンではなくランジャンガーオンだったため記述を修正） |
+| 自動車部品 | ブリヂストンが2013年2月開業のチャカン(MIDC)タイヤ工場、日立アステモもチャカン等にオフィス | ✅ | "Bridgestone Pune plant Hitachi Astemo Pune Japanese company location" | https://www.bridgestone.com/corporate/news/2013020501.html（公式プレスリリース、2013年2月5日開所式） ／ https://www.hitachiastemo.com/en/groups/asia/ |
+
+## プネ（Pune）第2パス（執筆者自身による別クエリでの独立再検証）
+
+上記の記述のうち特に確信度の低かった項目（治安、家賃レンジ、病院の開業年・認証、メトロの数値、ヤマザキマザックの所在地）について、第1パスと異なる言い回しのクエリで再検証した記録。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 治安 | Koregaon Park周辺は比較的治安が安定 | ✅ | "Pune Koregaon Park safety crime area avoid neighborhoods" | https://www.99acres.com/koregaon-park-pune-reviews-and-ratings-wrffid（低犯罪率・夜間の警備良好との住民評価を確認） |
+| 治安（特定エリア回避） | 「Hadapsar・Pimpri-Chinchwadは避けるべき」という不動産系ブログの主張 | ❌ 削除（採用せず） | "Hadapsar Pune safety crime rate area" | https://www.sobha.com/blog/safest-areas-to-live-in-pune/（自社物件販促ブログが唯一の出典で、独立に再検索するとHadapsarは「治安良好・街灯整備・警邏あり」という真逆の評価（99acres系記事）が優勢だったため、特定エリアを名指しで「避けるべき」とする記述は`data.ts`に採用しなかった |
+| 病院 | Noble Hospitals、2023年11月22日JCI認定、プネで唯一・初の三次医療JCI | ✅ | "Noble Hospitals Hadapsar Pune JCI accreditation tertiary care first" | https://healthcareeureka.in/noble-hospitals-and-research-centre-punes-first-jci-accredited-tertiary-care-centre-with-progressive-technology-and-compassionate-innovation/（日付・順位とも第1パスと一致） |
+| 病院 | Ruby Hall Clinic、1959年開業（当初2床、後に4床）、600床規模 | ✅ | "Ruby Hall Clinic Pune Wikipedia founded 1959 four bed nursing home history" | https://en.wikipedia.org/wiki/Ruby_Hall_Clinic（創業者Keki Byramjee Grant、1959年、General David Sassoon所有の邸宅「Ruby Hall」で開業と一致） |
+| 病院 | Jehangir Hospital、住所32 Sassoon Road | ✅ | "Jehangir Hospital Pune address Sassoon Road location" | https://www.mappls.com/place-jehangir+hospital-32+sassoon+road-near+railway+station-sangamvadi-pune-maharashtra-411001-AS6DBA |
+| 病院 | Ruby Hall Clinic、住所40 Sassoon Road | ✅ | "Ruby Hall Clinic main hospital address Sassoon Road Pune" | https://www.mappls.com/pzcn44 |
+| 家賃 | 2BHK（Koregaon Park）₹22,000〜80,000/月のレンジ | ✅（claim値は範囲内） | "Koregaon Park 2 BHK apartment rent Pune 2026 rupees range" | 複数の不動産サイト集計で同レンジを再確認 |
+| 家賃 | 2BHK（Kalyani Nagar）₹22,000〜75,000/月のレンジ | ✅（claim値は範囲内） | "Kalyani Nagar 2 BHK apartment rent Pune 2026 rupees range" | 複数の不動産サイト集計で同レンジを再確認 |
+| メトロ | 合計約33km・28駅、2022年3月開業 | ✅（別ソースでは17.5km/14駅の表記もあり微差あるが、Wikipedia一次記載と内部整合性のある17.4km/12駅を採用） | "Pune Metro Purple Line Aqua Line stations km Wikipedia" | https://en.wikipedia.org/wiki/Pune_Metro |
+| 工作機械 | ヤマザキマザック新工場はランジャンガーオン工業団地(村カレガオン、タルカ・シルール)所在、空港から約1.5時間 | ✅ | "Yamazaki Mazak India Pune plant address Ranjangaon" | https://www.mazak.com/in-en/about-us/production-facilities/india/（住所・空港からの所要時間を確認。第1パス執筆時に想定していたチャカンではないことを確定） |
+| ブリヂストン | チャカン工場、2013年2月5日開所式、投資額約2,600クロールルピー | ✅ | "Bridgestone India Chakan plant opening ceremony February 2013 tire" | https://www.autocarpro.in/feature/bridgestone-india-radial-tyre-plant-chakan-pune-3448 ／ https://www.business-standard.com/article/companies/bridgestone-begins-tyre-production-from-chakan-113020701096_1.html |
+| モンスーン | 26カ所の冠水多発地点 | ✅ | "Pune monsoon 2026 waterlogging spots traffic police list flood prone" | https://www.modernforce.com/traffic-police-identify-26-critical-waterlogging-locations-across-pune-city-share-data-with-pmc-for-corrective-measures/（同一の26カ所を独立記事でも確認） |
+| 日本人会 | punejapan.com（旧pune-japan.com）、理事会企業リスト | ✅ | "punejapan.com プネ日本人会 理事会企業" | https://www.punejapan.com/rijikai（本文を直接取得し再確認） |
+
+### 変更サマリー（プネ）
+- ⚠️ 修正: ヤマザキマザックの新工場所在地を「チャカン」から正しい所在地「ランジャンガーオン工業団地」に訂正（第1パスの想定が誤りだったため第2パスで是正）
+- ❌ 削除（不採用）: 「Hadapsar・Pimpri-Chinchwadは避けるべき」という不動産ブログ単独の主張（独立ソースで真逆の評価が優勢だったため safetyNote には特定エリアの「避けるべき」表現を含めなかった）
+- ❌ 記載見送り: プネ単独のJETRO事務所、補習授業校、日本語グロサリー店舗（いずれも存在を確認できず、`data.ts`では省略または空配列とした）
+- ✅ 上記以外の全項目（渡航適期の気候判断、ミサル・銅細工・ガネーショーツァヴ・バクルワディの特産4件、病院3件、家賃2件、メトロ、直行便なし・ムンバイ経由の実態、通勤・モンスーン情報、日本人会と理事会企業）は独立クエリで再確認済み
+- `bestMonths`/`avoidMonths`はclimate.tsの数値（12〜2月が高温28.8〜31.8℃・低温15.1〜16.8℃・降水3〜10mmの快適期、4月が最高気温37.4℃、6〜9月が降水205〜281mmのモンスーン期）のみに基づき判断。11月は降水17mmと少ないがclimate.ts記載の値のみで11月を涼季と断定する根拠は薄いため、Mumbaiの判断パターン（11〜2月をbestMonths）を踏襲した
