@@ -542,3 +542,41 @@
 - ⚠️ 留意: ボーナル祭の「1813年疫病流行」起源は広く流布した伝承として記載したが、考古学的にはより古い起源の可能性がある旨をこのログに記録し、`data.ts`では断定表現を避けた
 - ⚠️ 留意: 武田薬品とBiological E社の提携について、製造拠点をGenome Valley/Shamirpetと名指しする一次情報は見つからなかったため、`data.ts`では拠点名を明示していない
 - ✅ 上記以外の全項目（渡航適期の気候判断、ビリヤニ・ポチャンパリー・ボーナル・真珠の特産4件、病院3件の開業年・病床数・国際患者対応、家賃2件、メトロ、直行便なしの実態、空港アクセス、渋滞統計、治安、DNP・武田薬品・NTT DATA/Fujitsuの日系企業情報）は独立クエリまたは病院・企業公式サイト直接取得で再確認済み
+
+
+## ハイデラバード（Hyderabad）第3パス（独立ファクトチェック、2026-07-10、`task-12-report.md`は未参照）
+
+第1・第2パスとは別の担当（独立検証者）が、既存パスの結果を一切参照せず `data.ts` のhyderabadエントリのみを対象に、独自の言い回しで再度全項目をWebSearch/WebFetchで再検証した記録。既存行は変更していない。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ（例） | 出典URL |
+|---|---|---|---|---|
+| 病院 | Apollo Hospitals（ジュビリーヒルズ）1988年開業、550床、JCI・NABH・NABL認定 | ✅ | "Apollo Hospitals Jubilee Hills Hyderabad founded 1988 beds JCI accreditation" | https://www.apollohospitals.com/region/hyderabad/hospitals/jubilee-hills/about-us/ ／ 複数第三者集約サイトで1988年・550床・JCI/NABH/NABL一致 |
+| 病院 | Apollo、2024年3月に7回目のJCI再認証 | ✅ | "Apollo Hospitals Hyderabad sixth JCI accreditation Telangana Today" | https://telanganatoday.com/apollo-hospitals-hyderabad-gets-jci-accreditation-for-sixth-time（2021年5月に6回目→3年周期で2024年3月に7回目、チェンナイと同時取得）https://medicaldialogues.in/news/health/hospital-diagnostics/apollo-hospitals-group-bags-seventh-consecutive-jci-accreditation-127697 |
+| 病院 | Yashoda Hospitals、1989年ラオ兄弟創業、ソマジグダ・セカンダラーバード・マラクペット・ヒテックシティの4拠点、JCI・NABH・NABL認定 | ✅ | "Yashoda Hospitals Hyderabad Rao brothers founded 1989 locations" | https://en.wikipedia.org/wiki/Yashoda_Hospitals ／ https://yourstory.com/smbstory/yashoda-hospitals-telangana-hyderabad-healthcare（4拠点・1989年創業一致） |
+| 病院 | KIMS Hospitals（セカンダラーバード）2004年開業、約1,000床、NABH・AACI認定（JCI記載なし） | ✅（第1パスの修正内容と一致） | "KIMS Hospitals Secunderabad founded 2004 beds AACI accreditation" | https://www.kimshospitals.com/about-us/ ／ AACI認定2023年取得を確認、JCIへの言及なし |
+| 日本人学校・補習校 | 空配列（記載なし） | ✅（空欄が妥当） | "日本人学校 ハイデラバード" | https://www.mext.go.jp/content/000352298.pdf（文科省認定校はニューデリー・ムンバイの2校のみ） |
+| 日本食料品店 | 空配列（記載なし） | ✅（空欄が妥当、確証店舗なし） | "Hyderabad Japanese grocery store Japanese association community India" | 日本食材の実店舗はデリー・グルガオン中心（Yamatoya、Sekai Ichiba等）。ハイデラバード市内の実店舗を裏付ける一次情報は見つからず |
+| 家賃 | 2BHK（Gachibowli）$260〜630/月 | ✅（同水準） | "Gachibowli Hyderabad 2BHK rent per month expat 2025" | 99acres等の集計で₹51,900〜60,000/月（≈$625〜723）を確認。駐在員向け上限帯とclaim値の上限がほぼ一致 |
+| 家賃 | 2BHK（Jubilee Hills）$280〜580/月 | ✅（同水準） | "Jubilee Hills Hyderabad 2BHK apartment rent 2025" | 99acres集計で平均₹27,500/月、レンジ₹19,000〜45,000（≈$230〜540）を確認、claim値と同水準 |
+| 直行便 | 日本との直行便は現在なし | ✅ | "direct flight Hyderabad Japan airline 2026" | 複数の航空券検索サイトでHYD⇄NRT/HNDに直行便なし、香港・デリー・ムンバイ・ベンガルール経由が確認された |
+| エリア | Gachibowli（HITECシティ隣接、Microsoft・Amazon・Accenture等の外資オフィス集積） | ✅ | "Microsoft Amazon Accenture Gachibowli HITEC City Hyderabad office" | Microsoft R&Dキャンパス、Amazon最大級キャンパス、Accenture等がGachibowli/HITECシティ一帯に所在することを確認 |
+| エリア | Jubilee Hills（高級住宅・商業エリア、駐在員に選ばれやすい） | ✅ | "Jubilee Hills Hyderabad upscale expat premium residential area" | 複数の不動産メディアで「ハイデラバード最高級エリア」「駐在員・富裕層に人気」と一致 |
+| 特産（料理） | ハイデラバード・ビリヤニ、ニザームル・ムルクの料理人考案という伝承、ダム・プフト技法、パラダイス1953年セカンダラーバード創業 | ✅（伝承として適切にヘッジ済み） | "Paradise restaurant Hyderabad biryani founded 1953 Secunderabad cinema" ／ "Hyderabadi biryani origin Nizam-ul-Mulk 18th century dum pukht history" | パラダイスの1953年9月1日創業・映画館併設カフェとしての起源を確認。ニザーム料理人考案説は複数ソースで「local folklore」と明記されており、`data.ts`の「伝承では…という」という表現は事実の水準として適切 |
+| 特産（工芸） | ポチャンパリー・イカット、車で約45分、2005年テランガナ州初のGI登録 | ✅（要留意） | "Pochampally Ikat geographical indication GI tag 2005 first Andhra Pradesh Telangana" | https://en.wikipedia.org/wiki/Pochampally_sari（WebFetchで本文確認：「received…GI status in 2005」と明記）。距離は約42km・約44分でclaimの「約45分」と一致。**留意**: 繊維省の登録リスト(handlooms.nic.in)には登録日が2004年12月31日と記載されたものもあり出典間で1年の揺れがあるが、Wikipedia本文の明示的な記述に基づき2005年を優先し、`data.ts`は変更しなかった（一度2004年へ修正しかけたが、一次資料の性質を精査した上で2005年表記を維持） |
+| 特産（祭事） | ボーナル祭、1813年疫病流行時の軍隊派遣伝承、ゴルコンダ砦、ウッジャイニー・マハーカーリー寺院、2014年州祭指定 | ✅ | "Bonalu festival Hyderabad Ujjaini Mahakali temple Secunderabad 1813 origin history army" ／ "Bonalu declared state festival Telangana 2014" | 1813年伝承・ゴルコンダ砦での開幕・2014年6月26日付政府命令(GO No.5)による州祭指定を確認 |
+| 特産（土産） | ハイデラバード・パール、「真珠の都」、1591年クトゥブ・シャーヒー朝、バスラ等ペルシャ湾岸交易 | ✅ | "Hyderabad city of pearls history 1591 Qutb Shahi Persian Gulf Basra pearl trade" | 1591年ムハンマド・クリー・クトゥブ・シャーによる都市建設、ペルシャ湾岸（バスラ含む）からの真珠輸入の歴史を確認 |
+| 主要記述 | 「テランガナ州主導でファブ誘致と製薬クラスターを拡大」（半導体ファブの誘致活動であり、稼働中ファブの存在は主張していない） | ✅（地理的誤りなし） | "Hyderabad semiconductor fab Telangana investment 2025 2026" | Telangana州のFab City（Tukkuguda）再編、半導体人材大学・デザインハブ・ATMPユニット等のロードマップ（2025-2030）を複数ソースで確認。第1パスで削除された日系ファブ案件（Indichip/Yitoa、実際はアーンドラ・プラデーシュ州クルヌール県）のような他州との地理的誤認は、現行のcorporateNote・noteには見当たらない |
+| 日系企業（DNP） | 2026年4月、IITハイデラバード校TRPに海外2カ所目のR&D拠点開設、EV無線給電・医薬品原薬合成ルート開発 | ✅ | "Dai Nippon Printing DNP IIT Hyderabad research development 2026 wireless power EV pharmaceutical API" | https://www.global.dnp/en/news/detail/2026/03/05/（2026年4月27日開設、オランダ(2025年9月)に次ぐ海外2拠点目と明記） |
+| 日系企業（武田薬品） | Biological E社（ハイデラバード地盤）とのTAK-003技術移管・増産提携 | ✅ | "Takeda Biological E dengue vaccine TAK-003 technology transfer Hyderabad" | https://www.takeda.com/newsroom/newsreleases/2024/collaboration-to-accelerate-access-to-dengue-vaccine/（2024年2月発表、年産最大5,000万回分への増産） |
+| JETRO | ハイデラバード単独事務所は確認できず | ✅ | "JETRO overseas offices list India Ahmedabad Bengaluru Chennai Delhi Mumbai" | JETRO公式サイトでインドの拠点はニューデリー・ムンバイ・ベンガルール・チェンナイ・アーメダバードの5カ所のみと確認、ハイデラバードは含まれず |
+| 日系企業（IT） | NTT DATA・Fujitsuがマドハプル/HITECシティ周辺にオフィス | ✅ | "NTT DATA Fujitsu office Hyderabad Madhapur HITEC City" | NTT DATA（Cyber Towers/Soft Sol Tower、Madhapur）、Fujitsu（Raheja Mindspace、Hi-Tech City/Madhapur）の所在地を確認 |
+| 空港アクセス | RGIA(シャムシャバード)からGachibowliまで約35〜45分、Jubilee Hillsまで約35分、Banjara Hillsまで約30〜35分（渋滞状況により変動） | ✅ | "Rajiv Gandhi International Airport Shamshabad to Gachibowli distance drive time" ／ "Hyderabad airport RGIA to Jubilee Hills Banjara Hills travel time minutes traffic" | 最速時24〜29分、渋滞考慮で45分〜1時間との情報も確認。claimは既に「渋滞状況により変動」と幅を持たせて記載されており、実測レンジと整合 |
+| 通勤 | TomTomトラフィック指数2025で世界47位(アジア15位)、ラッシュ時平均時速16.1km/h、年間約123時間損失 | ✅（数値完全一致） | "TomTom Traffic Index 2025 Hyderabad rank congestion average speed" | https://www.telanganatribune.com/hyderabad-ranks-47th-globally-in-traffic-congestion-tomtom-traffic-index-2025/ |
+| メトロ | レッド・ブルー・グリーンの3路線、総延長約67.2km・57駅、ブルーラインがHITECシティ・Gachibowli方面をカバー | ✅（数値完全一致） | "Hyderabad Metro total length 67.2 km 57 stations" | https://en.wikipedia.org/wiki/Hyderabad_Metro（乗換駅の重複を除いた実駅数57・総延長67.21kmを確認） |
+
+### 変更サマリー（ハイデラバード・第3パス）
+- `data.ts` への変更なし。第1・第2パスの記述（誤って未読の`task-12-report.md`ではなく、この`city-fact-check-2026-07.md`の既存行のみ）はすべて独立クエリで再確認でき、矛盾は見つからなかった。
+- 唯一のヒヤリハット: ポチャンパリー・イカットのGI登録年について、繊維省の登録リストが2004年12月31日と読める点を見つけ、一度2005→2004へ書き換えたが、Wikipedia本文の明示的な文言（"received...GI status in 2005"）を精査した結果、出典間の年ズレ（登録受理日と正式なGIジャーナル公示年の違いによると推定）と判断し、2005年表記に戻した。データは変更していないが、判断根拠としてこのログに残す。
+- 半導体ファブについては、第1パスで既に地理的誤り（テランガナ州ではなくアーンドラ・プラデーシュ州クルヌール県）を理由に不採用としており、本パスの再検証でも現行の`data.ts`本文に同種の地理的誤認は見当たらなかった。
