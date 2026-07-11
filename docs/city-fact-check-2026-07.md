@@ -482,3 +482,63 @@
 - ⚠️ 修正: safetyNoteの「治安が安定しているとされるが」というヘッジ表現を、複数ソースで裏付けが取れたため「治安が安定した住宅地だが」という直接表現に修正
 - ❌ 削除: 「チャカン工業団地に勤務する駐在員もこの一帯に居住して通勤するケースが多い」という一次資料で裏付けられない通勤パターンの主張
 - ✅ 上記以外の全項目（病院3件のうちNoble/Ruby Hallの開業年・認証・国際患者対応、日本人会と理事会企業6社、ヤマザキマザックのランジャンガーオン所在地、ブリヂストン/日立アステモ、アクアラインの数値、直行便なしの実態、CSMIA経由の距離・所要時間、冠水地点26カ所とチャカン通勤時間、Koregaon Park/Kalyani Nagarの実在性と家賃レンジ、特産4件）は独立クエリ・病院公式サイト直接取得で再確認済み
+
+## ハイデラバード（Hyderabad）第1パス（`WebSearch` による初回調査）
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 気候・渡航適期 | bestMonths: 11,12,1,2 / avoidMonths: 4,5,6,7,8,9 | ✅ | （`climate.ts`の数値のみ参照、WebSearch対象外） | ブリーフ記載の2015-2024 Open-Meteo平均（4-5月が最高気温36.5-37.1℃、6-9月が降水142-220mm、11-2月が28.2-31.3℃・降水3-17mmの快適期） |
+| 特産（料理） | ハイデラバード・ビリヤニ、ニザーム宮廷起源の伝承、ダム・プフト技法、パラダイス(Paradise)1953年セカンダラーバード創業 | ✅ | "Hyderabadi biryani history origin Nizam Paradise Bawarchi" ／ "Paradise restaurant Hyderabad biryani founded year history Secunderabad" | https://en.wikipedia.org/wiki/Hyderabadi_biryani ／ https://www.zomato.com/hyderabad/paradise-biryani-a-legend-since-1953-begumpet（1953年創業を複数ソースで確認。「Nizamの料理人が考案」は伝承(folklore)であり史実確定ではない旨を明記） |
+| 特産（工芸） | ポチャンパリー・イカット、ハイデラバード近郊約45km、2005年テランガナ州初のGI登録 | ✅ | "Pochampally Ikat GI tag Telangana Hyderabad craft history" | https://en.wikipedia.org/wiki/Pochampally_sari（GI登録2005年、州初のGI産品と一致） |
+| 特産（祭事） | ボーナル祭、1813年疫病流行時の軍隊の祈願伝承、ゴルコンダ砦、ウッジャイニー・マハーカーリー寺院、2014年州祭指定 | ✅ | "Bonalu festival Hyderabad Golconda history Telangana" | https://en.wikipedia.org/wiki/Bonalu（1813年伝承・2014年州祭指定を確認。ただしKrishnadevaraya期の碑文にボーナル関連儀礼の記録があり19世紀起源説より古い可能性がある旨も確認したため、`data.ts`では「伝承がある」と表現し断定を避けた） |
+| 特産（土産） | ハイデラバード・パール、「真珠の都」、1591年クトゥブ・シャーヒー朝、バスラなどペルシャ湾岸交易 | ✅ | "Hyderabad pearls city of pearls Nizam trade history" | https://en.wikipedia.org/wiki/Hyderabad（都市建設1591年）／ https://mangatrai.com/blogs/blog/the-history-of-hyderabad-pearls-a-legacy-of-nizams-and-maharajas |
+| エリア | Gachibowli（IT・GCC集積地、HITECシティ隣接）、Jubilee Hills（高級住宅・商業エリア） | ✅ | "Hyderabad expat neighborhoods Gachibowli Banjara Hills rent" | https://www.sobha.com/blog/posh-areas-to-live-in-hyderabad/ ／ https://www.rentomojo.com/blog/posh-areas-in-hyderabad/ |
+| 家賃 | 2BHK（Gachibowli）$260〜630/月、2BHK（Jubilee Hills）$280〜580/月 | ✅ | "Gachibowli 2BHK rent per month rupees 2026" ／ "Jubilee Hills Banjara Hills 2BHK rent per month rupees 2026" | 99acres/squareyards等の集計で₹25,000〜60,000（Gachibowli）、₹26,000〜55,000（Jubilee Hills）のレンジを確認。USD/INR≈95.5で換算 |
+| 為替換算 | USD/INR ≈ 95.5 | ✅ | "USD INR exchange rate July 2026" | https://www.exchangerates.org.uk/USD-INR-spot-exchange-rates-history-2026.html（2026年7月上旬95.2〜95.6で推移） |
+| 病院 | Apollo Hospitals（ジュビリーヒルズ）1988年開業、550床、JCI・NABH・NABL認定、2024年3月7回目のJCI再認証 | ✅ | "Apollo Hospitals Jubilee Hills Hyderabad JCI accreditation founded international patients" ／ "\"Apollo Health City\" OR \"Apollo Hospitals\" Jubilee Hills JCI reaccredited news 2024 2025" | 複数の第三者集約サイトで1988年・550床が一致。2024年3月の7回目JCI再認証はApollo公式ニュースページのタイトルから確認（公式ページ本体は403で直接取得できず） |
+| 病院 | Yashoda Hospitals、1989年ラオ兄弟創業、市内4拠点、JCI・NABH・NABL認定 | ✅ | "Yashoda Hospitals Hyderabad international patients JCI founded" | https://www.yashodahospitals.com/international-patient/（公式サイト直接取得）／ https://yourstory.com/smbstory/yashoda-hospitals-telangana-hyderabad-healthcare（1989年創業を確認） |
+| 病院 | KIMS Hospitals（セカンダラーバード）2004年開業、約1,000床、NABH・AACI認定 | ⚠️ 修正（JCI認定の記載を削除） | "KIMS Hospitals Secunderabad 1000 bed 2004 quaternary care flagship" | https://en.wikipedia.org/wiki/Krishna_Institute_of_Medical_Sciences_(hospital_group)（JCIの記載なし、NABH/NABLのみ）／ https://www.kimshospitals.com/about-us/（公式サイト直接取得。NABH・AACI認定は確認できたがJCIの記載はなし。第三者集約サイトの「JCI認定」表記は公式情報と不一致のため`data.ts`では採用しなかった） |
+| 空港アクセス | RGIA(シャムシャバード)からGachibowliまで約35〜45分、Jubilee Hillsまで約35分、Banjara Hillsまで約30〜35分 | ✅ | "Hyderabad Rajiv Gandhi International Airport Shamshabad to Gachibowli distance drive time" ／ "Rajiv Gandhi International Airport to Jubilee Hills Banjara Hills distance drive time" | rome2rio集計（Gachibowli約23分〜1時間の幅、Jubilee Hills約35分、Banjara Hills約31分の複数推計） |
+| メトロ | ハイデラバード・メトロ、レッド・ブルー・グリーンの3路線、総延長約67.2km・57駅、ブルーラインがHITECシティ・Gachibowli方面をカバー | ✅ | "Hyderabad Metro Rail lines number of stations km 2026" | https://en.wikipedia.org/wiki/Hyderabad_Metro（運行中3路線・57駅・67.21kmと明記。路線別の駅数合計(27+23+10=60)と総駅数(57)に差があるのは共用の乗換駅を重複カウントしないためと判断し、`data.ts`には整合性のある総数のみ記載） |
+| 直行便 | ハイデラバード発着の日本直行便はなし | ✅ | "direct flight Japan Hyderabad Narita Haneda ANA JAL no direct flight" ／ "Hyderabad no direct flight Japan Tokyo confirm 2026 route network HYD airport international destinations" | 複数の航空券検索サイトで直行便なしを確認。香港・バンコク・デリー・ムンバイ・ベンガルール経由が一般的 |
+| 通勤 | TomTomトラフィック指数2025でハイデラバードは世界47位(アジア15位)、ラッシュ時平均時速16.1km/h、年間約123時間を渋滞で損失 | ✅ | "Hyderabad traffic congestion TomTom index 2025 ranking" | https://www.telanganatribune.com/hyderabad-ranks-47th-globally-in-traffic-congestion-tomtom-traffic-index-2025/ |
+| 治安 | 新市街(Jubilee Hills・Banjara Hills・Gachibowli・Kondapur・Madhapur)は比較的安定、旧市街(チャルミナール周辺)は夜間のスリ・雑踏事故に注意 | ✅ | "Hyderabad safety crime rate expat safe city index 2025" ／ "\"Old City\" Hyderabad safety avoid area crime tourists" | Numbeo Crime Index（ハイデラバードは治安スケール57.39でデリー等より良好）／ 複数の旅行ガイドでOld City(Charminar/Laad Bazaar一帯)の夜間の人混み・スリ注意を確認。特定エリアを「危険」と断定する記述は避け、混雑・時間帯に基づく注意喚起にとどめた |
+| 日本人会 | ハイデラバード日本人会の存在は確認したが、現行の公式サイトや会員数・活動状況を裏付ける一次情報は得られず | ✅（未確認のため`data.ts`に記載せず） | "ハイデラバード 日本人会 日本人学校" ／ "ハイデラバード日本人会 2026 現状" | 個人ブログ(2019-2021年)で「ホームページが機能していない」との記述があり、2026年時点の現況を裏付ける一次情報が見つからなかったため association フィールドは省略した |
+| 日本人学校・補習校 | ハイデラバードに認定日本人学校・補習校の存在は確認できず | ✅（未確認のため空配列を採用） | "ハイデラバード 日本人会 日本人学校" | https://www.mext.go.jp/content/000352298.pdf（文科省認定の在外教育施設一覧にインドはニューデリー・ムンバイの2校のみ記載、ハイデラバードは含まれず） |
+| 日本食料品店 | ハイデラバード市内に確証の持てる実店舗の日本食料品店は確認できず | ✅（未確認のため空配列を採用） | "Japanese grocery store Hyderabad 日本食料品" | 検索結果はオンライン配送(MAINDISH.in等)が中心で、実店舗の存在を裏付ける情報は得られなかった |
+| 日系企業（DNP） | 大日本印刷が2026年4月、IITハイデラバード校「テクノロジーリサーチパーク」に海外2カ所目のR&D拠点を開設。EV向け無線給電と医薬品原薬合成ルート開発を担う | ✅ | "Genome Valley Hyderabad Japanese pharmaceutical company Eisai Takeda investment" ／ "DNP 大日本印刷 インド工科大学ハイデラバード校 研究開発拠点 2026年4月" | https://www.dnp.co.jp/news/detail/20178057_1587.html（公式プレスリリース直接取得）／ https://www.jetro.go.jp/biznews/2026/05/a1ade0a8e7c1d248.html |
+| 日系企業（武田薬品） | 武田薬品工業がハイデラバード地盤のBiological E社と提携し、デング熱ワクチン(TAK-003)の技術移管・増産を推進 | ✅（製造拠点をGenome Valley/Shamirpetと特定する記述は避けた） | "Biological E Takeda dengue vaccine Genome Valley Hyderabad" ／ "Biological E Shamirpet Genome Valley Takeda dengue vaccine manufacturing tech transfer location" | https://www.takeda.com/newsroom/newsreleases/2024/collaboration-to-accelerate-access-to-dengue-vaccine/（公式プレスリリース）。Biological E社の本社・一部工場がGenome Valley/Shamirpetにあることは別途確認したが、デング熱ワクチンの製造をその工場に特定する一次情報は見つからなかったため、`data.ts`では拠点名を明示せず「ハイデラバード地盤のBiological E社」とするにとどめた |
+| 日系企業（IT） | NTT DATAとFujitsuがマドハプル/HITECシティ周辺にオフィスを構える | ✅ | "Japanese IT companies Hyderabad NTT Data Fujitsu GCC office" | NTT DATA公式所在地情報（Soft Sol Tower 2, Madhapur, Hi-Tech City）／ Fujitsuのオフショア拠点一覧（Noida・Pune・Hyderabad・Chennai・Bangalore） |
+| JETRO | ハイデラバード単独のJETRO事務所は確認できず、2026年2月のBio Asiaでは JETROベンガルール事務所が日本人スタートアップの訪印を支援 | ✅（未確認のため記載せず） | "JETRO Hyderabad office 事務所" ／ "ハイデラバード日本人会 2026 現状" | https://www.jetro.go.jp/biznews/2026/03/a949741160bd09f6.html（JETRO記事本文でJETROベンガルール事務所が調整役を務めたと明記。ジェトロの拠点はニューデリー・ムンバイ・ベンガルール・チェンナイ・アーメダバードの5カ所のみで、プネと同様ハイデラバード単独事務所は見当たらなかった） |
+| 半導体（不採用） | Telangana州への日系半導体ファブ投資（当初の想定） | ❌ 削除（採用せず） | "Telangana semiconductor fab investment Japanese company 2025 2026" ／ "Indichip Yitoa SiC fab Telangana Hyderabad location" | https://www.digitimes.com/news/a20250113VL204/sic-fab-manufacturing-plant-investment.html（Indichip社と日本のYitoa Micro Technologyによる半導体ファブ投資は、テランガナ州ではなく隣接するアンドラ・プラデーシュ州クルヌール県が立地地点と判明したため、`data.ts`のcorporateNoteには含めなかった） |
+
+## ハイデラバード（Hyderabad）第2パス（執筆者自身による別クエリでの独立再検証）
+
+上記の記述のうち特に確信度の低かった項目（病院の認証、メトロの数値、家賃レンジ、Bonalu祭の起源、DNP・武田薬品の事実関係）について、第1パスと異なる言い回しのクエリ、または病院・企業の公式サイト直接取得で再検証した記録。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 病院 | Apollo Hospitals Jubilee Hills、1988年開業、550床 | ✅ | "\"Apollo Hospitals\" Jubilee Hills Hyderabad 1988 founded 550 beds history" | 複数の第三者集約サイトで開業年・病床数が一致（Apollo公式サイトは403で直接確認不可だったが、Apollo公式ニュースの「2024年3月7回目JCI再認証」記事タイトルで組織としてのJCI認定は独立に裏付けられた） |
+| 病院 | Yashoda Hospitals、1989年創業、JCI・NABH・NABL認定 | ✅ | "Yashoda Hospitals Hyderabad founded 1989 Dr Surender Rao Secunderabad history" | https://www.yashodahospitals.com/accreditation-certification/（公式サイト直接取得でJCI・NABH・NABLの3認定を確認）／ https://yourstory.com/smbstory/yashoda-hospitals-telangana-hyderabad-healthcare |
+| 病院 | KIMS Hospitals、NABH・AACI認定（JCIは記載なし） | ✅（第1パスの修正を再確認） | "KIMS Hospitals Secunderabad 1000 bed 2004 quaternary care flagship" | https://www.kimshospitals.com/about-us/（公式サイト直接取得。NABH・AACIのみでJCIの記載なしを再確認） |
+| メトロ | 3路線・57駅・67.2km | ✅ | "Hyderabad Metro Wikipedia 57 stations 67 km three lines Red Blue Green" | https://en.wikipedia.org/wiki/Hyderabad_Metro（別クエリでも同数値を再確認） |
+| 家賃（Gachibowli） | 2BHK平均₹44,400/月、レンジ₹20,000〜60,000程度 | ✅（claim値$260〜630はこのレンジ内） | "Gachibowli apartment rent Hyderabad expat IT professional monthly budget" | 99acres集計値を独立クエリで再確認 |
+| 家賃（Jubilee Hills） | 2BHK平均₹27,500〜40,500/月、レンジ₹26,000〜55,000程度 | ✅（claim値$280〜580はこのレンジ内） | "Jubilee Hills Hyderabad apartment rent expat high-end monthly rupees" | 99acres/nobroker集計値を独立クエリで再確認 |
+| ボーナル祭 | 1813年疫病流行の伝承 | ✅（ただし考古学的にはより古い起源の可能性がある旨も確認済み） | "Bonalu festival 1813 plague Ujjaini Mahankali temple Secunderabad history" | https://en.wikipedia.org/wiki/Bonalu（クリシュナデーヴァラーヤ王期の碑文に関連儀礼の記録があるとの記述を確認したため、`data.ts`では19世紀起源説を「伝承」と位置づけ、唯一の起源として断定していない） |
+| 特産（工芸） | ポチャンパリー・イカット、2005年GI登録、ハイデラバードから約45km | ✅ | "Pochampally Ikat first Telangana GI tag 2005 handloom Bhoodan Pochampally Hyderabad distance" | Wikipedia・rome2rio集計で距離(約28マイル・車で約45分)を再確認 |
+| 日系企業（DNP） | IITハイデラバード校TRP、2026年4月開設、EV無線給電・医薬原薬合成ルート | ✅ | "DNP 大日本印刷 インド工科大学ハイデラバード校 研究開発拠点 2026年4月" | https://prtimes.jp/main/html/rd/p/000000979.000069194.html ／ 日本経済新聞・マークラインズ等の複数報道で一致 |
+| 日系企業（武田薬品） | Biological E社との提携、デング熱ワクチン技術移管 | ✅ | "Biological E Takeda dengue vaccine Genome Valley Hyderabad" | https://www.deccanherald.com/business/japanese-pharma-giant-takeda-hyderabads-biological-e-join-hands-to-make-dengue-vaccine-2913642（「Hyderabad's Biological E」との表現を確認したが、製造拠点固有名は明示されないためdata.ts側もそこまで踏み込んでいない） |
+| ビリヤニ | パラダイス、1953年、セカンダラーバードの映画館付設食堂として創業 | ✅ | "Paradise restaurant Hyderabad biryani founded year history Secunderabad" | https://www.paradisefoodcourt.in/history.html（公式サイト系の情報でも1953年を確認） |
+
+### 変更サマリー（ハイデラバード）
+- ⚠️ 修正: KIMS Hospitalsの認定を「JCI」から公式サイトで確認できた「NABH・AACI」に訂正（第三者集約サイトのJCI表記は同院の公式ページ・Wikipedia双方と不一致だったため）
+- ❌ 削除（採用せず）: テランガナ州への日系半導体ファブ投資（Indichip/Yitoa案件は隣接するアンドラ・プラデーシュ州クルヌール県が実際の立地だったため、corporateNoteには含めなかった）
+- ❌ 記載見送り: ハイデラバード日本人会（現況を裏付ける一次情報なし）、日本人学校・補習校、日本食料品実店舗、単独のJETROハイデラバード事務所（いずれも存在を確認できず、`data.ts`では省略または空配列とした）
+- ❌ 記載見送り: Apollo Hospitals JubileeHillsの「世界初のJCI DCSC(脳卒中)認証」という具体的な最上級表現（医療ツーリズム系の第三者サイトのみでの言及にとどまり、病院公式サイトでの直接確認ができなかったため採用しなかった）
+- ⚠️ 留意: ボーナル祭の「1813年疫病流行」起源は広く流布した伝承として記載したが、考古学的にはより古い起源の可能性がある旨をこのログに記録し、`data.ts`では断定表現を避けた
+- ⚠️ 留意: 武田薬品とBiological E社の提携について、製造拠点をGenome Valley/Shamirpetと名指しする一次情報は見つからなかったため、`data.ts`では拠点名を明示していない
+- ✅ 上記以外の全項目（渡航適期の気候判断、ビリヤニ・ポチャンパリー・ボーナル・真珠の特産4件、病院3件の開業年・病床数・国際患者対応、家賃2件、メトロ、直行便なしの実態、空港アクセス、渋滞統計、治安、DNP・武田薬品・NTT DATA/Fujitsuの日系企業情報）は独立クエリまたは病院・企業公式サイト直接取得で再確認済み
