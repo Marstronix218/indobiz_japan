@@ -335,3 +335,52 @@
 | 日系自動車企業 | ルノー・日産オラガダム工場2008年設立・600エーカー、2025年8月ルノー完全子会社化 | ✅ | "Renault Nissan Chennai plant Oragadam incorporated 2008 first Alliance plant production capacity" | https://www.renaultgroup.com/en/group/locations/chennai-plant/ ／ https://bwautoworld.com/article/renault-completes-acquisition-of-nissans-stake-in-chennai-plant-bets-big-on-india-565937（2025年8月1日付で完全子会社化を発表、R&Dセンターは引き続き日産とのJVで日産車の生産も継続と明記） |
 
 修正・削除は日本語グロサリー1件（実店舗を特定できず空配列を維持）のみ。Chennai Metroブルーラインの距離・駅数は二次サイト間で32.65km/26駅と32.15km/25駅の食い違いがあったが、Wikipedia本文の一次的な記載（32.65km/26駅）を採用し、data.tsの記述と一致することを確認した。2015年洪水の死者数は「州政府確定値421人」と「警察報告ベースの500人超」の2系統があるが、data.tsは前者のみを明記しており、他都市で発見されたような「ピークを平均と誤記」型の混同はない。`bestMonths`/`avoidMonths`はclimate.tsの数値のみに基づき、両パスとも変更していない。
+
+
+## チェンナイ（Chennai）第3パス — 独立ファクトチェック（2026-07-10）
+
+先行する2パス（本ファイル上部）とは別セッション・別クエリで、`slug: "chennai"` の全項目をゼロから再検証した記録。task-10-report.md は未参照（冷静な独立検証のため）。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 病院 | Apollo Hospitals（グリームズ・ロード）1983年開業、インド初の民間総合病院 | ✅ | "Apollo Hospitals Greams Road Chennai founded 1983 first private hospital India JCI accreditation 2024" | https://en.wikipedia.org/wiki/Apollo_Hospitals ／ https://www.apollohospitals.com/hospitals/apollo-hospitals-greams-road-chennai（1983年設立、インド初の民間（corporate）医療機関という定説を確認） |
+| 病院 | Apollo、2006年からJCI認定を継続取得、2024年3月に7回目の再認定 | ✅ | "Apollo Hospitals Chennai JCI accreditation since 2005 OR 2006 reaccredited 2024" | https://medicalbuyer.co.in/apollo-hospitals-group-receives-seventh-jci-accreditation-in-a-row/ ／ https://medicaldialogues.in/news/health/hospital-diagnostics/apollo-hospitals-group-bags-seventh-consecutive-jci-accreditation-127697（チェンナイのJCI取得は2006年開始、2024年3月に7回目の再認定と一致） |
+| 病院 | Apollo、国際患者向けに通訳手配・ビザ支援の窓口 | ✅ | "Apollo Hospitals Chennai international patients interpreter visa assistance services" | https://www.apollohospitals.com/international-patient-services（通訳・医療ビザ招聘状発行・空港送迎等の一式を確認） |
+| 病院 | MIOT International（マナパッカム）1999年2月開業 | ✅ | "MIOT International Manapakkam Chennai hospital founded 1999 international patients percentage" | https://en.wikipedia.org/wiki/MIOT_International_Hospital（1999年2月開業と一致） |
+| 病院 | MIOT、年間約3,500人(全患者の約25%)の外国人患者、空港送迎の無料手配 | ✅ | "MIOT International Chennai international patients free airport pickup interpreter services" | https://www.miotinternational.com/ipc-2/（3,500人/25%の数値と無料空港送迎を確認） |
+| 病院 | MIOT、NABH・NABL認定 | ✅ | "MIOT International Chennai NABH NABL accreditation" | https://www.miotinternational.com/corporate/accreditations/（NABH第5版認証、有効期限2025/2/18〜2029/2/17を確認） |
+| 病院 | Gleneagles Global Health City（ペルンバッカム）2008年開業、21エーカー | ✅ | ""Gleneagles Global Health City" Chennai history established year hospital "2008"" | https://www.gleneagleshospitals.co.in/chennai/perumbakkam（21エーカーの敷地と一致。開業年はグループが2008年にベンガルール・チェンナイ・ムンバイで三次医療センターを開設した旨の複数ソースで裏付け） |
+| 病院 | Gleneagles、JCI・NABH・NABL認定、通訳手配の窓口 | ✅ | "Gleneagles Global Health City Chennai international patients interpreter language assistance" | https://www.gleneagleshospitals.co.in/international（NABH/NABL/JCIとアラビア語・ロシア語等の通訳手配を確認） |
+| 病院（日本語対応） | いずれの病院も日本語対応スタッフ常駐の確証なし（断定を避ける注記） | ✅（誠実な留保であり削除対象のヘッジではない） | 上記各病院検索の過程で日本語対応の明記は見つからず | — |
+| 日本人会 | チェンナイ日本人会（chennai-nihonjinkai.com） | ✅ | "チェンナイ日本人会 chennai-nihonjinkai.com" | https://www.chennai-nihonjinkai.com/ |
+| 補習校 | チェンナイ補習授業校、タラマニのAmerican International School Chennai内、2025年度に開校50周年 | ✅ | "チェンナイ補習授業校 タラマニ American International School Chennai 開校 周年" ／ "チェンナイ日本人会 タラマニ 補習授業校 開校50周年 2025" | https://www.jschoolchennai.com/（1975年6月創立「マドラス日本語補習教室」→1998年4月改称、令和7年度=2025年度が50周年で生徒数90名と一致） |
+| エリア | Adyar・Besant Nagar・OMR（IT・自動車部品企業回廊）が駐在員向け高級エリア | ✅ | "Chennai Adyar Besant Nagar 2BHK rent expat monthly USD 2026" ／ "OMR Sholinganallur Chennai 2BHK rent expat IT corridor monthly" | https://www.squareyards.com/blog/cost-of-living-in-chennai（Adyar/Besant Nagarをベンガル湾沿いの高級住宅地、OMRをIT回廊と紹介する複数の独立ソースで一致） |
+| 家賃 | 2BHK（Adyar・Besant Nagar、駐在員向け）$260〜520/月 | ✅ | 同上 | 99acres/NoBroker等でBesant Nagarの2BHKが月₹25,000〜175,000（プレミアム海沿い物件は₹40,000〜65,000）と一致するレンジ |
+| 家賃 | 2BHK（OMR・Sholinganallur、駐在員向け）$260〜630/月 | ✅ | 同上 | 99acres等でOMRの2BHKが月₹14,200〜96,550のレンジと一致 |
+| 直行便 | チェンナイ発着の日本直行便なし（2026年時点）、デリー・ムンバイ・ベンガルール経由が一般的 | ✅ | "Chennai Delhi Mumbai Bengaluru direct flight Japan ANA JAL 2026 no direct flight" | ANA/JAL公式サイトほか複数ソースでデリー・ムンバイ・ベンガルールに直行便、チェンナイには直行便なしと一致 |
+| 空港アクセス | MAAからAdyar約15〜35分、Besant Nagar約15〜20分、OMR/Sholinganallur渋滞時45〜60分 | ✅ | "Chennai airport to Adyar Besant Nagar OMR Sholinganallur drive time minutes distance" | 複数の距離・所要時間サイトでオフピーク22〜34分、ピーク時45〜60分という数値と整合 |
+| 空港拡張 | 2026年11月末完了目標の第3ターミナル含む拡張工事(フェーズII) | ✅ | "Chennai airport terminal 3 expansion phase 2 completion November 2026" | https://www.dtnext.in/news/chennai/chennai-airports-3rd-terminal-to-be-fully-operational-by-november-2026-centre-855382（民間航空担当閣外大臣の答弁として2026年11月完了目標を確認。一部報道は遅延で2026年末〜2027年初めともするが、"目標"という記述と矛盾しない） |
+| 域内交通 | チェンナイ・メトロ ブルーライン(空港〜ウィムコナガル、32.65km・26駅)、グリーンライン(セントラル〜セント・トーマス・マウント、22km・17駅)、2025年12月時点で総延長54.1km | ✅ | "Chennai Metro total network length December 2025 54.1 km Green Line 17 stations" | https://en.wikipedia.org/wiki/Blue_Line_(Chennai_Metro) ／ https://en.wikipedia.org/wiki/Green_Line_(Chennai_Metro)（全数値が一致） |
+| 治安 | 北チェンナイのロヤプラム・ワシャーマンペット・ヴィヤーサルパーディは夜間の単独行動を避けたい | ✅ | "Chennai Royapuram Washermanpet Vyasarpadi Perambur safety crime avoid night" | https://travel.india.com/guide/destination/discover-the-blacklisted-areas-in-chennai-you-shouldnt-dare-to-explore-7003391/ ほか複数ソースでRoyapuram・Washermanpetの治安不安を確認、Vyasarpadiも窃盗・暴力の多さを個別に確認 |
+| 治安 | （既存文言にあった）ペランブール(Perambur)を同リストに含める記述 | ⚠️ 修正（削除） | "Perambur Chennai neighborhood safety crime area reputation" ／ ""Perambur" Chennai "dangerous" OR "avoid" OR "unsafe" area list blacklisted"" | 「危険エリア」を列挙する独立記事(travel.india.com等)はRoyapuram/Washermanpetを名指しする一方Peramburには言及せず。Perambur単体の評判調査では「低犯罪率」「安全な住宅地」という評価が複数の不動産サイト(99acres, squareyards, sprindia)で優勢。一部の検索結果は夜間回避を示唆したが出典が特定できず根拠薄弱と判断し、data.tsのsafetyNoteからPeramburの記載を削除した（注: 本ファイル上部の先行2パスでは同項目を確認済としていたが、本パスでは独立に再検証した結果、判断を変更） |
+| 治安 | George Town（パリーズ・コーナー、バーマ・バザール）でのスリ・置き引き注意 | ✅ | "George Town Chennai Parrys Corner Burma Bazaar pickpocket theft crowded market" | https://en.wikipedia.org/wiki/Burma_Bazaar（混雑した市場・スマホ窃盗の多発地帯という記述を確認） |
+| 気候・洪水 | 2015年11〜12月のタミル・ナードゥ州洪水、州政府最終集計(2016年1月)で421人死亡(10月28日〜12月31日) | ✅ | "Tamil Nadu floods 2015 death toll 421 October December final tally January 2016" | https://www.thenewsminute.com/article/how-many-lives-have-been-lost-tamil-nadu-floods-36721（2016年1月の州政府最終発表として421人・10/28〜12/31の期間を確認） |
+| 気候 | 2015年11月の月間降水量1,049mm、1918年11月(1,088mm)以来の記録的多さ | ✅ | "Chennai November 2015 rainfall 1049mm record since 1918 1088mm" | https://www.downtoearth.org.in/climate-change/chennai-may-break-its-own-record-for-november-rainfall-80169（1918年1,088.4mmが史上最多、2015年1,049mmが史上2位という数値と一致） |
+| 工芸 | カーンチープラム・シルクサリー、チェンナイから約70km、2005〜06年GI登録 | ✅ | "Kanchipuram silk saree GI registration 2005 2006 geographical indication" | https://kancheepuram.nic.in/about-district/gi-tag-product-kancheevaram-silks-and-sarees/（2005年出願・2005〜06年公式登録を確認） |
+| 工芸 | ナリ・チンナサミ・チェッティが1928年にT・ナガルでNalli Silksを創業、Usman Road沿い | ✅ | "Nalli Silks founder Nalli Chinnasami Chetty 1928 T Nagar Usman Road history" | https://en.wikipedia.org/wiki/Nalli_(wardrobe_store)（1928年T Nagar創業を確認）／ https://www.mappls.com/2l2gji（本店住所100, N Usman Road, T Nagarを確認） |
+| 料理 | アンジャッパル、1964年チェンナイ・ロイヤペッタ創業 | ✅ | "Anjappar restaurant founded 1964 Royapettah Chennai Chettinad cuisine history" | https://en.wikipedia.org/wiki/Anjappar_Chettinad_Restaurant（1964年Royapettah創業を確認） |
+| 祭事 | マドラス・ミュージック・アカデミー1927年設立、2004〜05年シーズンに約600人の演者・1,200件超の演目 | ✅ | "Madras Music Academy 1927 Margazhi music season sabhas 2004-05 season 600 performers 1200 events" | https://en.wikipedia.org/wiki/Madras_Music_Season（"In 2004–2005, there were over 1200 performances by about 600 artists" と完全一致） |
+| 祭事 | （既存文言にあった）2004〜05年シーズンが「約20のサバー」で開催されたという記述 | ❌ 削除（未確認） | ""Madras Music Season" 2004-2005 sabhas number "twenty" OR "20"" ／ Wikipedia本文直接取得 | Wikipedia本文を直接取得し確認したが、2004〜05年シーズンの演者数・演目数の統計にサバー数への言及はなく、他のどのソースにも「約20」という数値の裏付けが見つからなかったため削除 |
+| 自動車 | ルノー・日産オラガダム工場、世界初の専用生産拠点、2008年設立・600エーカー、2010年生産開始 | ✅ | "Renault Nissan Oragadam plant 2008 600 acres production started 2010 world's first exclusive" | https://www.renaultgroup.com/en/group/locations/chennai-plant/（"first dedicated Alliance plant globally"、2008年8月26日起工、600エーカー、2010年5月量産開始を確認） |
+| 自動車 | 2025年8月にルノーが日産保有分51%を追加取得し完全子会社化、日産車の生産は継続 | ✅ | "Renault Nissan India August 2025 Renault acquires Nissan 51% stake Oragadam wholly owned subsidiary" | https://media.renaultgroup.com/renault-group-strengthens-its-presence-in-india-to-support-its-international-ambitions/（2025年8月1日付でルノーが日産の残り51%を取得し完全子会社化、日産は引き続き同工場から供給を受けると明記） |
+| 自動車 | ヤマハがチェンナイ近郊ヴァラム・ヴァダガルに3番目のインド工場を2015年開設 | ✅ | "Yamaha Vallam Vadagal Chennai third India plant 2015" | https://www.autocarpro.in/news-national/yamaha-motor-wheeler-plant-tamil-nadu-india-9234（2015年9月開設、インド国内3番目の工場と一致） |
+| 自動車 | 60kmの自動車回廊全体でインドの四輪車生産の約30%、自動車部品生産の約35%を占める | ✅ | "Chennai automotive corridor 30% four-wheeler production 35% auto components India" | https://en.wikipedia.org/wiki/Automotive_industry_in_Chennai（"forms the base of 30% of India's automobile industry and 35% of its automobile component industry"と一致） |
+| JETRO | ジェトロ・チェンナイ事務所がアンナ・サライ所在 | ✅ | "JETRO チェンナイ事務所 アンナ・サライ Anna Salai" | https://www.jetro.go.jp/jetro/overseas/in_chennai/map.html（Seshachalam Centre 8F, 636/1 Anna Salai, Nandanamを確認） |
+| GDP/人口（参考） | pop: 1,170万、gdp: $840億（本パスのチェック対象チェックリスト外の基礎メタデータのため未変更） | ⚠️（要検討・未修正） | "Chennai metropolitan area population 2024 11.7 million" ／ "Chennai metropolitan area GDP billion 2024 2025 fourth largest India economy" | 人口(1,170万)はチェンナイ都市圏の複数推計(12.1〜12.6M)とほぼ整合。GDP($840億)は現行の複数推計($103B〜$143B、2023-25年)より明確に低い。ただし他都市(Pune/Hyderabad/Ahmedabad/Kolkata)のgdpフィールドも同様の一貫した(おそらく古い基準年の)データソースに基づく可能性があり、本タスクの対象（living/specialties/climate配下の固有名詞・数値）外のトップレベル項目のため今回は変更していない。別途の統一的な見直しを推奨 |
+
+### 変更サマリー（第3パス）
+- ❌ 削除: マルガリ音楽祭ノートの「約20のサバーで」（未確認のため削除、確認済みの「約600人の演者による1,200件超の演目」は維持）
+- ⚠️ 修正: safetyNoteから「ペランブール(Perambur)」を削除（危険エリア一覧記事に不掲載、個別レビューでは安全な住宅地との評価が優勢という矛盾する根拠に基づく）
+- ✅ 上記以外の全項目（病院3件の開業年・認証・国際患者対応、日本人会・補習校、家賃、直行便、空港アクセス・拡張、メトロ路線データ、治安（Perambur以外）、2015年洪水・11月降水量、特産3件（チェッティナード料理／カーンチープラム・シルク／マルガリ音楽祭の確認済み部分）、自動車クラスター（ルノー日産・ヤマハ・回廊シェア）、JETRO所在地）は独立クエリで再確認済み
