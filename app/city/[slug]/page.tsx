@@ -4,6 +4,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { ClimateCalendar } from "@/components/city/climate-calendar"
+import { LivingSections } from "@/components/city/living-sections"
 import { getCity, listCities } from "@/lib/cities"
 import { getClimate } from "@/lib/cities/climate"
 import { describeWeatherCode } from "@/lib/cities/weather-codes"
@@ -95,6 +96,13 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {city.living && (
+        <section className="mt-10">
+          <h2 className="mb-3 font-serif text-xl font-bold">生活情報</h2>
+          <LivingSections living={city.living} />
         </section>
       )}
 

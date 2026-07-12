@@ -69,3 +69,40 @@ test("ムンバイの降水量が日別平均ではなく月間合計の平均�
     `mumbai July/January ratio: expected >= 50, got ${julyMonth.avgRainMm / januaryMonth.avgRainMm}`
   )
 })
+
+// Task 6〜14 のファクトチェックでは、裏付けが取れない項目は推測で埋めず削除する方針だった
+// （docs/city-fact-check-2026-07.md）。そのため living のサブブロック（housing/safetyHealth/
+// transport/japaneseCommunity）や japaneseCommunity.groceries/schools は都市ごとに有無が
+// 異なる。ここでは「常に成り立つべきこと」だけを検証し、サブブロックの存在は主張しない。
+test("全都市が specialties と living を持つ", () => {
+  for (const city of CITIES) {
+    assert.ok(city.specialties?.length, `${city.slug}: specialties`)
+    const living = city.living
+    if (!living) throw new Error(`${city.slug}: living なし`)
+    assert.equal(living.verifiedAt, "2026-07", `${city.slug}: verifiedAt`)
+  }
+})
+
+// avoidMonths は「存在すること」のみ検証し、空配列であることは許容する
+// （bengaluru の avoidMonths: [] は査読済みの正しいデータであり、非空を要求してはならない）。
+test("全都市が bestMonths / avoidMonths を持ち 1-12 で重複しない", () => {
+  for (const city of CITIES) {
+    const { bestMonths, avoidMonths } = city
+    if (!bestMonths?.length) throw new Error(`${city.slug}: bestMonths なし`)
+    if (!avoidMonths) throw new Error(`${city.slug}: avoidMonths なし`)
+    for (const month of [...bestMonths, ...avoidMonths]) {
+      assert.ok(month >= 1 && month <= 12, `${city.slug}: ${month} が範囲外`)
+    }
+    const overlap = bestMonths.filter((month) => avoidMonths.includes(month))
+    assert.deepEqual(overlap, [], `${city.slug}: bestMonths と avoidMonths が重複`)
+  }
+})
+
+test("家賃レンジは minUsd <= maxUsd", () => {
+  for (const city of CITIES) {
+    for (const rent of city.living?.housing?.rents ?? []) {
+      assert.ok(rent.minUsd <= rent.maxUsd, `${city.slug}/${rent.layout}`)
+      assert.ok(rent.minUsd > 0, `${city.slug}/${rent.layout}: minUsd が 0 以下`)
+    }
+  }
+})
