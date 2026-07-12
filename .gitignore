@@ -18,7 +18,9 @@ node_modules
 tsconfig.tsbuildinfo
 
 CLAUDE.md
+AGENTS.md
 .claude
+.codex
 .rocketride/
 .github
 
