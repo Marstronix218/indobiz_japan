@@ -809,3 +809,36 @@
 | プネ | チタレー・バンドゥのバクルワディ | Msg1128409303-121485.jpg | CC BY-SA 4.0 | Abhi7704 | 採用（説明文が「チタレー・バンドゥのバクルワディ、プネの名物スナック」と明記） | https://commons.wikimedia.org/wiki/File:Msg1128409303-121485.jpg |
 
 採用10件・見送り1件（合計11特産品）。
+
+### ハイデラバード
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| ハイデラバード | ハイデラバード・ビリヤニ | Hyderabadi Biryani with Raita, Mirchi Ka Salan and Salad.JPG | CC BY-SA 4.0 | Sumit Surai | 採用（ライタ・ミルチ・カ・サーラン添えのハイデラバード・ビリヤニそのもの。撮影地はコルカタの飲食店だが被写体は当該料理そのもの） | https://commons.wikimedia.org/wiki/File:Hyderabadi_Biryani_with_Raita,_Mirchi_Ka_Salan_and_Salad.JPG |
+| ハイデラバード | ポチャンパリー・イカット | Pochampalli Ikat saree.jpg | CC BY-SA 4.0 | Ramkumar Kalyani | 採用（説明文が「Bhoodan Pochampally, Yadadri Bhuvanagiri district, Telangana」産のポチャンパリー・イカットと明記） | https://commons.wikimedia.org/wiki/File:Pochampalli_Ikat_saree.jpg |
+| ハイデラバード | ボーナル祭 | Bonalu Artists Performance at Hyderabad Mahankali Bonalu (28.07.2018) 01.jpg | CC BY-SA 4.0 | テランガナ州政府 言語文化局(Department of Language and Culture, Government of Telangana) | 採用（説明文が「ハイデラバード・マハンカーリー・ボーナル」でのボーナル芸能奉納と明記） | https://commons.wikimedia.org/wiki/File:Bonalu_Artists_Performance_at_Hyderabad_Mahankali_Bonalu_(28.07.2018)_01.jpg |
+| ハイデラバード | ハイデラバード・パール | Laad Bazaar Pearls, Charminar (3305863417).jpg | CC BY 2.0 | Abhinaba Basu | 採用（チャルミナール脇のラード・バザールで撮影された真珠店の店頭写真、note の記述と一致） | https://commons.wikimedia.org/wiki/File:Laad_Bazaar_Pearls,_Charminar_(3305863417).jpg |
+
+採用4件・見送り0件（合計4特産品）。
+
+### アフマダーバード
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| アフマダーバード | チャンドラヴィラスのグジャラーティー・ターリー | Gujarati Thali at Vishalla.jpg | CC BY-SA 4.0 | KHC Khushtar Heritage | 採用（チャンドラヴィラス店舗自体の写真は見つからず、note が「市内で初めて提供したグジャラーティー・ターリー形式」と位置付ける同市内の別店舗Vishallaでのグジャラーティー・ターリーを、料理ジャンルの代表例として採用） | https://commons.wikimedia.org/wiki/File:Gujarati_Thali_at_Vishalla.jpg |
+| アフマダーバード | バンダニー(絞り染め) | Bandhani.jpg | CC BY-SA 4.0 | Kutch.artesania | 採用（撮影地はカッチ地方、note が「ジャームナガルやカッチ地方が主要産地」と明記する産地の一つでの絞り染めそのもの） | https://commons.wikimedia.org/wiki/File:Bandhani.jpg |
+| アフマダーバード | ウッタラーヤン国際カイト・フェスティバル | Kite Runner at the Uttarayana Kite Festival Ahmedabad.jpg | CC BY 2.0 | Meena Kadri | 採用（説明文が「Utarayana Kite Festival Ahmedabad」と明記） | https://commons.wikimedia.org/wiki/File:Kite_Runner_at_the_Uttarayana_Kite_Festival_Ahmedabad.jpg |
+| アフマダーバード | インドゥベン・カークラーワーラーのカークラー | Khakhra.JPG | CC BY-SA 4.0 | Jay87.mehta | 採用（インドゥベン・カークラーワーラー店舗自体の写真は見つからず、note が位置付けるグジャラート伝統スナック「カークラー」そのものとして採用） | https://commons.wikimedia.org/wiki/File:Khakhra.JPG |
+
+採用4件・見送り0件（合計4特産品）。
+
+### コルカタ
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| コルカタ | ロショゴッラ／ションデシュ | Rosogolla Bhawan Baghbazar IMG 9877.jpg | CC BY-SA 4.0 | Rajeeb (Marajozkee) | 採用（note が起源地とする「コルカタ北部バグバザール」の店舗、ロショゴッラ・バワンを撮影した写真） | https://commons.wikimedia.org/wiki/File:Rosogolla_Bhawan_Baghbazar_IMG_9877.jpg |
+| コルカタ | カーリーガート絵画（カーリーガート・パト） | India, Calcutta, Kalighat painting, 19th century - Kali - 2003.116 - Cleveland Museum of Art.jpg | CC0 | 作者不明(Anonymous、19世紀) | 採用（クリーブランド美術館所蔵、19世紀コルカタ・カーリーガート産の実作、女神カーリーを描いたカーリーガート絵画そのもの） | https://commons.wikimedia.org/wiki/File:India,_Calcutta,_Kalighat_painting,_19th_century_-_Kali_-_2003.116_-_Cleveland_Museum_of_Art.jpg |
+| コルカタ | ドゥルガー・プージャー | Durga Puja Pandal in Kolkata, 2023 01.jpg | CC BY-SA 4.0 | Auli Raha (অলি রাহা) | 採用（説明文が「コルカタのドゥルガー・プージャーのパンダル、2023年」と明記） | https://commons.wikimedia.org/wiki/File:Durga_Puja_Pandal_in_Kolkata,_2023_01.jpg |
+| コルカタ | バルチャリ・サリー | Baluchari saree of Bishnupur DSC06029.jpg | CC BY-SA 4.0 | Sumita Roy Dutta | 採用（note が現在の産地とする「ビシュヌプル」のバルチャリ・サリーと明記） | https://commons.wikimedia.org/wiki/File:Baluchari_saree_of_Bishnupur_DSC06029.jpg |
+
+採用4件・見送り0件（合計4特産品）。

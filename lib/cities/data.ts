@@ -594,21 +594,34 @@ export const CITIES: City[] = [
         jp: "ハイデラバード・ビリヤニ",
         kind: "料理",
         note: "ニザーム(君主)の宮廷料理に起源を持つとされ、伝承では初代ニザーム、ニザームル・ムルクの料理人が18世紀半ばに考案したという。肉と米を密閉した鍋でじっくり蒸し焼きにする「ダム・プフト」技法が特徴で、1953年にセカンダラーバードの映画館併設の食堂として創業した老舗パラダイス(Paradise)など専門店が今も市内各所にある。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Hyderabadi_Biryani_with_Raita%2C_Mirchi_Ka_Salan_and_Salad.JPG/960px-Hyderabadi_Biryani_with_Raita%2C_Mirchi_Ka_Salan_and_Salad.JPG",
+        imageCredit: "Sumit Surai · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "ポチャンパリー・イカット",
         kind: "工芸",
         note: "ハイデラバード近郊(車で約45分)のボーダン・ポチャンパリー村に伝わる絣織り。経糸・緯糸をあらかじめ染め分けてから織り上げる幾何学模様が特徴で、2005年にテランガナ(当時アーンドラ・プラデーシュ)州として初の地理的表示(GI)登録を受けた。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Pochampalli_Ikat_saree.jpg/960px-Pochampalli_Ikat_saree.jpg",
+        imageCredit: "Ramkumar Kalyani · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "ボーナル祭",
         kind: "祭事",
         note: "テルグ暦アーシャーダ月(例年7〜8月)に女神マハーカーリーを祀る祭礼で、ゴルコンダ砦での儀礼を皮切りにセカンダラーバードのウッジャイニー・マハーカーリー寺院などで開催される。1813年の疫病流行時にウッジャインへ派遣された軍隊が平癒を祈願し、帰還後に同寺院を建立して奉納したのが起源との伝承があり、2014年にテランガナ州の州祭に指定された。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bonalu_Artists_Performance_at_Hyderabad_Mahankali_Bonalu_%2828.07.2018%29_01.jpg/960px-Bonalu_Artists_Performance_at_Hyderabad_Mahankali_Bonalu_%2828.07.2018%29_01.jpg",
+        imageCredit:
+          "Department of Language and Culture, Government of Telangana · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "ハイデラバード・パール",
         kind: "土産",
         note: "「真珠の都」と呼ばれ、1591年に都市を開いたクトゥブ・シャーヒー朝の時代からペルシャ湾岸(バスラなど)との真珠交易で栄えた。歴代ニザームも真珠収集に情熱を注ぎ、旧市街チャルミナール周辺には今も真珠・宝飾品店が集積する。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Laad_Bazaar_Pearls%2C_Charminar_%283305863417%29.jpg/960px-Laad_Bazaar_Pearls%2C_Charminar_%283305863417%29.jpg",
+        imageCredit: "Abhinaba Basu · CC BY 2.0 · Wikimedia",
       },
     ],
     living: {
@@ -681,21 +694,33 @@ export const CITIES: City[] = [
         jp: "チャンドラヴィラスのグジャラーティー・ターリー",
         kind: "料理",
         note: "菓子商の家に生まれたチマンラール・ヘームラージ・ジョーシーが1900年頃に開いた茶屋チャンドラヴィラスが、1901年にダール・バート・ロティ・ファルサーンなど多品目を一皿に盛るグジャラーティー・ターリー形式を市内で初めて飲食店メニューとして提供したとされる。ガーンディーやサルダール・パテールも通ったと伝わるガーンディー・ロード沿いの老舗で、120年超を経た今も営業を続けている。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Gujarati_Thali_at_Vishalla.jpg/960px-Gujarati_Thali_at_Vishalla.jpg",
+        imageCredit: "KHC Khushtar Heritage · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "バンダニー(絞り染め)",
         kind: "工芸",
         note: "生地を糸で無数に括ってから染める伝統的な絞り染め技法で、グジャラートのクシャトリー(Khatri)コミュニティが担い手として知られる。ジャームナガルやカッチ地方が主要産地だが、アフマダーバード市内・近郊も産地の一つに数えられ、市内にはハトリー・バンダニーやマンガルヤー・ヘリテージといった専門店が今も店を構える。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Bandhani.jpg/960px-Bandhani.jpg",
+        imageCredit: "Kutch.artesania · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "ウッタラーヤン国際カイト・フェスティバル",
         kind: "祭事",
         note: "1月14日前後のマカル・サンクラーンティ(ウッタラーヤン)に合わせ、グジャラート州観光局が1989年から毎年アフマダーバードでインターナショナル・カイト・フェスティバルを開催し、世界各国の凧作家・愛好家が参加する。近年はサバルマティ・リバーフロントが主要会場となっている。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/a/a2/Kite_Runner_at_the_Uttarayana_Kite_Festival_Ahmedabad.jpg",
+        imageCredit: "Meena Kadri · CC BY 2.0 · Wikimedia",
       },
       {
         jp: "インドゥベン・カークラーワーラーのカークラー",
         kind: "土産",
         note: "薄く焼いた煎餅状のグジャラート伝統スナック、カークラー。1965年にインドゥベン・ジャヴェリーが自宅の一室で作り始めた個人商店が、女性従業員80人を抱える地元の名店インドゥベン・カークラーワーラー(CGロード近く)へと成長し、日持ちすることから土産・贈答用の定番にもなっている。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Khakhra.JPG/960px-Khakhra.JPG",
+        imageCredit: "Jay87.mehta · CC BY-SA 4.0 · Wikimedia",
       },
     ],
     living: {
@@ -769,21 +794,33 @@ export const CITIES: City[] = [
         jp: "ロショゴッラ／ションデシュ",
         kind: "料理",
         note: "1868年、コルカタ北部バグバザールの菓子職人ノビン・チョンドロ・ドッシュが、チェナ(牛乳を凝固させた生チーズ)をシロップで煮る日持ちのする製法を考案し、スポンジ状のロショゴッラを生み出した。西ベンガル州は2017年11月に「バングラル・ロショゴッラ」として地理的表示(GI)登録を受けている。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Rosogolla_Bhawan_Baghbazar_IMG_9877.jpg/960px-Rosogolla_Bhawan_Baghbazar_IMG_9877.jpg",
+        imageCredit: "Rajeeb (Marajozkee) · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "カーリーガート絵画（カーリーガート・パト）",
         kind: "工芸",
         note: "1809年に現在の姿で建立されたカーリーガート寺院の周辺で19世紀前半に生まれた民衆絵画。参拝客向けの土産絵として、大胆な輪郭線と鮮やかな色面で世相や神話を描いたが、20世紀初頭に安価な石版画の普及で衰退した。ロンドンのV&A博物館が世界最大級のコレクションを所蔵する。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/India%2C_Calcutta%2C_Kalighat_painting%2C_19th_century_-_Kali_-_2003.116_-_Cleveland_Museum_of_Art.jpg/960px-India%2C_Calcutta%2C_Kalighat_painting%2C_19th_century_-_Kali_-_2003.116_-_Cleveland_Museum_of_Art.jpg",
+        imageCredit: "Anonymous (19th c.) · CC0 · Wikimedia",
       },
       {
         jp: "ドゥルガー・プージャー",
         kind: "祭事",
         note: "女神ドゥルガーを祀る秋の10日間の祭礼で、市内各所に設けられる仮設祭壇「パンダル」の造形美が見どころ。2021年12月にユネスコの無形文化遺産代表一覧表に「コルカタのドゥルガー・プージャー」として記載された。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Durga_Puja_Pandal_in_Kolkata%2C_2023_01.jpg/960px-Durga_Puja_Pandal_in_Kolkata%2C_2023_01.jpg",
+        imageCredit: "Auli Raha · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "バルチャリ・サリー",
         kind: "土産",
         note: "18世紀にムルシダーバード近郊の織物村バルチャルで始まった、物語柄の裾模様(パッルー)が特徴の絹サリー。19世紀にバギラティ川の洪水で織元がビシュヌプルへ移転して衰退したが、20世紀前半に同地の織元アクシャイ・クマール・ダスがジャカード織技法で再興し、現在は同地の特産として2011年にGI登録されている。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Baluchari_saree_of_Bishnupur_DSC06029.jpg/960px-Baluchari_saree_of_Bishnupur_DSC06029.jpg",
+        imageCredit: "Sumita Roy Dutta · CC BY-SA 4.0 · Wikimedia",
       },
     ],
     living: {
