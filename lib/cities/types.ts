@@ -16,6 +16,15 @@ export type CitySpecialty = {
   jp: string
   kind: "料理" | "工芸" | "祭事" | "土産"
   note: string
+  /**
+   * Wikimedia Commons のオープンライセンス画像（任意）。
+   * 掲載条件: 被写体が当該名物であることを確認済みで、ライセンス(CC BY/BY-SA/PD)と
+   * 作者を imageCredit に明記できるもののみ。適切な画像がなければ省略する。
+   * 出典・確認記録は docs/city-fact-check-2026-07.md に残す。
+   */
+  imageUrl?: string
+  /** 例: "Joe Smith · CC BY-SA 4.0 · Wikimedia" */
+  imageCredit?: string
 }
 
 export type CityLiving = {

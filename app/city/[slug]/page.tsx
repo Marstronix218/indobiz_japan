@@ -87,12 +87,32 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           <h2 className="mb-3 font-serif text-xl font-bold">名物</h2>
           <ul className="space-y-3">
             {city.specialties.map((specialty) => (
-              <li key={specialty.jp} className="rounded-md border border-border bg-card p-4">
-                <div className="flex items-baseline gap-2">
-                  <h3 className="font-serif font-bold">{specialty.jp}</h3>
-                  <span className="bg-foreground px-1.5 py-0.5 font-mono text-[10px] text-background">{specialty.kind}</span>
+              <li key={specialty.jp} className="overflow-hidden rounded-md border border-border bg-card">
+                <div className="flex">
+                  {specialty.imageUrl && (
+                    <div className="relative w-28 shrink-0 self-stretch bg-muted sm:w-36">
+                      <Image
+                        src={specialty.imageUrl}
+                        alt={specialty.jp}
+                        fill
+                        className="object-cover"
+                        sizes="144px"
+                      />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1 p-4">
+                    <div className="flex items-baseline gap-2">
+                      <h3 className="font-serif font-bold">{specialty.jp}</h3>
+                      <span className="bg-foreground px-1.5 py-0.5 font-mono text-[10px] text-background">{specialty.kind}</span>
+                    </div>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{specialty.note}</p>
+                    {specialty.imageCredit && (
+                      <p className="mt-2 font-mono text-[9px] tracking-wider text-muted-foreground/70">
+                        Photo: {specialty.imageCredit}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{specialty.note}</p>
               </li>
             ))}
           </ul>
