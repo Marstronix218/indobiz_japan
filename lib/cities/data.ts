@@ -22,21 +22,33 @@ export const CITIES: City[] = [
         jp: "ヴァダパヴ",
         kind: "料理",
         note: "じゃがいものコロッケをパンに挟んだムンバイ発祥のファストフード。1966年にダーダル駅前で売られ始めたのが起源とされ、市内に屋台が多数ある。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/3/36/Vada_pav_01.jpg",
+        imageCredit: "Marajozkee · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "ボンビル（ボンベイダック）",
         kind: "料理",
         note: "ムンバイ沿岸で獲れるヒメエソ科の魚を揚げた郷土料理。「ボンベイダック」の名で知られるが実際は魚。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Fried_Bombay_Duck.JPG/960px-Fried_Bombay_Duck.JPG",
+        imageCredit: "Durvankur2012 · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "コルハープリ・チャッパル",
         kind: "工芸",
         note: "隣接するコルハープル地方発祥の牛革サンダルで、2019年に地理的表示(GI)登録された。コラバ・コーズウェイなどムンバイ市内の老舗店で購入できる。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Kolhapuri_Chappals_in_roadside_shop_in_Kolhapur1.jpg/960px-Kolhapuri_Chappals_in_roadside_shop_in_Kolhapur1.jpg",
+        imageCredit: "सुबोध कुलकर्णी · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "ガネーシュ・チャトゥルティ",
         kind: "祭事",
         note: "8〜9月にムンバイで最大規模に祝われるヒンドゥー教の祭礼。ムンバイ市当局（BMC）の2024年統計では公共（サルヴァジャニック）神像だけで6万体超が設置され、家庭用を含めると年間15万体超が海への投入で幕を閉じる。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Lalbaugcha_Raja_Mumbai_Ganesh_Utsav_2024.jpg/960px-Lalbaugcha_Raja_Mumbai_Ganesh_Utsav_2024.jpg",
+        imageCredit: "Recordkarnabhai · CC BY-SA 4.0 · Wikimedia",
       },
     ],
     living: {
@@ -106,11 +118,17 @@ export const CITIES: City[] = [
         jp: "バターチキン",
         kind: "料理",
         note: "1947年の印パ分離独立後にデリーへ移転した名店モティ・マハル(Moti Mahal)の初代シェフ、クンダン・ラル・グジュラールが考案したとされる料理。タンドールで焼いた鶏肉が乾燥するのを防ぐため、トマト・バター・クリームのグレービーに漬け込んだのが始まりとされる。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/5/56/Butter_Chicken.jpg",
+        imageCredit: "Baruah1993 · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "パランテワーリー・ガリー",
         kind: "料理",
         note: "オールドデリーのチャンドニーチョークにある揚げパラーター(パラタ)専門店が並ぶ小路。1870年代創業の老舗が現在も営業を続け、じゃがいもやカリフラワー、ラブリー(練乳)など多彩な具材を詰めたパラーターを提供する。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Dal_Parantha_from_Paranthe_Wali_Gali%2C_Chandni_Chowk%2C_India.jpg/960px-Dal_Parantha_from_Paranthe_Wali_Gali%2C_Chandni_Chowk%2C_India.jpg",
+        imageCredit: "Ravi Dwivedi · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "クンダン・ミーナーカーリー細工（ダリバー・カラーン）",
@@ -201,6 +219,9 @@ export const CITIES: City[] = [
         jp: "バルジー（Baljee）のチョーレー・バトゥーレー",
         kind: "料理",
         note: "旧グルガオンのサダル・バザールで1970年代創業とされる老舗食堂。ひよこ豆カレー（チョーレー）を揚げパン（バトゥーレー）と共に供する北インド一帯の定番料理だが、高層オフィス街として再開発される以前からの数少ない旧市街の食文化として地元で知られる。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Chole_Bhature_1.jpg/960px-Chole_Bhature_1.jpg",
+        imageCredit: "Gaurav Dhwaj Khadka · CC BY-SA 4.0 · Wikimedia",
       },
     ],
     living: {

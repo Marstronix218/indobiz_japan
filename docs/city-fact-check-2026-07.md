@@ -750,3 +750,34 @@
 - ⚠️ 修正: Apolloホスピタル（カナル・サーキュラー・ロード）の病床数「700床」を削除。病院自身の公式サイト内でJSON-LDメタと本文コピーの記載が700/750で矛盾しており確定できないため。
 - ⚠️ 修正: 2025年9月コルカタ豪雨の記述から、根拠不明瞭な「3時間程度」を「数時間のうちに」へ、また複数報道で1986年/1988年と表記が割れる「1988年以来最も激しい降雨」という一文を削除。332mmの観測地点（ガリア・カムダハリ）を明記して精度を上げた。
 - ✅ 上記以外の全項目（気候適期、特産3件、住居エリア2件、家賃2件、治安、RTIICS、空港アクセス、メトロ、直行便、Japan Club Kolkata、Tata Hitachi、JETRO）は独立クエリで再確認し、変更なし。
+
+## 名物画像（Wikimedia Commons キュレーション）
+
+`lib/cities/types.ts` の `CitySpecialty.imageUrl` / `imageCredit` に採用した画像の検証記録。Wikimedia Commons API（`action=query&prop=imageinfo&iiprop=url|extmetadata`）でライセンスと被写体を個別確認し、CC BY / CC BY-SA（バージョン問わず）/ CC0 / パブリックドメインのみを採用。NC・ND・政府公開データライセンス（GODL-India 等、上記4種に該当しないもの）は不採用とした。
+
+### ムンバイ
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| ムンバイ | ヴァダパヴ | Vada_pav_01.jpg | CC BY-SA 4.0 | Marajozkee | 採用 | https://commons.wikimedia.org/wiki/File:Vada_pav_01.jpg |
+| ムンバイ | ボンビル（ボンベイダック） | Fried_Bombay_Duck.JPG | CC BY-SA 4.0 | Durvankur2012 | 採用（揚げ調理済みの状態を確認、note の「揚げた郷土料理」と一致） | https://commons.wikimedia.org/wiki/File:Fried_Bombay_Duck.JPG |
+| ムンバイ | コルハープリ・チャッパル | Kolhapuri_Chappals_in_roadside_shop_in_Kolhapur1.jpg | CC BY-SA 4.0 | सुबोध कुलकर्णी | 採用 | https://commons.wikimedia.org/wiki/File:Kolhapuri_Chappals_in_roadside_shop_in_Kolhapur1.jpg |
+| ムンバイ | ガネーシュ・チャトゥルティ | Lalbaugcha_Raja_Mumbai_Ganesh_Utsav_2024.jpg | CC BY-SA 4.0 | Recordkarnabhai | 採用（ムンバイの実際の神像・祭礼を撮影） | https://commons.wikimedia.org/wiki/File:Lalbaugcha_Raja_Mumbai_Ganesh_Utsav_2024.jpg |
+
+### デリー首都圏
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| デリー首都圏 | バターチキン | Butter_Chicken.jpg | CC BY-SA 4.0 | Baruah1993 | 採用 | https://commons.wikimedia.org/wiki/File:Butter_Chicken.jpg |
+| デリー首都圏 | パランテワーリー・ガリー | Dal_Parantha_from_Paranthe_Wali_Gali,_Chandni_Chowk,_India.jpg | CC BY-SA 4.0 | Ravi Dwivedi | 採用（当該小路で撮影されたパラーターの実写） | https://commons.wikimedia.org/wiki/File:Dal_Parantha_from_Paranthe_Wali_Gali,_Chandni_Chowk,_India.jpg |
+| デリー首都圏 | クンダン・ミーナーカーリー細工（ダリバー・カラーン） | — | — | — | 見送り：クンダン技法とミーナーカーリー技法を明確に併記した画像がCommons上に見つからなかった。関連候補（イラン式ミーナーカーリー、ムガル期宝飾品の博物館展示写真）は被写体が異なる／技法の明記がなく被写体ゲートを満たさないため不採用 | — |
+| デリー首都圏 | 共和国記念日パレード | — | — | — | 見送り：候補画像（山車・戦車・観閲式典）はすべてインド政府（国防省／PIB）撮影で `GODL-India` ライセンスのみ。CC BY/BY-SA/CC0/PDのいずれにも該当せず、ライセンスゲートで不採用 | — |
+
+### グルガオン
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| グルガオン | シータラー・マーター寺院の祭礼（メーラー） | — | — | — | 見送り：Commons上の「Sheetla Mata Temple」該当画像はグワリオル・パティアラ・カウシャンビー等の同名別寺院で、グルガオンの当該寺院を撮影した画像が見つからなかったため被写体ゲート不合格 | — |
+| グルガオン | バルジー（Baljee）のチョーレー・バトゥーレー | Chole_Bhature_1.jpg | CC BY-SA 4.0 | Gaurav Dhwaj Khadka | 採用（バルジー店舗自体の写真は見つからず、note が「北インド一帯の定番料理」と位置付けるチョーレー・バトゥーレーそのものの一般的な写真として採用） | https://commons.wikimedia.org/wiki/File:Chole_Bhature_1.jpg |
+
+採用7件・見送り3件（合計10特産品）。
