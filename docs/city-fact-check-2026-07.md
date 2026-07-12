@@ -661,3 +661,58 @@
 - ⚠️ 修正: JETROアーメダバード事務所の開設年を「2013年」から、3つの独立出典（JETRO公式プレスリリース見出し・日本経済新聞・DeshGujarat）が一致する「2017年11月」に訂正した。
 - ⚠️ 修正: 日系企業数「約57社」の出典表記を、JETRO 2022年報告書本文の記載に基づき「(JETRO調べ)」から「(アーメダバード日本人会調べ、JETROレポートに掲載)」に訂正した。
 - ✅ 上記2件以外の全項目（病院3件、禁酒法パーミット、家賃2件、直行便、近隣3エリア、バンダニーの産地表現・専門店の実在、GIFT City、半導体ファブの地理、メトロ）は独立クエリで再確認済み、変更なし。削除対象となる未検証ヘッジ表現は見当たらなかった。
+
+## コルカタ（Kolkata）第1パス（初回クエリでの一次調査）
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 気候・渡航適期 | bestMonths: 11,12,1,2 / avoidMonths: 4,5,6,7,8,9 | ✅ | （`climate.ts`の数値のみ参照、WebSearch対象外） | ブリーフ記載の2015-2024 Open-Meteo平均。11月(28.8/18.9℃・32mm)がFeb(28.9/16.9℃・25mm)と同水準の快適さだったため、ブリーフの「Dec-Feb」に加えて11月もbestMonthsに含めた。3月・10月は温度・降水量とも中間的なためどちらのリストにも含めていない |
+| 特産（料理） | ロショゴッラ／ションデシュ、1868年ノビン・チョンドロ・ドッシュがバグバザールで考案、2017年11月「バングラル・ロショゴッラ」でGI登録 | ✅ | "rasgulla sandesh Kolkata sweets history GI tag" ／ "K.C. Das Nobin Chandra Das rasgulla shop history 1868 founded" | https://en.wikipedia.org/wiki/Rasgulla（1868年考案・2017年11月14日GI登録を明記）／ https://en.wikipedia.org/wiki/Nobin_Chandra_Das |
+| 特産（工芸） | カーリーガート絵画、1809年建立のカーリーガート寺院周辺で19世紀前半に発生、20世紀初頭に石版画の普及で衰退、V&A博物館が世界最大級のコレクションを所蔵 | ✅ | "Kalighat painting patachitra Kolkata art history GI" ／ "Kalighat Kali Temple built year history patuas paintings origin 19th century" | https://en.wikipedia.org/wiki/Kalighat_painting（寺院1809年建立、絵画は19世紀前半発生、V&A所蔵約645点を確認） |
+| 特産（祭事） | ドゥルガー・プージャー、2021年12月にユネスコ無形文化遺産代表一覧表に「コルカタのドゥルガー・プージャー」として記載 | ✅ | "Durga Puja Kolkata UNESCO intangible cultural heritage 2021" | https://ich.unesco.org/en/RL/durga-puja-in-kolkata-00703（2021年12月15日の第16回政府間委員会で記載を確認） |
+| 特産（土産） | バルチャリ・サリー、18世紀にムルシダーバード近郊バルチャルで発祥、飢饉・洪水で衰退後20世紀前半にアクシャイ・クマール・ダスがビシュヌプルで再興、2011年GI登録 | ✅ | "Baluchari sari Bishnupur GI tag history West Bengal weaving" ／ "Baluchari sari Akshay Kumar Das Subho Thakur revival Bishnupur Murshidabad decline history" | https://en.wikipedia.org/wiki/Baluchari_sari（GI登録2011年、Bishnupur再興の経緯を確認）。「飢饉・洪水で衰退」は独立した2サイト(delhi-fun-dos、livehistoryindia系)で一致したが、Wikipedia本文はこの経緯を明記しないため、`data.ts`では衰退理由を単純化して記載した |
+| エリア | Ballygunge・Alipore（南コルカタの高級住宅地）、Salt Lake（ビドハンナゴル、Sector V ITハブ）、New Town（ラジャルハット） | ✅ | "Kolkata expat neighborhoods Salt Lake New Town rent apartment 2026" ／ "Alipore Ballygunge Kolkata rent 2BHK 3BHK expat diplomatic area" | https://www.nobroker.in/blog/posh-areas-in-kolkata/（Alipore=「Kolkata's most prestigious address」・外交官居住区、Ballygunge=高級住宅地と明記） |
+| 家賃 | 2BHK（Ballygunge・Alipore）$260〜470/月、2BHK（Salt Lake・New Town）$170〜295/月 | ✅ | "Ballygunge Kolkata 2BHK rent per month rupees 2026 expat" ／ "Salt Lake Sector 1 2 3 Kolkata 2BHK apartment rent per month 2026" | nobroker記事で Alipore/Ballygunge 2BHK ₹25,000〜45,000、Salt Lake/New Town 2BHK ₹16,000〜28,000 の集計を確認。USD/INR≈95.5で換算 |
+| 為替換算 | USD/INR ≈ 95.5 | ✅ | "USD to INR exchange rate today July 2026" | https://www.exchangerates.org.uk/USD-INR-spot-exchange-rates-history-2026.html（2026年7月上旬95.2〜95.6で推移、他都市と同じレートを採用） |
+| 病院 | Apollo Multispeciality Hospitals（カナル・サーキュラー・ロード）2003年開業、Apollo・パークウェイヘルス合弁、700床、東インド唯一のJCI認定、NABH認定 | ✅ | "Kolkata hospitals international patients JCI NABH accreditation" ／ "Apollo Multispeciality Hospitals Kolkata JCI accredited only hospital eastern India 2003" | 複数の第三者集約サイトで2003年開業・700床・Parkway Health合弁・東インド唯一のJCIが一致（Apollo公式サイトは直接確認できず） |
+| 病院 | RTIICS（ムクンダプル）2000年開業(当初100床)、現在681床、ナラヤナ・ヘルス系列、2023年JCI認定・NABL2006年から、バングラデシュ等周辺国患者を受入 | ✅ | "Rabindranath Tagore International Institute Cardiac Sciences RTIICS Kolkata founded year international patients" ／ "RTIICS Rabindranath Tagore hospital Mukundapur beds Narayana Health JCI NABH international patients Bangladesh" | https://en.wikipedia.org/wiki/Rabindranath_Tagore_International_Institute_of_Cardiac_Sciences（2000年設立、681床、2023年JCI認定、NABL2006年からを確認） |
+| 空港アクセス | ネタジ・スバス・チャンドラ・ボース国際空港(CCU)は市中心部の北へ約17km、車で約40分。Ballygunge・Aliporeへは渋滞状況により45〜60分 | ✅ | "Kolkata airport Netaji Subhas Chandra Bose International Airport access city center" | Wikipedia・複数の空港ガイドで「約17km・約40分」の記述を確認 |
+| メトロ | 5路線(ブルー・グリーン・パープル・イエロー・オレンジ)、総延長73.42km・58駅（2026年時点） | ✅ | "Kolkata Metro lines stations length 2026" | https://en.wikipedia.org/wiki/Kolkata_Metro（5路線・58駅・73.42kmを確認） |
+| 直行便 | コルカタ発着の日本直行便はなし | ✅ | "Kolkata direct flight from Japan Tokyo Narita Haneda" | 複数の航空券検索サイトで直行便0件、バンコク・デリー・ムンバイ等経由が中心と確認 |
+| 治安 | 外務省危険レベル1(十分注意)、サダル・ストリート/ニューマーケット周辺でのスリ・置き引き、飲食物への薬物混入による強盗被害の報告 | ✅ | "\"外務省\" 海外安全 コルカタ 治安情報" | 外務省海外安全ホームページの検索結果に基づく要約。Sealdah/Howrah/Sonagachiを「危険エリア」とする記述は個人ブログ・旅行アグリゲーターのみでの言及にとどまり出典の質が低いため、`data.ts`には採用しなかった |
+| 通勤 | 2025年9月23日未明の記録的豪雨（24時間で最大332mm、1988年以来最悪）で市内広範囲が冠水、感電などで市内9人死亡、一部地域で3日間冠水継続 | ✅ | "Kolkata monsoon waterlogging flooding city roads 2024 2025" ／ "Kolkata September 23 2025 flood rainfall mm 1988 record nine dead electrocution" | https://en.wikipedia.org/wiki/September_2025_Kolkata_cloudburst（日時・降水量地点別数値・死者数の内訳・冠水継続日数を確認）／ NBC News・The Watchers等の報道でも死者数・降水量が一致 |
+| 日本人会 | Japan Club Kolkata、在コルカタ総領事公邸での餅つき会(2024年11月16日)・BBQ大会(2019年2月17日、96名参加)を開催 | ✅ | "コルカタ 日本人会 日本人学校 在住日本人" ／ "Kolkata Japan Club BBQ mochi tsuki association members activities" | https://www.kolkata.in.emb-japan.go.jp/itpr_en/11_000001_00813.html（在コルカタ総領事館公式サイトで2024年餅つき会を確認） |
+| 日本人学校・補習校 | コルカタに現行の認定日本人学校・補習校の存在は確認できず | ✅（未確認のため空配列を採用） | "コルカタ補習授業校" ／ "\"コルカタ補習授業校\" OR \"カルカッタ補習授業校\" 文部科学省 認定 在外教育施設" | 「2020年3月より休校中」というWebSearch要約が出たが、一次情報（総領事館・文科省CLARINETデータベース）で裏付けられず、断定を避けて空配列とした |
+| 日本食料品店 | コルカタ市内に確証の持てる実店舗は確認できず | ✅（未確認のため空配列を採用） | "Kolkata Japanese restaurant grocery store Japanese community expat" | 検索結果はWasabee等の日本食レストラン(飲食店)のみで、食料品店(グロッサリー)の実店舗情報は得られなかった |
+| 日系企業（岡倉天心・史的関係） | 1901〜02年に岡倉天心がタゴール家に滞在、ラビンドラナート・タゴールと親交、ベンガル派の画家(アバニンドラナート・タゴール等)に日本画の技法を伝授 | ✅ | "コルカタ 日本国総領事館 在コルカタ日本国総領事館" ／ "Okakura Tenshin Kolkata Calcutta Tagore 1902 visit history" ／ "岡倉天心 インド 1901年 カルカッタ タゴール 訪問" | 在コルカタ総領事館サイトの検索スニペット、および東京外国語大学・茨城県天心記念五浦美術館等の日本語学術情報源で「1901〜02年インド滞在・カルカッタでタゴールと交流」が一致。ただし総領事館公式ページ本体は403で直接確認できず（間接確認にとどまる） |
+| 日系企業（Tata Hitachi） | タタ・モーターズ40%／日立建機60%出資のタタ日立建設機械カラグプル工場、コルカタから西へ約120km、2009年稼働、20t級油圧ショベル等を生産 | ✅ | "Hitachi Construction Machinery West Bengal Kolkata factory Dankuni" | https://www.tatahitachi.co.in/manufacturing-facilities/（カラグプル工場2009年稼働を確認）／ https://en.wikipedia.org/wiki/Tata_Hitachi_Construction_Machinery（出資比率40:60を確認）／ 距離約120kmはrome2rio等の複数の距離計算サイトで確認 |
+| JETRO | コルカタ単独のJETRO事務所は確認できず、インド国内拠点はニューデリー・ムンバイ・ベンガルール・チェンナイ・アーメダバードの5カ所のみ | ✅（未確認のため「単独事務所なし」と記載） | "JETRO Kolkata office West Bengal Japanese companies" ／ "jetro.go.jp overseas office India list Chennai Bengaluru Mumbai Kolkata New Delhi" | JETRO公式サイトの拠点一覧でコルカタが含まれないことを確認（ハイデラバード・プネと同様のパターン） |
+| Mitsubishi Chemical半導体投資（不採用） | Mitsubishi Chemical Groupが西ベンガル州(ドゥルガープル/パナガル)での半導体投資を検討中 | ❌ 削除（採用せず） | "Mitsubishi Chemical West Bengal plant Kolkata location carbon black" | communicationstoday.co.in・electronicsforyou.bizとも403でWebFetch本文が確認できず、X(旧Twitter)投稿の見出しのみでの言及にとどまるため、`data.ts`のcorporateNoteには含めなかった |
+
+## コルカタ（Kolkata）第2パス（執筆者自身による別クエリでの独立再検証）
+
+上記の記述のうち特に確信度の低かった項目（Okakura Tenshinの滞在時期、バルチャリ・サリーの衰退経緯、病院の認証年、日本人会・補習校の現況、メトロ・家賃の数値）について、第1パスと異なる言い回しのクエリで再検証した記録。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 岡倉天心 | 「1902年」単年ではなく「1901〜02年（2年間）」のインド滞在、タゴール家に滞在 | ⚠️ 修正 | English Wikipedia "Okakura Kakuzō" | https://en.wikipedia.org/wiki/Okakura_Kakuz%C5%8D（"lived two years in India"、Vivekananda・Tagoreとの対話を確認。第1パスの日本語ソースでの「1901〜02年」という期間表記と整合するため、単年の「1902年」ではなく期間表記を`data.ts`で採用した） |
+| バルチャリ・サリー | 飢饉・洪水による衰退→ビシュヌプルへの移住、という経緯 | ✅（第1パスの2サイトに加え3件目で再確認） | "Baluchari sari Akshay Kumar Das Subho Thakur revival Bishnupur Murshidabad decline history" | delhi-fun-dos.comの記述で「a series of famines, floods and earthquakes devastated the weaving industry in Baluchar forcing the local weavers to move to...Bishnupur around 200 kms away」を確認。Wikipedia本文は経緯を詳述しないが、矛盾する記述もないため`data.ts`の簡潔な表現（衰退→再興）はこの経緯と整合的と判断した |
+| 病院（Apollo） | 2003年開業、Parkway Health（シンガポール）との合弁、700床 | ✅ | "Apollo Gleneagles Hospital Kolkata renamed Apollo Multispeciality history 2003 joint venture" | 複数の第三者集約サイトでApollo Group・Parkway Health合弁・2003年設立・700床が一致。「Apollo Gleneagles」「Apollo Multispeciality」は同一施設の別称であることを確認 |
+| 病院（RTIICS） | 2023年JCI認定を再確認 | ✅ | "RTIICS Rabindranath Tagore hospital Mukundapur beds Narayana Health JCI NABH international patients Bangladesh" | 独立クエリでも「received JCI accreditation in 2023」の記述を再確認 |
+| メトロ | 5路線・58駅・73.42km | ✅ | "Kolkata Metro Wikipedia total length stations 2026 news" | 別クエリでも同一の5路線・58駅・73.42kmを再確認 |
+| 家賃（Salt Lake・New Town） | 2BHK ₹16,000〜28,000/月レンジ | ✅（個別リスティングにはより低い値もあるがレンジ内） | "Salt Lake Sector 1 2 3 Kolkata 2BHK apartment rent per month 2026" | Sector V個別リスティングで₹11,200〜17,000等の値も見られたが、renterfinder記事の「新築・駐在員向け」レンジ₹16,000〜28,000をclaim値として採用（個別安値リスティングは築古・非駐在員向けと判断） |
+| 家賃（Ballygunge・Alipore） | 2BHK ₹25,000〜45,000/月レンジ | ✅ | "Ballygunge Kolkata 2BHK rent per month rupees 2026 expat" | squareyards集計で「₹25,000以上」「フル家具付きで₹35,000〜40,000」を確認、claim値のレンジ内 |
+| 日本人会 | Japan Club Kolkataの実在と活動（餅つき会・BBQ大会） | ✅ | "Kolkata Japan Club BBQ mochi tsuki association members activities" | 在コルカタ総領事館公式サイト(kolkata.in.emb-japan.go.jp)で2024年11月の餅つき会を確認。会公式サイト(japan-club-kolkata.com)はSSL証明書期限切れで直接確認できなかったが、総領事館側の一次情報で存在は裏付けられる |
+| コルカタ補習授業校の現況（不採用） | 「2020年3月より休校中」という具体的な記述 | ❌ 削除（採用せず） | "コルカタ補習授業校 休校 2020年3月" ／ "\"コルカタ補習授業校\"" | 文科省の在外教育施設認定リストにも該当校が見当たらず、休校時期を裏付ける一次情報が得られなかったため、`data.ts`では学校名を一切記載せず空配列のみとした |
+
+### 変更サマリー（コルカタ）
+- ⚠️ 修正: 岡倉天心のインド滞在を単年の「1902年」ではなく、英語版Wikipediaと日本語学術情報源の双方が一致する「1901〜02年」という期間表記に統一した。
+- ❌ 削除（採用せず）: Mitsubishi Chemical Groupの西ベンガル州半導体投資検討（一次情報にWebFetchで到達できず、見出しのみの言及にとどまったため）。
+- ❌ 記載見送り: コルカタ補習授業校の現況（休校時期を含め一次情報で裏付けられず、学校名を出さず空配列を採用）、日本食料品実店舗（確証の持てる実店舗なし、空配列）。
+- ⚠️ 留意: バルチャリ・サリーの「飢饉・洪水による衰退」という経緯は、Wikipedia本文には明記がなく独立した2次資料2件での一致にとどまるため、`data.ts`では経緯を簡潔化し断定的な詳細（具体的な災害年など）は含めていない。
+- ⚠️ 留意: Okakura Tenshin関連の総領事館公式ページは403で直接WebFetchできず、検索エンジンのスニペットおよび独立した日本語学術情報源（東京外国語大学・天心記念五浦美術館等）での間接確認にとどまる。
+- ✅ 上記以外の全項目（渡航適期の気候判断、特産4件、住居エリア・家賃2件、空港アクセス、病院2件、メトロ、直行便なしの実態、治安、2025年9月豪雨の通勤リスク、Japan Club Kolkata、Tata Hitachiカラグプル工場、JETRO単独事務所なしの実態）は独立クエリで再確認済み、変更なし。
