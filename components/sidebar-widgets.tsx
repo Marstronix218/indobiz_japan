@@ -22,6 +22,8 @@ import type { MarketSnapshotLive } from "@/lib/market-data"
 import { usePublicArticles } from "@/lib/article-store"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { CITIES } from "@/lib/cities"
+import { describeWeatherCode } from "@/lib/cities/weather-codes"
+import type { CityWeatherMap } from "@/lib/cities/weather"
 
 const TONE_TO_STRIPE: Record<ImagePlaceholderTone, string> = {
   warm: "ph-stripe-warm",
@@ -245,9 +247,25 @@ export function MarketIndicatorWidget() {
 
 export function CitySpotlightWidget() {
   const [index, setIndex] = useState(0)
+  const [weather, setWeather] = useState<CityWeatherMap | null>(null)
   const city = CITIES[index]
   const canGoBack = index > 0
   const canGoForward = index < CITIES.length - 1
+
+  useEffect(() => {
+    let cancelled = false
+    fetch("/api/city-weather")
+      .then((res) => res.json())
+      .then((payload: { weather?: CityWeatherMap }) => {
+        if (!cancelled && payload.weather) setWeather(payload.weather)
+      })
+      .catch(() => {
+        // フェイルオープン: 天気行を出さないだけ
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   return (
     <div className="rounded-md border border-border bg-card p-5">
@@ -293,6 +311,11 @@ export function CitySpotlightWidget() {
           {city.name}
         </span>
       </div>
+      {weather?.[city.slug] && (
+        <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+          現在 {weather[city.slug].tempC}°C・{describeWeatherCode(weather[city.slug].weatherCode)}
+        </p>
+      )}
       <div className="mt-2 grid grid-cols-2 gap-2 font-mono text-[11px]">
         <div className="rounded bg-muted p-2">
           <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
@@ -310,25 +333,33 @@ export function CitySpotlightWidget() {
       <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
         {city.note}
       </p>
-      <div className="mt-3 flex items-center justify-end gap-1.5">
-        <button
-          type="button"
-          onClick={() => setIndex((current) => Math.max(0, current - 1))}
-          disabled={!canGoBack}
-          aria-label="前の都市"
-          className="grid size-7 place-items-center rounded-full border border-border bg-background text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
+      <div className="mt-3 flex items-center justify-between gap-1.5">
+        <Link
+          href={`/city/${city.slug}`}
+          className="font-mono text-[10px] tracking-wider text-accent hover:underline"
         >
-          <ChevronLeft className="size-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => setIndex((current) => Math.min(CITIES.length - 1, current + 1))}
-          disabled={!canGoForward}
-          aria-label="次の都市"
-          className="grid size-7 place-items-center rounded-full border border-border bg-background text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <ChevronRight className="size-3.5" />
-        </button>
+          都市データを見る →
+        </Link>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setIndex((current) => Math.max(0, current - 1))}
+            disabled={!canGoBack}
+            aria-label="前の都市"
+            className="grid size-7 place-items-center rounded-full border border-border bg-background text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ChevronLeft className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIndex((current) => Math.min(CITIES.length - 1, current + 1))}
+            disabled={!canGoForward}
+            aria-label="次の都市"
+            className="grid size-7 place-items-center rounded-full border border-border bg-background text-foreground transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ChevronRight className="size-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   )
