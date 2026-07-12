@@ -300,16 +300,25 @@ export const CITIES: City[] = [
         jp: "MTR（マーヴァッリ・ティフィン・ルームズ）のマサラ・ドーサとラヴァ・イドリー",
         kind: "料理",
         note: "1924年にマイヤ兄弟がラールバーグ・フォート・ロードで開いた「ブラーミン・コーヒー・クラブ」を起源とするベンガルールの老舗食堂。第二次大戦中の米不足を機に考案したラヴァ・イドリー（セモリナ粉のイドリー）は南インドの定番朝食として全国に広まった。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Masala_Dosa_at_MTR_Restaurant%2C_Indiaranagar%2C_Bangalore%2C_Karnatak.jpg/960px-Masala_Dosa_at_MTR_Restaurant%2C_Indiaranagar%2C_Bangalore%2C_Karnatak.jpg",
+        imageCredit: "Sangram Keshari Senapati · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "チャンナパトナの木工玩具",
         kind: "工芸",
         note: "ベンガルール近郊ラーマナガラ県チャンナパトナで作られる、天然のラック染料で彩色した木製玩具・人形。18世紀にマイソール藩王ティプー・スルターンが招いたペルシャ職人の技法に起源を持つとされ、2005年に出願、2006年に地理的表示(GI)登録された。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Finished_Channapatna_toys.jpg/960px-Finished_Channapatna_toys.jpg",
+        imageCredit: "KartikMistry · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "ベンガルール・カルガ祭",
         kind: "祭事",
         note: "旧市街ティガラルペーテ（現ナガラトペーテ）のダルマラーヤ・スワーミ寺院を中心に、ヒンドゥー暦チャイトラ月（3〜4月）に開かれる祭礼。女神に扮した男性が花で飾った水瓶（カルガ）を頭上に載せて練り歩く儀礼で知られる。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Bengaluru-karaga-outside.jpg/960px-Bengaluru-karaga-outside.jpg",
+        imageCredit: "Sunithashankar · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "デヴァナハッリ・ポメロ（チャコッタ）",
@@ -388,16 +397,25 @@ export const CITIES: City[] = [
         jp: "チェッティナード料理",
         kind: "料理",
         note: "チェンナイ南方のシヴァガンガー県・プドゥッコッタイ県一帯（チェッティナード地方）に住むナーガラタル(チェッティアール)商人が東南アジア交易でもたらした香辛料を用いる料理。1964年にチェンナイのロイヤペッタで創業したアンジャッパル(Anjappar)がこの料理を看板に据え、現在は国内外に展開するチェーンへと成長した。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Chicken_Chettinad.jpg/960px-Chicken_Chettinad.jpg",
+        imageCredit: "Thamizhpparithi Maari · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "カーンチープラム・シルクサリー",
         kind: "工芸",
         note: "チェンナイから約70km南西のカーンチープラムで織られる絹サリーで、2005〜06年に地理的表示(GI)登録された。カーンチープラム出身の織元ナリ・チンナサミ・チェッティが1928年にT・ナガル地区で商いを始めたNalli Silksをはじめ、Usman Road沿いの老舗店でまとまった品揃えが見られる。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Silk_Sari_Weaving_at_Kanchipuram%2C_Tamil_Nadu.jpg/960px-Silk_Sari_Weaving_at_Kanchipuram%2C_Tamil_Nadu.jpg",
+        imageCredit: "McKay Savage · CC BY 2.0 · Wikimedia",
       },
       {
         jp: "マルガリ音楽祭（マドラス・ミュージック・シーズン）",
         kind: "祭事",
         note: "1927年設立のマドラス・ミュージック・アカデミーを起点に始まった、カルナーティック音楽と古典舞踊の祭典。11月中旬〜1月にかけて市内各所の「サバー」で公演が行われ、2004〜05年シーズンには約600人の演者による1,200件超の演目が上演された。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Sangeetha_Sivakumar_Live_2018_Chennai.jpg/960px-Sangeetha_Sivakumar_Live_2018_Chennai.jpg",
+        imageCredit: "Sangeetha Sivakumar · CC BY-SA 4.0 · Wikimedia",
       },
     ],
     living: {
@@ -477,21 +495,32 @@ export const CITIES: City[] = [
         jp: "プネリ・ミサル",
         kind: "料理",
         note: "ゴダ・マサラを効かせたピリ辛カレー(カット)をスプラウトやパヴ(パン)と別添えで供し、好みで混ぜて食べるマラーティー料理ミサル・パヴのプネ風スタイル。1910年代創業のヴァイディヤ・ウパハル・グルハなど、100年超の歴史を持つミサル専門店が市内に複数現存する。",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/7/74/Puneri_Misal.jpg",
+        imageCredit: "Swapnilalhat · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "タンバット・アリの銅細工",
         kind: "工芸",
         note: "ペーシュワー治世下のサワーイー・マーダヴラーオ期(1774〜1795年)にコンカン地方から招かれた銅細工師(タンバット)の一族がプネ旧市街に住み着き、「タンバット・アリ」と呼ばれる職人街で銅・真鍮の手打ち細工を今に継承する。かつては貨幣や武器も手掛けたが、現在は台所用品や神具が中心。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/%E0%A4%A4%E0%A4%BE%E0%A4%82%E0%A4%AC%E0%A4%9F_%E0%A4%86%E0%A4%B3%E0%A5%80%2C_%E0%A4%95%E0%A4%B8%E0%A4%AC%E0%A4%BE_%E0%A4%AA%E0%A5%87%E0%A4%A0%2C_%E0%A4%AA%E0%A5%81%E0%A4%A3%E0%A5%87_%E0%A4%AF%E0%A5%87%E0%A4%A5%E0%A5%87_%E0%A4%B5%E0%A4%BF%E0%A4%95%E0%A5%8D%E0%A4%B0%E0%A5%80%E0%A4%B8%E0%A4%BE%E0%A4%A0%E0%A5%80_%E0%A4%89%E0%A4%AA%E0%A4%B2%E0%A4%AC%E0%A5%8D%E0%A4%A7_%E0%A4%A4%E0%A4%BE%E0%A4%82%E0%A4%AC%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%9A%E0%A5%8D%E0%A4%AF%E0%A4%BE_%E0%A4%B5%E0%A4%BF%E0%A4%B5%E0%A4%BF%E0%A4%A7_%E0%A4%B5%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%82.jpg/960px-thumbnail.jpg",
+        imageCredit: "आर्या जोशी · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "サルヴァジャニック・ガネーショーツァヴ",
         kind: "祭事",
         note: "1893年2月19日、菓子商ダグドゥシェート・ハルワーイーが亡き息子を悼み安置したガネーシャ神像の開眼式をロークマーニヤ・ティラクが主宰したのを機に、私的な家庭行事だったガネーシュ・チャトゥルティーは都市規模で祝う「サルヴァジャニック(公共)」祭へと転換した。プネはこの公共ガネーシュ祭発祥の地とされ、ダグドゥシェート・ハルワーイー・ガナパティは今も市内屈指の参拝者を集める。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Dagadusheth_Halwai_Sarvajanik_Ganeshotsav_Mandal_in_2024.jpg/960px-Dagadusheth_Halwai_Sarvajanik_Ganeshotsav_Mandal_in_2024.jpg",
+        imageCredit: "DesiBoy101 · CC BY-SA 4.0 · Wikimedia",
       },
       {
         jp: "チタレー・バンドゥのバクルワディ",
         kind: "土産",
         note: "1950年にバジラーオ・ロードで創業した菓子店チタレー・バンドゥ・ミターイワーレーが1970年から売り出したスパイシーな渦巻き揚げ菓子。当初は1日200kg程度だった生産量が現在は1日約3,000kgに拡大しており、プネ土産の定番として知られる。",
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/commons/5/5f/Msg1128409303-121485.jpg",
+        imageCredit: "Abhi7704 · CC BY-SA 4.0 · Wikimedia",
       },
     ],
     living: {

@@ -781,3 +781,31 @@
 | グルガオン | バルジー（Baljee）のチョーレー・バトゥーレー | Chole_Bhature_1.jpg | CC BY-SA 4.0 | Gaurav Dhwaj Khadka | 採用（バルジー店舗自体の写真は見つからず、note が「北インド一帯の定番料理」と位置付けるチョーレー・バトゥーレーそのものの一般的な写真として採用） | https://commons.wikimedia.org/wiki/File:Chole_Bhature_1.jpg |
 
 採用7件・見送り3件（合計10特産品）。
+
+### ベンガルール
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| ベンガルール | MTRのマサラ・ドーサとラヴァ・イドリー | Masala Dosa at MTR Restaurant, Indiaranagar, Bangalore, Karnatak.jpg | CC BY-SA 4.0 | Sangram Keshari Senapati | 採用（MTRレストラン店内で撮影されたマサラ・ドーサそのもの） | https://commons.wikimedia.org/wiki/File:Masala_Dosa_at_MTR_Restaurant,_Indiaranagar,_Bangalore,_Karnatak.jpg |
+| ベンガルール | チャンナパトナの木工玩具 | Finished Channapatna toys.jpg | CC BY-SA 4.0 | KartikMistry | 採用 | https://commons.wikimedia.org/wiki/File:Finished_Channapatna_toys.jpg |
+| ベンガルール | ベンガルール・カルガ祭 | Bengaluru-karaga-outside.jpg | CC BY-SA 4.0 | Sunithashankar | 採用（説明文がダルマラーヤ・スワーミ寺院でのカルガ祭と明記、note と一致） | https://commons.wikimedia.org/wiki/File:Bengaluru-karaga-outside.jpg |
+| ベンガルール | デヴァナハッリ・ポメロ（チャコッタ） | — | — | — | 見送り：Commons上のポメロ画像はケーララ等の一般的な柑橘で、デヴァナハッリ産の巨大品種（GI登録品）を撮影・識別した画像が見つからなかったため被写体ゲート不合格 | — |
+
+### チェンナイ
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| チェンナイ | チェッティナード料理 | Chicken Chettinad.jpg | CC BY-SA 4.0 | Thamizhpparithi Maari | 採用（アンジャッパル店舗自体の写真は見つからず、note が料理ジャンルとして位置付けるチェッティナード料理の代表的な一皿として採用） | https://commons.wikimedia.org/wiki/File:Chicken_Chettinad.jpg |
+| チェンナイ | カーンチープラム・シルクサリー | Silk Sari Weaving at Kanchipuram, Tamil Nadu.jpg | CC BY 2.0 | McKay Savage | 採用（カーンチープラム現地での手織り作業を撮影） | https://commons.wikimedia.org/wiki/File:Silk_Sari_Weaving_at_Kanchipuram,_Tamil_Nadu.jpg |
+| チェンナイ | マルガリ音楽祭（マドラス・ミュージック・シーズン） | Sangeetha Sivakumar Live 2018 Chennai.jpg | CC BY-SA 4.0 | Sangeetha Sivakumar | 採用（説明文が「2018年チェンナイでのマルガリ音楽祭ライブ」と明記） | https://commons.wikimedia.org/wiki/File:Sangeetha_Sivakumar_Live_2018_Chennai.jpg |
+
+### プネ
+
+| 都市 | 名物 | File名 | ライセンス | 作者 | 判定 | ファイルページURL |
+|---|---|---|---|---|---|---|
+| プネ | プネリ・ミサル | Puneri Misal.jpg | CC BY-SA 4.0 | Swapnilalhat | 採用 | https://commons.wikimedia.org/wiki/File:Puneri_Misal.jpg |
+| プネ | タンバット・アリの銅細工 | तांबट आळी, कसबा पेठ, पुणे येथे विक्रीसाठी उपलब्ध तांब्याच्या विविध वस्तू.jpg | CC BY-SA 4.0 | आर्या जोशी | 採用（説明文が「プネのカスバー・ペート地区のタンバット・アリにて職人が銅器を製作・販売」と明記） | https://commons.wikimedia.org/wiki/File:%E0%A4%A4%E0%A4%BE%E0%A4%82%E0%A4%AC%E0%A4%9F_%E0%A4%86%E0%A4%B3%E0%A5%80,_%E0%A4%95%E0%A4%B8%E0%A4%AC%E0%A4%BE_%E0%A4%AA%E0%A5%87%E0%A4%A0,_%E0%A4%AA%E0%A5%81%E0%A4%A3%E0%A5%87_%E0%A4%AF%E0%A5%87%E0%A4%A5%E0%A5%87_%E0%A4%B5%E0%A4%BF%E0%A4%95%E0%A5%8D%E0%A4%B0%E0%A5%80%E0%A4%B8%E0%A4%BE%E0%A4%A0%E0%A5%80_%E0%A4%89%E0%A4%AA%E0%A4%B2%E0%A4%AC%E0%A5%8D%E0%A4%A7_%E0%A4%A4%E0%A4%BE%E0%A4%82%E0%A4%AC%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%9A%E0%A5%8D%E0%A4%AF%E0%A4%BE_%E0%A4%B5%E0%A4%BF%E0%A4%B5%E0%A4%BF%E0%A4%A7_%E0%A4%B5%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%82.jpg |
+| プネ | サルヴァジャニック・ガネーショーツァヴ | Dagadusheth Halwai Sarvajanik Ganeshotsav Mandal in 2024.jpg | CC BY-SA 4.0 | DesiBoy101 | 採用（ダグドゥシェート・ハルワーイー・ガナパティのパンダルを撮影、note と一致） | https://commons.wikimedia.org/wiki/File:Dagadusheth_Halwai_Sarvajanik_Ganeshotsav_Mandal_in_2024.jpg |
+| プネ | チタレー・バンドゥのバクルワディ | Msg1128409303-121485.jpg | CC BY-SA 4.0 | Abhi7704 | 採用（説明文が「チタレー・バンドゥのバクルワディ、プネの名物スナック」と明記） | https://commons.wikimedia.org/wiki/File:Msg1128409303-121485.jpg |
+
+採用10件・見送り1件（合計11特産品）。
