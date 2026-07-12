@@ -635,3 +635,29 @@
 - ❌ 不採用: BRTS「Janmarg」の総延長・日次乗客数の具体的数値（直近年次の裏付けが弱いため、存在と機能のみ記載）。
 - ❌ 記載見送り: 日本人学校・補習校（存在しないことを確認済みのため空配列）、日本食料品実店舗（確証の持てる情報なし、空配列）。
 - ✅ 上記以外の全項目（渡航適期の気候判断、特産4件、住居エリア・家賃2件、空港アクセス、病院3件のうち採用した情報、メトロ、直行便なしの実態、マンダル・ベチャラジへの通勤時間、日本人会の沿革、日系企業（自動車・二輪・半導体）、JETRO事務所、グジャラート禁酒法パーミットの詳細）は独立クエリまたは公式サイト直接取得で確認済み。
+
+## アフマダーバード（Ahmedabad）第3パス（独立ファクトチェック、2026-07-12、`task-13-report.md`は未参照）
+
+第1・第2パスとは別の担当（独立検証者）が、既存パスの結果を一切参照せず `data.ts` のahmedabadエントリのみを対象に、独自の言い回しで再度全項目をWebSearch/WebFetchで再検証した記録。既存行は変更していない。詳細な検索クエリ・出典の全項目表は `.superpowers/sdd/task-13-verify.md` を参照。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ（例） | 出典URL |
+|---|---|---|---|---|
+| JETROアーメダバード事務所 | 開設年 | ⚠️修正 | "JETRO アーメダバード事務所 2013年 開設 Prahladnagar" | JETRO公式プレスリリース一覧見出し「ジェトロがアーメダバード事務所を新たに開設｜2017年」／ 日本経済新聞「ジェトロ、アーメダバードに事務所開設 11月」(2017年8月)／ DeshGujarat記事。3出典が一致して2017年11月開設であり、data.tsの「2013年開設」は誤りだったため「2017年11月開設」に修正 |
+| 日系企業数「約57社」の出典 | (JETRO調べ)と記載していたが | ⚠️修正 | JETRO 2022年報告書を直接WebFetch (jetro.go.jp/biz/areareports/2022/184b72a22637776c.html) | 報告書本文が「57社（2022年5月時点、アーメダバード日本人会調べ）」と明記しており、JETRO自身の調査ではなくアーメダバード日本人会の調べだったため、data.tsの表記を「(アーメダバード日本人会調べ、JETROレポートに掲載)」に修正 |
+| 病院3件（Apollo/Marengo CIMS/Zydus）の開設年・病床数・認定 | 既存記述どおり | ✅ | "Apollo Hospitals International" Ahmedabad GIDC Bhat established 2003 beds ICU 等 | 各公式サイト・複数独立報道で再確認。Apolloの「36年の実績」等の自己矛盾する定型文は既にdata.tsに含まれておらず、再混入なしを確認 |
+| グジャラート禁酒法パーミット | eps.gujarat.gov.in、7日間有効・最大3回延長 | ✅ | "Gujarat liquor permit foreign tourist eps.gujarat.gov.in online application validity days 2026" | 複数独立解説サイトで一致 |
+| 家賃(Bodakdev / Satellite・Prahladnagar) | $210〜370 / $210〜470 | ✅ | "Bodakdev Ahmedabad 2BHK apartment rent" 等 | 99acres/squareyards集計と近似レンジで整合（駐在員向け上位物件を考慮） |
+| 直行便 | 日本直行便なし | ✅ | "Ahmedabad direct flight Tokyo Narita Haneda 2026 airline" | 複数航空券検索サイトで直行便0件を確認 |
+| 近隣3エリア | Bodakdev/Satellite/Prahladnagarの高級・駐在員向け実態 | ✅ | "Bodakdev Satellite Prahladnagar Ahmedabad posh premium expat residential area" | 複数不動産メディアで確認 |
+| バンダニー | ジャームナガル/カッチが主要産地、アフマダーバードは産地の一つという書き分け | ✅（誇張なし） | "Bandhani tie-dye Ahmedabad Jamnagar Kutch main production centre history" | Jamnagarが「バンダニーの首都」との一致を確認、data.tsの記述は正確 |
+| 特産店舗（ハトリー・バンダニー／マンガルヤー・ヘリテージ） | 実在確認 | ✅ | "Khatri Bandhani" / "Mangalyaa Heritage" Ahmedabad | いずれも実在するバンダニー専門店と確認 |
+| GIFT City半導体/データセンター拡張 | 記述どおり | ✅ | "GIFT City Gandhinagar data center financial hub expansion 2026" | Gujarat Data Centre Policy 2026-29等で確認 |
+| ドーレラの半導体ファブ地理 | アフマダーバード県内、他州との混同なし | ✅ | "Tata Electronics semiconductor fab Dholera Gujarat PSMC Tokyo Electron" | Tata公式で確認 |
+| メトロ総延長・フェーズ2全通時期 | 2026年1月全通、約67.6km | ✅ | "Ahmedabad Metro phase 2 opening January 2026 yellow violet line" | Yellow Line最終区間が2026年1月11日開通、総延長67.56kmで一致 |
+
+### 変更サマリー（アフマダーバード・第3パス）
+- ⚠️ 修正: JETROアーメダバード事務所の開設年を「2013年」から、3つの独立出典（JETRO公式プレスリリース見出し・日本経済新聞・DeshGujarat）が一致する「2017年11月」に訂正した。
+- ⚠️ 修正: 日系企業数「約57社」の出典表記を、JETRO 2022年報告書本文の記載に基づき「(JETRO調べ)」から「(アーメダバード日本人会調べ、JETROレポートに掲載)」に訂正した。
+- ✅ 上記2件以外の全項目（病院3件、禁酒法パーミット、家賃2件、直行便、近隣3エリア、バンダニーの産地表現・専門店の実在、GIFT City、半導体ファブの地理、メトロ）は独立クエリで再確認済み、変更なし。削除対象となる未検証ヘッジ表現は見当たらなかった。
