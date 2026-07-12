@@ -580,3 +580,58 @@
 - `data.ts` への変更なし。第1・第2パスの記述（誤って未読の`task-12-report.md`ではなく、この`city-fact-check-2026-07.md`の既存行のみ）はすべて独立クエリで再確認でき、矛盾は見つからなかった。
 - 唯一のヒヤリハット: ポチャンパリー・イカットのGI登録年について、繊維省の登録リストが2004年12月31日と読める点を見つけ、一度2005→2004へ書き換えたが、Wikipedia本文の明示的な文言（"received...GI status in 2005"）を精査した結果、出典間の年ズレ（登録受理日と正式なGIジャーナル公示年の違いによると推定）と判断し、2005年表記に戻した。データは変更していないが、判断根拠としてこのログに残す。
 - 半導体ファブについては、第1パスで既に地理的誤り（テランガナ州ではなくアーンドラ・プラデーシュ州クルヌール県）を理由に不採用としており、本パスの再検証でも現行の`data.ts`本文に同種の地理的誤認は見当たらなかった。
+
+## アフマダーバード（Ahmedabad）第1パス（初回クエリでの一次調査）
+
+情報が乏しく削除が多くなる見込みの都市という前提のもと、密度を他都市に揃えるための推測補完は行わない方針で調査。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除（不採用）
+
+| 項目 | 記述 | 判定 | 検索クエリ（例） | 出典URL |
+|---|---|---|---|---|
+| 渡航適期 | bestMonths [12,1,2]（高27.1〜31.0℃・低13.6〜16.4℃・降水ほぼゼロ）、avoidMonths [4-9]（酷暑4-6月・モンスーン7-9月） | ✅（`climate.ts`の測定値のみで判断、生成値は変更せず） | （climate.ts記載の2015-2024平均を直接参照、Web検索なし） | `lib/cities/climate.ts` |
+| 特産（料理） | チャンドラヴィラス、1900年頃チマンラール・ヘームラージ・ジョーシー創業、1901年にグジャラーティー・ターリー形式を市内で初めて提供、ガーンディー・サルダール・パテールも来訪 | ✅ | "Chandra Vilas Ahmedabad 1901 Gujarati thali restaurant history founded" | https://www.knocksense.com/ahmedabad/chandravillas-a-journey-celebrating-123-years-of-introducing-gujarati-thali-to-ahmedabad ／ https://www.slurrp.com/article/chandravilas-exploring-ahmedabads-oldest-iconic-eatery-serving-gujarati-cuisine-1726817676541 |
+| 特産（工芸） | バンダニー（絞り染め）、クシャトリー(Khatri)コミュニティが担い手、ジャームナガル・カッチが主産地だがアフマダーバードも産地の一つ、市内にハトリー・バンダニー／マンガルヤー・ヘリテージ等の専門店 | ✅（「アフマダーバードが主産地」とは書かず「産地の一つ」に限定） | "Bandhani tie-dye Ahmedabad Jamalpur history craft artisans origin" ／ "Khatri Mangalya Heritage Bandhani Ahmedabad Jamalpur location shop" | 複数の工芸解説サイトで「Ahmedabad and outskirts are known as production centers」との記述を確認。主産地は依然ジャームナガル／カッチと明記されるため、data.tsでもその序列を維持 |
+| 特産（祭事） | ウッタラーヤン国際カイト・フェスティバル、1989年からグジャラート州観光局が開催、サバルマティ・リバーフロントが近年の主要会場 | ✅ | "Uttarayan kite festival Ahmedabad International Kite Festival history January" ／ "International Kite Festival Ahmedabad 1989 first edition Gujarat Tourism history" | https://en.wikipedia.org/wiki/International_Kite_Festival_in_Gujarat_%E2%80%93_Uttarayan（1989年開始を明記） |
+| 特産（土産） | インドゥベン・カークラーワーラー、カークラー（グジャラート伝統煎餅風スナック） | ⚠️（創業年を要再検証） | "Induben Khakhrawala history founded 1955 CG Road story" | 公式サイト系は「1955年創業」、The Better India記事は「1965年、43歳で開業、1981年53歳で死去」と年齢的に整合する詳細な創業譚を記載しており出典間に矛盾あり。第2パスで再検証 |
+| 住居エリア | Bodakdev・Satellite・Prahladnagar、SGハイウェイ沿いのオフィス・商業集積エリア | ✅ | "Ahmedabad expat housing rent Bodakdev Prahladnagar Satellite 2BHK" | 99acres・SquareYards等の集計 |
+| 家賃（Bodakdev） | 2BHK $210〜370/月 | ✅ | "Bodakdev Ahmedabad 2BHK rent range ₹ per month 99acres nobroker" | 99acres集計（₹19,000〜35,000程度の実勢レンジ、1USD=95.5円換算） |
+| 家賃（Satellite/Prahladnagar） | 2BHK $210〜470/月 | ✅ | "Ahmedabad Prahladnagar Satellite Vastrapur 2BHK rent per month expat 2025" | 99acres・SquareYards集計（₹20,000〜45,000程度） |
+| 空港アクセス | SVPI空港からBodakdevまで車で約15分、Satellite/Prahladnagarまで約30分 | ✅ | "Ahmedabad airport SVPI access Bodakdev Prahladnagar drive time minutes" ／ "Ahmedabad airport Prahladnagar Satellite Vastrapur distance drive time minutes rome2rio" | rome2rio集計（Bodakdev約14分、Prahladnagar約19km/29分、Satellite約17km/30分） |
+| 病院 | Apollo Hospitals International Ltd, Ahmedabad（GIDCバット、ガンディーナガル〜アフマダーバード道路沿い）、2003年開設、289床（ICU87床）、JCI・NABL認定 | ⚠️（「36年の実績」「月150人の外国人患者」は不採用） | "Ahmedabad hospitals international patients JCI NABH Apollo Sterling CIMS Zydus" ／ "Apollo Hospitals International Ahmedabad founded year 1988 beds JCI history" | https://www.apollohospitals.com/hospitals/apollo-hospitals-international-ltd-ahmedabad（2003年設立の記載）／ 医療ツーリズム集客サイトmedicaltourismco.comは「36年の実績」「月150人の国際患者」と記載するが、2003年開設なら2026年時点で23年目であり矛盾。同サイトの記述は他院にも使い回されている定型文の疑いがあり、data.tsには採用しなかった |
+| 病院 | Marengo CIMS Hospital（旧CIMS Hospital、ソラ地区）、JCI・NABH・NABL認定、East/West/North3棟の「グリーンホスピタル」 | ⚠️（病床数は出典間で350/480/500と不一致のため記載せず） | "Ahmedabad hospitals international patients JCI NABH Apollo Sterling CIMS Zydus" ／ "\"Marengo CIMS\" Ahmedabad hospital beds JCI NABH history renamed CIMS" | 公式サイトcims.org、Facebook等で500床の記載がある一方、他の集約サイトは480床・350床と表記が割れており、確度の高い数値に絞れなかったため`data.ts`には病床数を記載しなかった |
+| 病院 | Zydus Hospital（市内旗艦拠点）、550床、2016年9月NABH認定、外国人患者向けにビザ・FRRO・空港送迎込みパッケージ | ✅ | "Zydus Hospital Ahmedabad beds founded history international patients" | https://m.thewire.in/article/ptiprnews/medicine-beyond-borders-zydus-hospital-ahmedabad-emerges-as-a-preferred-destination-for-international-patients（550床、NABH認定2016年9月、FRRO/ビザ/空港送迎パッケージを明記） |
+| メトロ | フェーズ1(ブルー21.16km・18駅、レッド18.87km・15駅)が2024年12月開業、2026年1月にフェーズ2(イエロー・バイオレット)全通、4路線・総延長約67.6km、ガンディーナガル・GIFT Cityまで接続 | ✅ | "Ahmedabad Metro lines stations km 2026 phase 1 phase 2" | Wikipedia「Ahmedabad Metro」集計と複数の2026年時点ニュース記事で一致 |
+| BRTS | Janmarg、市内を広くカバーする専用レーンバス | ✅（具体的km数値はdata.tsに記載せず） | "Ahmedabad metro BRTS Janmarg public transport 2026" | 総延長160km・日次乗客数約34.9万人（2023年時点、Wikipedia）を確認したが、直近年次の裏付けが弱いため`data.ts`本文には数値を書かずBRTSの存在と機能のみ記載 |
+| 直行便 | アフマダーバード発着の日本直行便はなし | ✅ | "Ahmedabad direct flight Japan Narita Haneda 2026" | 複数の航空券検索サイトでAMD-NRT/HND間の直行便0件、デリー・ベンガルール経由が中心と確認 |
+| 通勤 | 自動車・二輪の集積地マンダル・ベチャラジ（Suzuki Motor Gujarat＝ハンサルプル、Honda Motorcycle & Scooter India第4工場＝ヴィタラプル、いずれもアフマダーバード県内）まで市中心部から車で1.5〜2時間 | ✅ | "Suzuki Motor Gujarat plant Hansalpur Mandal Becharaji location district" ／ "Honda Motorcycle Scooter India Gujarat plant Mandal Becharaji Vithalapur" | Wikipedia「Suzuki Motor Gujarat」でハンサルプル＝アフマダーバード県マンダル郡と確認／ Honda公式の第4工場所在地情報でヴィタラプル＝同じくアフマダーバード県マンダル郡と確認。JETRO記事（後掲）の「1.5〜2時間」との記述とも整合 |
+| 生活実態（郊外） | 日系駐在員はマンダル・ベチャラジ工業団地周辺の「MIKADO」「Le Tokyo」等の和食提供ホテルや企業借上げの寮アパートに居住するケースがあり、日本人学校はなく市内はインターナショナルスクールのみ | ✅ | （JETRO記事を直接WebFetch） | https://www.jetro.go.jp/biz/areareports/2022/184b72a22637776c.html（2022年時点のレポート） |
+| 日本人会 | アーメダバード日本人会（amd-japan.com）、2014年11月15日に会員47名で発足、隔月第3水曜「三水会」、フットサル・テニス等のサークル活動、法人会員制度あり | ✅ | "アフマダーバード 日本人会 日本人学校" ／ "アーメダバード日本人会 三水会 法人会員 活動" | https://amd-japan.com/（公式サイト直接取得）／ https://www.nna.jp/news/135637（発足時のNNA報道） |
+| 日本人学校・補習校 | アフマダーバードに日本人学校はなく、学齢期の子はMahatma Gandhi International School(MGIS)等のIB系インターナショナルスクールに通うのが一般的 | ✅（空配列を採用） | "アフマダーバード 日本人 学校" | https://amd-japan.com/ahmedabad/%E5%AD%A6%E6%A0%A1（公式サイトで「日本人学校がないため、すべてインターナショナルスクール」と明記） |
+| 日本食料品店 | 確証の持てる実店舗は確認できず | ✅（未確認のため空配列を採用） | "Japanese grocery store Ahmedabad 日本食料品" | 検索結果はオンライン配送(MAINDISH.in等)が中心で、デリー・グルガオン等の実店舗情報のみ。アフマダーバード市内の実店舗は確認できず |
+| 日系企業（自動車・二輪） | Suzuki Motor Gujarat、Honda Motorcycle & Scooter India第4工場、いずれもアフマダーバード県マンダル・ベチャラジ地区 | ✅（上記「通勤」項目と同一出典） | 同上 | 同上 |
+| 日系企業（半導体） | ターター・エレクトロニクスが台湾PSMCと提携し、アフマダーバード県内ドーレラで半導体ファブを建設中、東京エレクトロンが成膜・エッチング装置等を供給 | ✅（ファブの立地県を自ら確認、他州との混同なし） | "Tata Electronics Dholera semiconductor fab Gujarat Japanese investment" ／ "Dholera distance from Ahmedabad km district location" | https://www.tata.com/newsroom/business/first-indian-fab-semiconductor-dholera（Tokyo Electron社の装置供給に言及）／ Wikipedia「Dholera」でアフマダーバード県内の町と確認 |
+| JETRO | ジェトロ・アーメダバード事務所、2013年開設、Prahladnagar(SGハイウェイ) | ✅ | "JETRO Ahmedabad office 事務所" | https://www.jetro.go.jp/jetro/overseas/in_ahmedabad/（公式所在地・沿革） |
+| グジャラート禁酒法・パーミット | グジャラート州は禁酒法（ボンベイ禁酒法）を施行する「ドライステート」。外国人旅行者・NRIは州公式ポータル(eps.gujarat.gov.in)からオンラインでリカーパーミットを無料申請可能、7日間有効・最大3回延長で通算28日 | ✅ | "Gujarat prohibition alcohol permit foreigners tourists rule 2026" ／ "Gujarat liquor permit foreign tourist how long valid duration days FL permit" | インド政府バーミンガム総領事館公式ページ(cgibirmingham.gov.in)でパーミット制度自体を確認／ 有効期間・延長回数・無料の扱いは複数の旅行者向け解説サイトで一致（公式ポータルeps.gujarat.gov.inは直接WebFetch時に接続エラーのため到達できず、二次情報源での裏取りに留まる点に留意） |
+
+## アフマダーバード（Ahmedabad）第2パス（別クエリでの独立再検証）
+
+第1パスで確度に留保を付けた項目（カークラーの創業年、禁酒法パーミットの詳細、日本人会の沿革）を中心に、異なる言い回しのクエリで再検証。
+
+判定: ✅ 確認 / ⚠️ 修正 / ❌ 削除
+
+| 項目 | 記述 | 判定 | 検索クエリ | 出典URL |
+|---|---|---|---|---|
+| 特産（土産） | インドゥベン・カークラーワーラー、1965年創業（43歳のインドゥベン・ジャヴェリーが夫の病気を機に自宅で開業、1970年にミタカリ/ナヴランプラーへ移転拡大、1981年53歳で死去） | ✅（1965年を採用、公式サイトの「1955年」は不採用） | "Induben Khakhrawala history founded 1955 CG Road story"（The Better India記事を直接WebFetch） | https://thebetterindia.com/297756/induben-jhaveri-khakhrawala-iconic-brands-gujarat-homemaker-woman-entrepreneur/（開業年齢43歳・死去年1981年/53歳という年齢の整合性から1965年創業説の方が内的整合性が高いと判断） |
+| グジャラート禁酒法・パーミット | 7日間有効、最大3回延長（通算28日）、外国人は手数料無料、21歳以上・パスポート/インドビザが必要 | ✅（第1パスと同一の数値を別クエリで再確認） | "Gujarat liquor permit tourists 7 days renewal free foreigners official portal eps.gujarat.gov.in" | 複数の独立した旅行者向け解説サイト（saitravelsahmedabad、travelmedia.in等）で同一の「7日間・3回まで延長・無料」という記述が一致 |
+| 特産（料理） | チャンドラヴィラス、1900年創業・1901年ターリー導入、ガーンディー・ロード沿い、120年超の老舗 | ✅ | "Chandravilas Ahmedabad history Chimanlal Joshi Gandhi Sardar Patel visited thali 1901" | 複数の独立記事（knocksense、slurrp）で創業年・立地・著名来訪者のエピソードが一致 |
+| 日本人会 | 2014年11月15日発足、会員47名 | ✅ | "アーメダバード日本人会 三水会 法人会員 活動" | https://www.nna.jp/news/135637（発足時の報道記事で日付・会員数を確認） |
+| 半導体ファブ（地理確認） | ドーレラはアフマダーバード県内（アフマダーバード市から約100〜110km、車で1.5〜2時間） | ✅（他州との地理的誤認なし） | "Dholera distance from Ahmedabad km district location" | 複数の距離計算サイトおよびWikipediaで「Dholera is a town in Ahmedabad district」と一致 |
+
+### 変更サマリー（アフマダーバード）
+- ⚠️ 修正: インドゥベン・カークラーワーラーの創業年は、公式サイトの「1955年」ではなく、創業者の年齢・没年から内的整合性の取れるThe Better India記事の「1965年」を採用した。
+- ❌ 不採用: Apollo Hospitals International Ahmedabadの「36年の実績」「月150人の外国人患者」（医療ツーリズム集客サイトの定型文と思われ、公式サイトの2003年開設という記載と年数が矛盾するため）。
+- ❌ 不採用: Marengo CIMS Hospitalの病床数（出典間で350/480/500床と不一致のため、認定情報のみ記載し病床数は書かなかった）。
+- ❌ 不採用: BRTS「Janmarg」の総延長・日次乗客数の具体的数値（直近年次の裏付けが弱いため、存在と機能のみ記載）。
+- ❌ 記載見送り: 日本人学校・補習校（存在しないことを確認済みのため空配列）、日本食料品実店舗（確証の持てる情報なし、空配列）。
+- ✅ 上記以外の全項目（渡航適期の気候判断、特産4件、住居エリア・家賃2件、空港アクセス、病院3件のうち採用した情報、メトロ、直行便なしの実態、マンダル・ベチャラジへの通勤時間、日本人会の沿革、日系企業（自動車・二輪・半導体）、JETRO事務所、グジャラート禁酒法パーミットの詳細）は独立クエリまたは公式サイト直接取得で確認済み。
