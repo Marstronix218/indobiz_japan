@@ -20,8 +20,8 @@ A. 知財・著作権リスク
   - sourceUsage の factsUsed が実際に各参考記事本文に存在し、生成本文でも使われているか
   - 本文中に「（参考リンク1）」「（参考資料1）」「（ソース1）」のような番号付き引用マーカーが含まれていないか(含まれていればREVISIONまたはREJECT)
 B. 編集の独自性
-  - 「本記事のまとめ」(implications) が3件ちょうどあり、各50字以内で、本文の重要点と日本企業への含意を短く伝えているか
-  - まとめが本文にない事実・固有名詞・数値を突然導入していないか
+  - 「本記事のポイント」(implications) が3件ちょうどあり、各40〜90字程度の具体的な一文として「何が起きたか」を伝えているか。見出し語や固有名詞の羅列(「企業向け制度」「6か月間実施」等)になっていないか
+  - ポイントが本文にない事実・固有名詞・数値を突然導入していないか
   - 「背景として」「意思決定では」「示唆を整理する」など、どの記事にも使い回せるテンプレート的な汎用表現が多用されていないか
   - 複数参考記事がある場合、それらを論理的につなぐ独自の視点が示されているか
 C. ニュース価値
@@ -39,6 +39,7 @@ D. 文章品質
   - ルピー、円、ドルなどの通貨単位を取り違えていないか
   - 【最重要】インド式単位の換算が正しいか: 1 crore = 1,000万 = 0.1億、1 lakh crore = 1兆、1 billion = 10億。参考記事の「Rs N crore」を「N億ルピー」と書く10倍誤変換(例: Rs 30,000 crore→誤「3兆ルピー」/正「3,000億ルピー」)、billionを「億」と書く100倍誤変換があればREVISION。円換算の概算レート(1ルピー≈1.7円、1ドル≈150〜165円)から大きく外れる換算もREVISION
   - 「読者想定：」「編集ノート：」「(表記訂正)」「（40〜80字）」「（事実出典：[N]）」等の制作痕跡、実際には行っていない取材・検証の主張(「編集部の現場取材」「筆者は確認した」等)が残っていないか(残っていればREVISION)
+  - 理解補助セクション(ニュースの背景・日本企業への影響・キーワード解説・画像キャプション)が出力されている場合、参考記事本文または公的に確認できる事実の範囲に収まっているか。編集部の意見・価値判断・将来予測・「〜に違いない」等の推測表現・法務税務投資の断定的助言・「日本の○○に相当する」等の安易な類推が含まれていればREVISION。フィールドがnull・空であること自体は問題にしない(無理に生成させない)
 E. 文脈の一貫性
   - 複数の参考記事が同じ企業・人物名を含む場合でも、それぞれが「別の出来事」を報じているにもかかわらず1つのストーリーに誤って統合していないか
   - 固有名詞(企業名など)をその英単語の一般的な意味と混同し、主語を業界全体に拡大していないか
@@ -85,6 +86,11 @@ ${body}`
   const implicationsList = output.implications.length === 0
     ? "(なし)"
     : output.implications.map((s, i) => `${i + 1}. ${s}`).join("\n")
+  const keywordsList = !output.keywords || output.keywords.length === 0
+    ? "(なし)"
+    : output.keywords
+        .map((k) => `- ${k.term}${k.fullName ? `（${k.fullName}）` : ""}: ${k.definition}`)
+        .join("\n")
   const usageList = !output.sourceUsage || output.sourceUsage.length === 0
     ? "(指定なし)"
     : output.sourceUsage
@@ -99,8 +105,20 @@ ${body}`
 本文:
 ${output.summary}
 
-本記事のまとめ:
+本記事のポイント:
 ${implicationsList}
+
+ニュースの背景:
+${output.backgroundContext ?? "(なし)"}
+
+日本企業への影響:
+${output.japanBusinessImpact ?? "(なし)"}
+
+キーワード解説:
+${keywordsList}
+
+画像キャプション:
+${output.imageCaption ?? "(なし)"}
 
 記事末尾に掲示される参考リンク:
 ${referenceList}
@@ -130,7 +148,8 @@ const REVISION_SYSTEM_ADDENDUM = `
 - 直前の生成結果に編集チーフから修正指示が付いています。下記【修正指示】を反映した新しい記事を生成してください。
 - 参考記事から持ち込めるのは固有の事実(数値・日付・社名・地名)のみです。表現・分析・まとめは独自に書き起こしてください。
 - summary は500字前後にしてください。許容範囲は480〜540字です。執筆後に必ず自分で文字数を確認し、480字未満なら具体的事実・背景を補い、540字超なら背景説明・一般論・重複表現を削ってください。
-- 「本記事のまとめ」(implications) は3件ちょうど、各50字以内にしてください。本文の重要事実・日本企業への実務的含意を短く要約してください。
+- 「本記事のポイント」(implications) は3件ちょうど、各40〜90字の具体的な一文にしてください。見出し語の羅列ではなく「何がどう変わり、誰に関係するか」が読み取れる文にしてください。
+- backgroundContext・japanBusinessImpact・keywords・imageCaption も出力スキーマどおり再生成してください。参照資料で確認できる事実のみを使い、根拠が足りないフィールドは null(keywordsは空配列)にしてください。
 - referenceUrls には、本文中で実質的に活用した参考記事のみを残してください。本文に貢献していない記事はリストから外してください。
 - sourceUsage.factsUsed には、summary または implications に実際に書いた事実だけを、本文と同じ表記で短く転記してください。本文に出していない英語名・数値・補足事実を factsUsed に入れてはいけません。
 - 数値・比率・日付・歴史的経緯は、提供された参考記事本文に明記されたものだけを使ってください。根拠が見つからない事実は削除してください。
@@ -158,8 +177,19 @@ export function buildRevisionPrompt(input: ReviseSynthesisInput) {
 本文:
 ${previous.summary}
 
-本記事のまとめ:
+本記事のポイント:
 ${previous.implications.map((s, i) => `${i + 1}. ${s}`).join("\n")}
+
+ニュースの背景:
+${previous.backgroundContext ?? "(なし)"}
+
+日本企業への影響:
+${previous.japanBusinessImpact ?? "(なし)"}
+
+キーワード解説:
+${previous.keywords && previous.keywords.length > 0
+  ? previous.keywords.map((k) => `- ${k.term}${k.fullName ? `（${k.fullName}）` : ""}: ${k.definition}`).join("\n")
+  : "(なし)"}
 
 参考リンク:
 ${previous.referenceUrls.map((r, i) => `${i + 1}. ${r.title}\n   ${r.url}`).join("\n")}

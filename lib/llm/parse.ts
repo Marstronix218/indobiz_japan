@@ -6,8 +6,16 @@ import type {
   SynthesisOutput,
 } from "./types"
 import { LLMError } from "./types"
-import type { SynthesisInput } from "./types"
+import type { SynthesisInput, SynthesisKeyword } from "./types"
 import { sanitizeReferenceUrls } from "./source-policy"
+import { sanitizeArticleKeywords } from "@/lib/news-data"
+
+// 理解補助セクションの許容上限。目安(背景200〜300字/影響100〜180字/キャプション
+// 40〜90字)から大きく外れた異常出力は、切り詰めではなく undefined に落とす
+// (中途半端に切ると文が壊れるため。本文の保存は新フィールドの失敗で止めない)。
+const BACKGROUND_MAX_CHARS = 600
+const IMPACT_MAX_CHARS = 400
+const CAPTION_MAX_CHARS = 200
 
 export function extractJsonObject(raw: string): string {
   const trimmed = raw.trim()
@@ -57,6 +65,10 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
     obj.japaneseBusinessRelevance,
   )
   const imagePrompt = asString(obj.imagePrompt) || title
+  const backgroundContext = asBoundedText(obj.backgroundContext, BACKGROUND_MAX_CHARS)
+  const japanBusinessImpact = asBoundedText(obj.japanBusinessImpact, IMPACT_MAX_CHARS)
+  const keywords = asKeywords(obj.keywords)
+  const imageCaption = asBoundedText(obj.imageCaption, CAPTION_MAX_CHARS)
 
   if (!title || !summary || implications.length === 0 || !category) {
     throw new LLMError("LLM応答に必須フィールドが欠落しています")
@@ -73,7 +85,25 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
     indiaRelevance,
     japaneseBusinessRelevance,
     imagePrompt,
+    backgroundContext,
+    japanBusinessImpact,
+    keywords,
+    imageCaption,
   }
+}
+
+// 任意テキストフィールド用: 文字列以外・空文字・上限超過はすべて undefined に
+// フォールバックし、既存フローを一切止めない。
+function asBoundedText(value: unknown, maxChars: number): string | undefined {
+  const text = asString(value)
+  if (!text || text.length > maxChars) return undefined
+  return text
+}
+
+function asKeywords(value: unknown): SynthesisKeyword[] | undefined {
+  // 件数上限(4件)・必須項目・文字数上限の検証は保存側と共通のサニタイザに委ねる。
+  const keywords = sanitizeArticleKeywords(value)
+  return keywords.length > 0 ? keywords : undefined
 }
 
 function asReferenceUrls(value: unknown): ReferenceUrl[] {

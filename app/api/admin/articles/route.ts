@@ -12,6 +12,7 @@ import {
   type IndustryTag,
   type Visibility,
   type WorkflowStatus,
+  sanitizeArticleKeywords,
 } from "@/lib/news-data"
 
 export const dynamic = "force-dynamic"
@@ -38,8 +39,16 @@ interface CreateBody {
   visibility?: unknown
   workflowStatus?: unknown
   imageUrl?: unknown
+  imageCaption?: unknown
+  backgroundContext?: unknown
+  japanBusinessImpact?: unknown
+  keywords?: unknown
   featured?: unknown
   author?: unknown
+}
+
+function optionalText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value : undefined
 }
 
 function normalize(body: CreateBody): InsertArticleInput | { error: string } {
@@ -82,6 +91,10 @@ function normalize(body: CreateBody): InsertArticleInput | { error: string } {
     visibility,
     workflowStatus,
     imageUrl: typeof body.imageUrl === "string" && body.imageUrl ? body.imageUrl : undefined,
+    imageCaption: optionalText(body.imageCaption),
+    backgroundContext: optionalText(body.backgroundContext),
+    japanBusinessImpact: optionalText(body.japanBusinessImpact),
+    keywords: sanitizeArticleKeywords(body.keywords),
     featured: body.featured === true,
     // Admin-authored articles are finished content, not raw pipeline drafts.
     // `isSynthesized: false` is reserved for un-synthesized pipeline drafts that

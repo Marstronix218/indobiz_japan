@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { getArticleById } from "@/lib/article-store"
 import { AUTHORS } from "@/lib/authors"
 import {
+  ARTICLE_KEYWORDS_MAX,
   CATEGORY_LABELS,
   CATEGORY_OPTIONS,
   DEFAULT_MARKET_SNAPSHOT,
@@ -34,6 +35,7 @@ import {
   MARKET_METRIC_ORDER,
   WORKFLOW_STATUS_LABELS,
   WORKFLOW_STATUS_OPTIONS,
+  type ArticleKeyword,
   type Category,
   type IndustryTag,
   type MarketSnapshot,
@@ -84,6 +86,10 @@ interface ArticleFormState {
   implicationsText: string
   workflowStatus: WorkflowStatus
   imageUrl: string
+  imageCaption: string
+  backgroundContext: string
+  japanBusinessImpact: string
+  keywords: ArticleKeyword[]
   featured: boolean
   marketSnapshot: MarketSnapshot
   referenceSources: SourceProvenance[]
@@ -105,6 +111,10 @@ const EMPTY_FORM: ArticleFormState = {
   implicationsText: "",
   workflowStatus: "published",
   imageUrl: "",
+  imageCaption: "",
+  backgroundContext: "",
+  japanBusinessImpact: "",
+  keywords: [],
   featured: false,
   marketSnapshot: DEFAULT_MARKET_SNAPSHOT,
   referenceSources: [],
@@ -249,6 +259,10 @@ export function ArticleFormDialog({
       implicationsText: article.implications.join("\n"),
       workflowStatus: article.workflowStatus,
       imageUrl: article.imageUrl ?? "",
+      imageCaption: article.imageCaption ?? "",
+      backgroundContext: article.backgroundContext ?? "",
+      japanBusinessImpact: article.japanBusinessImpact ?? "",
+      keywords: (article.keywords ?? []).map((keyword) => ({ ...keyword })),
       featured: article.featured ?? false,
       marketSnapshot: article.marketSnapshot ?? DEFAULT_MARKET_SNAPSHOT,
       referenceSources: getAllSources(article),
@@ -265,6 +279,40 @@ export function ArticleFormDialog({
       industryTags: current.industryTags.includes(tag)
         ? current.industryTags.filter((item) => item !== tag)
         : [...current.industryTags, tag],
+    }))
+  }
+
+  function updateKeyword(
+    index: number,
+    field: "term" | "fullName" | "definition",
+    value: string,
+  ) {
+    setForm((current) => ({
+      ...current,
+      keywords: current.keywords.map((keyword, i) =>
+        i === index ? { ...keyword, [field]: value } : keyword,
+      ),
+    }))
+  }
+
+  function addKeyword() {
+    setForm((current) =>
+      current.keywords.length >= ARTICLE_KEYWORDS_MAX
+        ? current
+        : {
+            ...current,
+            keywords: [
+              ...current.keywords,
+              { term: "", fullName: "", definition: "" },
+            ],
+          },
+    )
+  }
+
+  function removeKeyword(index: number) {
+    setForm((current) => ({
+      ...current,
+      keywords: current.keywords.filter((_, i) => i !== index),
     }))
   }
 
@@ -318,6 +366,17 @@ export function ArticleFormDialog({
       visibility,
       workflowStatus: form.workflowStatus,
       imageUrl: form.imageUrl.trim() || undefined,
+      // 理解補助セクション。空欄は null を送り、DB側の値をクリアする。
+      imageCaption: form.imageCaption.trim() || null,
+      backgroundContext: form.backgroundContext.trim() || null,
+      japanBusinessImpact: form.japanBusinessImpact.trim() || null,
+      keywords: form.keywords
+        .map((keyword) => ({
+          term: keyword.term.trim(),
+          fullName: keyword.fullName?.trim() || undefined,
+          definition: keyword.definition.trim(),
+        }))
+        .filter((keyword) => keyword.term && keyword.definition),
       featured: form.featured,
       marketSnapshot:
         form.category === "market" ? form.marketSnapshot : undefined,
@@ -748,6 +807,24 @@ export function ArticleFormDialog({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="imageCaption">画像キャプション（任意）</Label>
+            <Input
+              id="imageCaption"
+              value={form.imageCaption}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  imageCaption: event.target.value,
+                }))
+              }
+              placeholder="写真に写っている対象と記事との関係を1文で"
+            />
+            <p className="text-xs text-muted-foreground">
+              入力した場合のみメイン画像の直下に表示されます。
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <Label>業界タグ（任意）</Label>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {INDUSTRY_OPTIONS.map((tag) => (
@@ -782,6 +859,109 @@ export function ArticleFormDialog({
             <p className="text-xs text-muted-foreground">
               入力した場合のみ記事下部に箇条書きで表示されます。
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="backgroundContext">ニュースの背景（任意）</Label>
+            <Textarea
+              id="backgroundContext"
+              value={form.backgroundContext}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  backgroundContext: event.target.value,
+                }))
+              }
+              placeholder="これまでの制度・何が問題だったか・今回何が変わったかを200〜300字程度で"
+              className="min-h-28"
+            />
+            <p className="text-xs text-muted-foreground">
+              入力した場合のみ記事上部の「ニュースの背景」ボックスに表示されます。
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="japanBusinessImpact">日本企業への影響（任意）</Label>
+            <Textarea
+              id="japanBusinessImpact"
+              value={form.japanBusinessImpact}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  japanBusinessImpact: event.target.value,
+                }))
+              }
+              placeholder="対象企業・直接/間接の別・確認事項を100〜180字程度で"
+              className="min-h-24"
+            />
+            <p className="text-xs text-muted-foreground">
+              入力した場合のみ記事上部の「日本企業への影響」ボックスに表示されます。
+            </p>
+          </div>
+
+          <div className="space-y-3 rounded-2xl border border-border bg-secondary/20 p-4">
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">
+                  キーワード解説（任意・最大{ARTICLE_KEYWORDS_MAX}語）
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  用語名と説明文の両方がある行だけ保存されます。0件なら記事にセクション自体が表示されません。
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addKeyword}
+                disabled={form.keywords.length >= ARTICLE_KEYWORDS_MAX}
+              >
+                用語を追加
+              </Button>
+            </div>
+
+            {form.keywords.map((keyword, index) => (
+              <div
+                key={index}
+                className="space-y-2 rounded-xl border border-border bg-background p-3"
+              >
+                <div className="grid gap-2 md:grid-cols-2">
+                  <Input
+                    value={keyword.term}
+                    onChange={(event) =>
+                      updateKeyword(index, "term", event.target.value)
+                    }
+                    placeholder="用語名（例: EPFO）"
+                  />
+                  <Input
+                    value={keyword.fullName ?? ""}
+                    onChange={(event) =>
+                      updateKeyword(index, "fullName", event.target.value)
+                    }
+                    placeholder="正式名称（任意）"
+                  />
+                </div>
+                <Textarea
+                  value={keyword.definition}
+                  onChange={(event) =>
+                    updateKeyword(index, "definition", event.target.value)
+                  }
+                  placeholder="50〜120字程度の説明文"
+                  className="min-h-16"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeKeyword(index)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    この用語を削除
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
 
           {form.category === "market" && (

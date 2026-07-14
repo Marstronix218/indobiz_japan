@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import {
+  type ArticleKeyword,
   type Category,
   type ContentType,
   type IndustryTag,
@@ -9,6 +10,7 @@ import {
   type SourceProvenance,
   type Visibility,
   type WorkflowStatus,
+  sanitizeArticleKeywords,
 } from "@/lib/news-data"
 import type { AuthorProfile } from "@/lib/authors"
 import type { PipelineDraft } from "@/lib/automation"
@@ -29,6 +31,10 @@ interface ArticleRow {
   visibility: string
   workflow_status: string
   image_url: string | null
+  image_caption: string | null
+  background_context: string | null
+  japan_business_impact: string | null
+  keywords: unknown
   featured: boolean
   is_synthesized: boolean
   author_name: string | null
@@ -62,7 +68,8 @@ const ARTICLE_SELECT = `
   id, title, summary, source, source_url, published_at, category,
   industry_tags,
   implications, content_type, visibility, workflow_status,
-  image_url, featured, is_synthesized, dedupe_key,
+  image_url, image_caption, background_context, japan_business_impact, keywords,
+  featured, is_synthesized, dedupe_key,
   author_name, author_title, author_bio, author_avatar_url,
   quality_verdict, quality_notes, revision_count, last_quality_check_at,
   created_at,
@@ -111,6 +118,13 @@ function rowToProvenance(row: SourceRow): SourceProvenance {
   }
 }
 
+// keywords は jsonb なので DB 側では形が保証されない。壊れた値は空配列に落とし、
+// 空配列は undefined として返す(UI 側の「値がなければセクション非表示」に合わせる)。
+function rowToKeywords(value: unknown): ArticleKeyword[] | undefined {
+  const keywords = sanitizeArticleKeywords(value)
+  return keywords.length > 0 ? keywords : undefined
+}
+
 function rowToArticle(row: ArticleRow): NewsArticle {
   const sources = (row.article_sources ?? [])
     .slice()
@@ -132,6 +146,10 @@ function rowToArticle(row: ArticleRow): NewsArticle {
     visibility: row.visibility as Visibility,
     workflowStatus: row.workflow_status as WorkflowStatus,
     imageUrl: row.image_url ?? undefined,
+    imageCaption: row.image_caption ?? undefined,
+    backgroundContext: row.background_context ?? undefined,
+    japanBusinessImpact: row.japan_business_impact ?? undefined,
+    keywords: rowToKeywords(row.keywords),
     featured: row.featured,
     isSynthesized: row.is_synthesized,
     author: rowToAuthor(row),
@@ -213,12 +231,23 @@ export interface InsertArticleInput {
   visibility: Visibility
   workflowStatus: WorkflowStatus
   imageUrl?: string
+  imageCaption?: string | null
+  backgroundContext?: string | null
+  japanBusinessImpact?: string | null
+  keywords?: ArticleKeyword[] | null
   featured?: boolean
   isSynthesized?: boolean
   author?: Partial<AuthorProfile>
   dedupeKey?: string
   sources?: SourceProvenance[]
   qualityCheck?: QualityCheckMeta
+}
+
+// jsonb 列へ入れる前に必ず正規化する(LLM・管理画面いずれ由来でも同じ制約を通す)。
+// 空配列は null として保存し、「キーワードなし」を列の欠損と同じ扱いにする。
+function toKeywordsJson(keywords: ArticleKeyword[] | null | undefined) {
+  const sanitized = sanitizeArticleKeywords(keywords ?? [])
+  return sanitized.length > 0 ? sanitized : null
 }
 
 function toRowInsert(input: InsertArticleInput) {
@@ -235,6 +264,10 @@ function toRowInsert(input: InsertArticleInput) {
     visibility: input.visibility,
     workflow_status: input.workflowStatus,
     image_url: input.imageUrl ?? null,
+    image_caption: input.imageCaption?.trim() || null,
+    background_context: input.backgroundContext?.trim() || null,
+    japan_business_impact: input.japanBusinessImpact?.trim() || null,
+    keywords: toKeywordsJson(input.keywords),
     featured: input.featured ?? false,
     is_synthesized: input.isSynthesized ?? false,
     author_name: input.author?.name ?? null,
@@ -427,6 +460,10 @@ export async function insertPipelineDrafts(
       visibility: draft.visibility,
       workflowStatus: draft.workflowStatus,
       imageUrl: draft.imageUrl,
+      imageCaption: draft.imageCaption,
+      backgroundContext: draft.backgroundContext,
+      japanBusinessImpact: draft.japanBusinessImpact,
+      keywords: draft.keywords,
       featured: false,
       isSynthesized: draft.isSynthesized ?? false,
       dedupeKey: draft.dedupeKey,
@@ -480,6 +517,16 @@ export async function updateArticle(
   if (input.visibility !== undefined) row.visibility = input.visibility
   if (input.workflowStatus !== undefined) row.workflow_status = input.workflowStatus
   if (input.imageUrl !== undefined) row.image_url = input.imageUrl ?? null
+  if (input.imageCaption !== undefined) {
+    row.image_caption = input.imageCaption?.trim() || null
+  }
+  if (input.backgroundContext !== undefined) {
+    row.background_context = input.backgroundContext?.trim() || null
+  }
+  if (input.japanBusinessImpact !== undefined) {
+    row.japan_business_impact = input.japanBusinessImpact?.trim() || null
+  }
+  if (input.keywords !== undefined) row.keywords = toKeywordsJson(input.keywords)
   if (input.featured !== undefined) row.featured = input.featured
   if (input.isSynthesized !== undefined) row.is_synthesized = input.isSynthesized
   if (input.author !== undefined) {

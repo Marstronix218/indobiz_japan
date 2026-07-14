@@ -9,6 +9,7 @@ export type {
   QualityVerdict,
   ReviseSynthesisInput,
   SynthesisInput,
+  SynthesisKeyword,
   SynthesisOutput,
   SynthesisSource,
 } from "./types"

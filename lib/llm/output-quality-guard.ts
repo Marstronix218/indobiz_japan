@@ -12,7 +12,9 @@ const MAX_ISSUES = 8
 const ARTICLE_BODY_MIN_CHARS = 450
 const ARTICLE_BODY_MAX_CHARS = 700
 const TAKEAWAY_COUNT = 3
-const TAKEAWAY_MAX_CHARS = 50
+// 本記事のポイントは「読者が何が起きたか理解できる具体的な一文」(40〜90字目安)。
+// ガードでは上限のみ機械判定し、羅列的な短文の検出は LLM 品質チェックに委ねる。
+const TAKEAWAY_MAX_CHARS = 90
 const SIGNIFICANT_NUMBER_MIN = 13
 const GENERIC_KATAKANA_TERMS = new Set([
   "インド",
@@ -120,8 +122,8 @@ function checkArticleFormat(output: SynthesisOutput): DeterministicIssue[] {
 
   if (output.implications.length !== TAKEAWAY_COUNT) {
     issues.push({
-      issue: `本記事のまとめが${TAKEAWAY_COUNT}件ではない: ${output.implications.length}件`,
-      instruction: `implications は本記事のまとめとして${TAKEAWAY_COUNT}件ちょうど返すこと。`,
+      issue: `本記事のポイントが${TAKEAWAY_COUNT}件ではない: ${output.implications.length}件`,
+      instruction: `implications は本記事のポイントとして${TAKEAWAY_COUNT}件ちょうど返すこと。`,
     })
   }
 
@@ -129,8 +131,8 @@ function checkArticleFormat(output: SynthesisOutput): DeterministicIssue[] {
     const length = item.trim().length
     if (length > TAKEAWAY_MAX_CHARS) {
       issues.push({
-        issue: `本記事のまとめ${index + 1}が${TAKEAWAY_MAX_CHARS}字を超えている: ${length}字`,
-        instruction: `implications[${index}] は${TAKEAWAY_MAX_CHARS}字以内に短く要約すること。`,
+        issue: `本記事のポイント${index + 1}が${TAKEAWAY_MAX_CHARS}字を超えている: ${length}字`,
+        instruction: `implications[${index}] は${TAKEAWAY_MAX_CHARS}字以内の具体的な一文に要約すること。`,
       })
     }
   })
@@ -182,10 +184,15 @@ function checkIndustryTagAlignment(
 }
 
 function outputText(output: SynthesisOutput): string {
+  // 背景・日本企業への影響も本文同様に「参照資料の事実のみ」が要件なので、
+  // メタ注釈・数値捏造・通貨混同チェックの対象に含める。キーワード定義は
+  // 公的資料由来の正式名称等を含み得るため数値照合の誤検知源になりやすく、対象外。
   return [
     output.title,
     output.summary,
     ...output.implications,
+    output.backgroundContext ?? "",
+    output.japanBusinessImpact ?? "",
     output.indiaRelevance.reason,
     output.japaneseBusinessRelevance.reason,
   ].join("\n")

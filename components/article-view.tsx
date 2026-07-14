@@ -3,7 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
+import {
+  BookOpen,
+  Building2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Search,
+} from "lucide-react"
 import { MarketTicker } from "@/components/market-ticker"
 import { ColumnAuthorCard } from "@/components/column-author-card"
 import { NewsCardTile } from "@/components/news-card"
@@ -404,6 +412,21 @@ export function ArticleView({
     article.implications.length > 0
       ? article.implications.slice(0, 3)
       : summaryParagraphs.slice(0, 3)
+  // 理解補助セクション。値がないフィールドは見出しごと描画しない(既存記事はすべてnull)。
+  const backgroundContext = article.backgroundContext?.trim() || undefined
+  const japanBusinessImpact = article.japanBusinessImpact?.trim() || undefined
+  const keywords = (article.keywords ?? []).slice(0, 4)
+  const infoCardCount = [
+    backgroundContext,
+    japanBusinessImpact,
+    keywords.length > 0 || undefined,
+  ].filter(Boolean).length
+  const infoGridClass =
+    infoCardCount >= 3
+      ? "sm:grid-cols-2 lg:grid-cols-3"
+      : infoCardCount === 2
+        ? "sm:grid-cols-2"
+        : ""
 
   return (
     <div className="min-h-screen bg-background">
@@ -451,7 +474,35 @@ export function ArticleView({
 
         <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_336px]">
           <article className="min-w-0 rounded-md border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-7">
-            <div className="space-y-4">
+            {imageSrc && (
+              <figure>
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-md border border-border bg-muted sm:aspect-[21/9]">
+                  <Image
+                    src={imageSrc}
+                    alt={article.imageCaption || article.title}
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 780px"
+                  />
+                </div>
+                {article.imageCaption && (
+                  <figcaption className="mt-2 text-xs leading-5 text-muted-foreground">
+                    {article.imageCaption}
+                  </figcaption>
+                )}
+              </figure>
+            )}
+
+            <div className={imageSrc ? "mt-5 space-y-3" : "space-y-3"}>
+              <h1 className="text-balance font-serif text-[26px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[34px]">
+                {article.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                <span>{formatJstDateTime(articleDisplayDate(article))}</span>
+                <span aria-hidden>｜</span>
+                <span>IndoBiz Japan編集部</span>
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge
                   asChild
@@ -472,17 +523,6 @@ export function ArticleView({
                   </Badge>
                 ))}
               </div>
-
-              <div className="space-y-3">
-                <h1 className="text-balance font-serif text-[26px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[34px]">
-                  {article.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                  <span>{formatJstDateTime(articleDisplayDate(article))}</span>
-                  <span aria-hidden>｜</span>
-                  <span>IndoBiz Japan編集部</span>
-                </div>
-              </div>
             </div>
 
             {takeawayBullets.length > 0 && (
@@ -490,39 +530,124 @@ export function ArticleView({
                 <h2 className="text-base font-bold text-primary">
                   本記事のポイント
                 </h2>
-                <ul className="mt-3 space-y-2.5 pl-4 text-base leading-8 text-foreground sm:text-[17px]">
+                <ol className="mt-3 space-y-2.5">
                   {takeawayBullets.map((item, index) => (
-                    <li key={`${index}-${item}`} className="list-disc">
-                      {item}
+                    <li
+                      key={`${index}-${item}`}
+                      className="flex items-start gap-3 text-base leading-8 text-foreground sm:text-[17px]"
+                    >
+                      <span className="mt-1.5 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                        {index + 1}
+                      </span>
+                      <span>{item}</span>
                     </li>
                   ))}
-                </ul>
+                </ol>
               </section>
             )}
 
-            {imageSrc && (
-              <div className="relative mx-auto mt-5 aspect-[16/9] w-full max-w-[620px] overflow-hidden rounded-md border border-border bg-muted">
-                <Image
-                  src={imageSrc}
-                  alt={article.title}
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 620px"
-                />
+            {infoCardCount > 0 && (
+              <div className={`mt-5 grid gap-4 ${infoGridClass}`}>
+                {backgroundContext && (
+                  <section className="rounded-md border border-border bg-secondary/25 p-4">
+                    <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <BookOpen className="size-4 shrink-0 text-primary" />
+                      ニュースの背景
+                    </h2>
+                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
+                      {backgroundContext}
+                    </p>
+                  </section>
+                )}
+                {japanBusinessImpact && (
+                  <section className="rounded-md border border-border bg-secondary/25 p-4">
+                    <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <Building2 className="size-4 shrink-0 text-primary" />
+                      日本企業への影響
+                    </h2>
+                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
+                      {japanBusinessImpact}
+                    </p>
+                  </section>
+                )}
+                {keywords.length > 0 && (
+                  <section className="rounded-md border border-border bg-secondary/25 p-4">
+                    <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
+                      <Search className="size-4 shrink-0 text-primary" />
+                      キーワード解説
+                      <span className="text-xs font-normal text-muted-foreground">
+                        （主な用語）
+                      </span>
+                    </h2>
+                    <ul className="mt-2.5 space-y-2 text-sm leading-6 text-foreground">
+                      {keywords.map((keyword, index) => (
+                        <li key={`${index}-${keyword.term}`} className="flex gap-2">
+                          <span aria-hidden className="mt-2.5 size-1 shrink-0 rounded-full bg-foreground/60" />
+                          <span>
+                            <span className="font-semibold">{keyword.term}</span>
+                            ：{keyword.fullName ?? keyword.definition}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
               </div>
             )}
 
-            <section className="mt-6 space-y-4">
-              {summaryParagraphs.map((paragraph, idx) => (
-                <p
-                  key={idx}
-                  className="whitespace-pre-line text-[17px] leading-9 text-foreground sm:text-lg"
-                >
-                  {paragraph}
-                </p>
-              ))}
+            <section className="mt-7">
+              <h2 className="flex items-center gap-1.5 text-base font-bold text-primary">
+                <span aria-hidden className="text-xs">▶</span>
+                この記事の概要
+              </h2>
+              <div className="mt-3 space-y-4">
+                {summaryParagraphs.map((paragraph, idx) => (
+                  <p
+                    key={idx}
+                    className="whitespace-pre-line text-[17px] leading-9 text-foreground sm:text-lg"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             </section>
+
+            {keywords.length > 0 && (
+              <section className="mt-7">
+                <h2 className="flex items-baseline gap-2 text-base font-bold text-foreground">
+                  この記事のキーワード
+                  <span className="text-xs font-normal text-muted-foreground">
+                    （クリックで展開）
+                  </span>
+                </h2>
+                <div className="mt-3 divide-y divide-border overflow-hidden rounded-md border border-border">
+                  {keywords.map((keyword, index) => (
+                    <details key={`${index}-${keyword.term}`} className="group bg-background">
+                      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+                        <span className="shrink-0 text-sm font-semibold text-primary">
+                          {keyword.term}
+                          {keyword.fullName && (
+                            <span className="font-medium">
+                              （{keyword.fullName}）
+                            </span>
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground group-open:invisible">
+                          {keyword.definition}
+                        </span>
+                        <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+                      </summary>
+                      <p className="px-4 pb-3.5 text-sm leading-7 text-foreground">
+                        {keyword.definition}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
+                  ※用語解説は記事の理解を補助するための一般的な説明であり、法務・税務・投資その他の専門的助言を目的とするものではありません。
+                </p>
+              </section>
+            )}
 
             {columnAuthor && <ColumnAuthorCard author={columnAuthor} />}
 

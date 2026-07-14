@@ -32,6 +32,12 @@ export interface SourceUsage {
   factsUsed: string[]
 }
 
+export interface SynthesisKeyword {
+  term: string
+  fullName?: string
+  definition: string
+}
+
 export interface SynthesisOutput {
   title: string
   summary: string
@@ -43,6 +49,12 @@ export interface SynthesisOutput {
   indiaRelevance: IndiaRelevance
   japaneseBusinessRelevance: JapaneseBusinessRelevance
   imagePrompt: string
+  // 以下は理解補助セクション。生成・パースに失敗しても本文の保存は止めない
+  // ため任意フィールドとし、失敗時は undefined(=DBではnull)へフォールバックする。
+  backgroundContext?: string
+  japanBusinessImpact?: string
+  keywords?: SynthesisKeyword[]
+  imageCaption?: string
 }
 
 export type QualityVerdict = "PASS" | "REVISION" | "REJECT"

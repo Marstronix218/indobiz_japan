@@ -32,7 +32,8 @@ export class OpenAIClient implements LLMClient {
     }
     this.client = new OpenAI({ apiKey, maxRetries: 0 })
     this.model = opts?.model ?? process.env.LLM_MODEL_OPENAI ?? "gpt-4o-mini"
-    this.maxTokens = opts?.maxTokens ?? Number(process.env.LLM_MAX_TOKENS ?? 2000)
+    // 既定3500: 理解補助セクションの追加で出力が伸びたため(anthropic-client と同じ理由)。
+    this.maxTokens = opts?.maxTokens ?? Number(process.env.LLM_MAX_TOKENS ?? 3500)
     this.timeoutMs = opts?.timeoutMs ?? Number(process.env.LLM_TIMEOUT_MS ?? 45000)
     this.maxRetries = opts?.maxRetries ?? Number(process.env.LLM_MAX_RETRIES ?? 3)
   }

@@ -12,6 +12,7 @@ import {
   type IndustryTag,
   type Visibility,
   type WorkflowStatus,
+  sanitizeArticleKeywords,
 } from "@/lib/news-data"
 
 export const dynamic = "force-dynamic"
@@ -42,6 +43,17 @@ function pickUpdate(body: Record<string, unknown>): UpdateArticleInput {
     input.imageUrl = (body.imageUrl as string | null) ?? undefined
   }
   if (typeof body.featured === "boolean") input.featured = body.featured
+  // 理解補助セクション。null は「クリアする」の意味で DB の null に落ちる。
+  if (typeof body.imageCaption === "string" || body.imageCaption === null) {
+    input.imageCaption = body.imageCaption as string | null
+  }
+  if (typeof body.backgroundContext === "string" || body.backgroundContext === null) {
+    input.backgroundContext = body.backgroundContext as string | null
+  }
+  if (typeof body.japanBusinessImpact === "string" || body.japanBusinessImpact === null) {
+    input.japanBusinessImpact = body.japanBusinessImpact as string | null
+  }
+  if ("keywords" in body) input.keywords = sanitizeArticleKeywords(body.keywords)
   // Only column articles carry an author profile. When present, parse it;
   // category-driven clearing for non-column edits is handled in updateArticle.
   if ("author" in body) input.author = coerceAuthorInput(body.author)

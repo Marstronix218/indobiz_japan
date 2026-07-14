@@ -68,6 +68,44 @@ export interface SourceProvenance {
   sourceName?: string
 }
 
+/** 記事内キーワード解説の1項目。独立辞書は持たず、記事ごとに最大4語だけ保持する。 */
+export interface ArticleKeyword {
+  term: string
+  fullName?: string
+  definition: string
+}
+
+/** キーワード解説の上限件数(生成・保存・表示すべてで共通)。 */
+export const ARTICLE_KEYWORDS_MAX = 4
+
+/**
+ * LLM出力・APIボディ・DBのjsonbなど信頼できない値を ArticleKeyword[] に正規化する。
+ * 不正な項目は捨て、空配列にフォールバックする(記事本文の保存を止めない)。
+ * jsonb側の旧表記(full_name)も受け付ける。
+ */
+export function sanitizeArticleKeywords(value: unknown): ArticleKeyword[] {
+  if (!Array.isArray(value)) return []
+  const result: ArticleKeyword[] = []
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue
+    const obj = item as Record<string, unknown>
+    const term = typeof obj.term === "string" ? obj.term.trim() : ""
+    const definition =
+      typeof obj.definition === "string" ? obj.definition.trim() : ""
+    const rawFullName = obj.fullName ?? obj.full_name
+    const fullName =
+      typeof rawFullName === "string" && rawFullName.trim()
+        ? rawFullName.trim()
+        : undefined
+    if (!term || !definition) continue
+    if (term.length > 60 || definition.length > 240) continue
+    if (fullName && fullName.length > 120) continue
+    result.push({ term, fullName, definition })
+    if (result.length >= ARTICLE_KEYWORDS_MAX) break
+  }
+  return result
+}
+
 export interface NewsArticle {
   id: string
   title: string
@@ -90,6 +128,14 @@ export interface NewsArticle {
   /** Per-article author override / one-off contributor (merged over the roster entry). */
   author?: Partial<AuthorProfile>
   imageUrl?: string
+  /** メイン画像の説明文。写っている対象と記事との関係のみ(存在するときだけ表示)。 */
+  imageCaption?: string
+  /** ニュースの背景(200〜300字目安)。既存記事では未設定。 */
+  backgroundContext?: string
+  /** 日本企業への影響(100〜180字目安)。既存記事では未設定。 */
+  japanBusinessImpact?: string
+  /** キーワード解説(最大4語)。該当語がない記事では未設定または空配列。 */
+  keywords?: ArticleKeyword[]
   featured?: boolean
   marketSnapshot?: MarketSnapshot
   provenance?: SourceProvenance

@@ -69,20 +69,35 @@ test("flags generated body text outside the target length", () => {
   assert(qc?.issues.some((issue) => issue.includes("summary の文字数")))
 })
 
-test("flags takeaways longer than 50 characters", () => {
+test("flags takeaways longer than 90 characters", () => {
   const qc = runDeterministicQualityGuard(
     output({
       implications: [
         "ルピー下落で輸入採算の確認が必要だ。",
         "ドル建て部材の支払い時期を見直す局面だ。",
-        "為替変動が調達費と販売価格に同時に波及するため契約条件と見積もり有効期限を早急に再確認する必要がある。",
+        "為替変動が調達費と販売価格に同時に波及するため、契約条件と見積もり有効期限を早急に再確認し、財務・調達・販売の各部門が同じ前提レートで採算シナリオを毎週更新し続ける体制づくりが不可欠になる。",
       ],
     }),
     cluster,
   )
 
   assert.equal(qc?.verdict, "REVISION")
-  assert(qc?.issues.some((issue) => issue.includes("50字")))
+  assert(qc?.issues.some((issue) => issue.includes("90字")))
+})
+
+test("allows takeaways between 50 and 90 characters", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      implications: [
+        "ルピー下落で輸入採算の確認が必要になり、ドル建て部材を調達する製造業は支払い時期の再点検を迫られる。",
+        "ドル建て部材の支払い時期を見直す局面だ。",
+        "価格転嫁条件を販売契約と連動させるべきだ。",
+      ],
+    }),
+    cluster,
+  )
+
+  assert.equal(qc, null)
 })
 
 test("flags takeaway count other than three", () => {
