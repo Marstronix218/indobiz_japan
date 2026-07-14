@@ -56,7 +56,7 @@ export default function CityIndexPage() {
       </section>
 
       <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cities.map((city) => (
+        {cities.map((city, index) => (
           <li key={city.slug}>
             <Link
               href={`/city/${city.slug}`}
@@ -64,7 +64,15 @@ export default function CityIndexPage() {
             >
               {city.imageUrl && (
                 <div className="relative aspect-[16/10] bg-muted">
-                  <Image src={city.imageUrl} alt={`${city.name} cityscape`} fill className="object-cover" sizes="(min-width: 1024px) 320px, 50vw" />
+                  <Image
+                    src={city.imageUrl}
+                    alt={`${city.name} cityscape`}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 1024px) 320px, 50vw"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    priority={index === 0}
+                  />
                 </div>
               )}
               <div className="p-4">
