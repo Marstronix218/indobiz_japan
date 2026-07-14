@@ -842,3 +842,56 @@
 | コルカタ | バルチャリ・サリー | Baluchari saree of Bishnupur DSC06029.jpg | CC BY-SA 4.0 | Sumita Roy Dutta | 採用（note が現在の産地とする「ビシュヌプル」のバルチャリ・サリーと明記） | https://commons.wikimedia.org/wiki/File:Baluchari_saree_of_Bishnupur_DSC06029.jpg |
 
 採用4件・見送り0件（合計4特産品）。
+
+## 日本からの主な進出企業（2026-07-14 追加）
+
+`lib/cities/data.ts` の `japaneseCompanies` の検証記録。都市ごとに並行のWeb検索で
+当該都市での拠点（本社・工場・R&D等）を確認できた企業のみ掲載した。
+公式サイトURLは実際にロードすることを確認済み（例外は下記の備考参照）。
+
+| 都市 | 企業 | 出典 |
+|---|---|---|
+| ムンバイ | 三菱UFJ銀行（ムンバイ支店） | https://www.bk.mufg.bank.in/global/globalnetwork/asiaoceania/india/mumbai.html |
+| ムンバイ | 三井住友銀行（イエス銀行へ約24%出資） | https://www.smbc.co.jp/news_e/pdf/e20250509_01.pdf ／ https://www.smbc.co.jp/news_e/pdf/e20250917_02.pdf |
+| ムンバイ | 日本生命（ニッポンライフ・インディアAM本社） | https://mf.nipponindiaim.com/about-us/company-profile/nippon-life-india-asset-management-limited |
+| ムンバイ | 関西ペイント（カンサイ・ネロラック本社） | https://www.nerolac.com/about-us.html |
+| ムンバイ | ソニーグループ（SPNインディア本社） | https://www.sonypicturesnetworks.com/office-addresses |
+| デリー首都圏 | ホンダ（ホンダカーズ・インディア本社＝グレーターノイダ） | https://www.hondacarindia.com/company/india-operations |
+| デリー首都圏 | ヤマハ発動機（グレーターノイダ本社・工場） | https://www.yamaha-motor-india.com/about-companyprofile.html |
+| デリー首都圏 | NEC（ノイダ本社オフィス） | https://in.nec.com/en_IN/about/NEC-Corporation-India/india-office.html |
+| デリー首都圏 | デンソー（グレーターノイダ工場） | https://www.denso.com/in/en/about-us/company-information/dnin/ |
+| グルガオン | スズキ（マルチ・スズキのグルガオン工場） | https://www.marutisuzuki.com/corporate/reach-us/all-offices |
+| グルガオン | ホンダ（HMSI登記本社・マネサール第1工場） | https://www.honda2wheelersindia.com/corporate/Our-Factories |
+| グルガオン | ダイキン工業（DLFサイバーシティ本社） | https://www.daikinindia.com/contact-us |
+| グルガオン | パナソニック（ISAMEA地域統括本社） | https://www.panasonic.com/in/corporate/profile/overview.html |
+| ベンガルール | トヨタ自動車（ビダディ工場） | https://www.toyotabharat.com/news/2023/tkm-enables-scaling-up-of-bidadi-industrial-area.html |
+| ベンガルール | ファナック（ファナック・インディア本社） | https://www.fanuc.co.jp/en/service/asia/india.html |
+| ベンガルール | ソニー（ソニー・インディア・ソフトウェア・センター） | https://www.sonyindiasoftware.co.in/ |
+| ベンガルール | 楽天グループ（楽天インディア開発拠点） | https://global.rakuten.com/corp/news/press/2014/0625_02.html |
+| ベンガルール | メルカリ（2022年開設のCenter of Excellence） | https://about.mercari.com/en/press/news/articles/20220511_indiacenterofexcellence/ |
+| チェンナイ | 日産自動車（オラガダムのアライアンス工場でマグナイト生産） | https://global.nissannews.com/en/releases/rnaipl-completes-15-years-from-foundation |
+| チェンナイ | ヤマハ発動機（バラム・バダガル工場） | https://www.autocarindia.com/bike-news/yamaha-motor-inaugurates-chennai-factory-397398 |
+| チェンナイ | コマツ（コマツ・インディア本社・オラガダム工場） | https://www.komatsuindia.in/ |
+| チェンナイ | 東芝（東芝JSWパワーシステムズ、マナリ工場） | https://www.toshiba-tjps.in/ |
+| プネ | ブリヂストン（本社・チャカン工場） | https://www.bridgestone.com/corporate/news/2024110801.html |
+| プネ | 川崎重工業（チャカン組立工場） | https://global.kawasaki.com/en/corp/newsroom/news/detail/?f=20170117_9956 |
+| プネ | 三菱電機（タレガオンFA機器工場） | https://www.ien.eu/article/mitsubishi-electric-opens-new-manufacturing-plant-in-india/ |
+| プネ | 富士通（プネ開発センター） | https://www.fujitsu.com/global/about/corporate/locations/worldlocation/asia/India.html |
+| ハイデラバード | ルネサス（HITECシティR&D、TCSと共同イノベーションセンター） | https://www.renesas.com/en/about/newsroom/tata-consultancy-services-and-renesas-partner-open-innovation-center-develop-next-generation-0 |
+| ハイデラバード | NTTデータ（デリバリー拠点・AIデータセンター建設発表） | https://www.rcrwireless.com/20250423/ai-ml/ntt-data-ai-data-center-india |
+| ハイデラバード | 東芝（東芝送配電システムズ・インディア、ルドララム工場） | https://www.toshiba-clip.com/en/detail/p=5149 |
+| ハイデラバード | 富士通（HITECシティ開発拠点） | https://global.fujitsu/en-apac/local/about/india |
+| アフマダーバード | スズキ（スズキ・モーター・グジャラート、ハンサルプル工場） | https://www.jetro.go.jp/biznews/2023/08/849bab79e4d7e1d5.html ／ https://www.suzuki.co.jp/release/d/2023/1206/index.html |
+| アフマダーバード | TDSG（東芝・デンソー・スズキ合弁、ハンサルプル電池工場） | https://www.tds-g.co.in/about-us/ |
+| アフマダーバード | ルネサス（CG Semi合弁、サナンドOSAT工場） | https://www.businesswire.com/news/home/20260704038873/en/CG-Semi-Commences-Commercial-Production-at-Its-G1-OSAT-Facility-in-Sanand-Gujarat |
+| アフマダーバード | 日立製作所（日立ハイレル本社・サナンド工場） | https://www.hitachi.co.in/about/hitachi/directory/group_companies/hi-rel-power.html |
+| アフマダーバード | 大塚製薬工場（サナンド輸液工場） | https://www.otsukakj.jp/news_release/20230502.html |
+| コルカタ | 日立建機（タタ日立、カラグプル工場） | https://www.tatahitachi.co.in/manufacturing-facilities/ |
+| コルカタ | 日本通運（コルカタ支店） | https://www.nipponexpress.com/location/india/ |
+| コルカタ | エア・ウォーター（エア・ウォーター・インディア本社） | https://www.awipl.co.in/industrial-gases-business/ |
+| コルカタ | 三菱商事（ソルトレイクのコルカタ事務所） | https://www.mitsubishicorp.com/jp/en/network/asia/india.html |
+
+備考:
+- チェンナイのオラガダム工場（RNAIPL）は2025年7月にルノー完全所有となったため、日産の記述は「アライアンス工場でのマグナイト生産・輸出」に留めた（工場所有とは書かない）。
+- 三菱ケミカルのハルディアPTA工場（MCPI）は2016年にThe Chatterjee Groupへ売却済みのため、コルカタには載せていない。
+- bridgestone.co.in は自動取得に403を返す（bot遮断）が、ブリヂストングローバルサイト等の複数ソースで公式インドドメインであることを確認した。

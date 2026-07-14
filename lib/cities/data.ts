@@ -96,6 +96,33 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "三菱UFJ銀行（MUFG）",
+        url: "https://www.bk.mufg.bank.in/",
+        note: "1953年開設のムンバイ支店をインド事業の中核拠点とし、邦銀最大級の店舗網を展開。",
+      },
+      {
+        name: "三井住友銀行（SMBC）",
+        url: "https://www.smbc.co.jp/global/",
+        note: "ムンバイに本拠を置く大手民間銀行イエス銀行に約24%出資し持分法適用会社とした。",
+      },
+      {
+        name: "日本生命（ニッポンライフ・インディアAM）",
+        url: "https://mf.nipponindiaim.com/",
+        note: "日本生命傘下のインド大手運用会社ニッポンライフ・インディアAMの本社がムンバイに所在。",
+      },
+      {
+        name: "関西ペイント（カンサイ・ネロラック）",
+        url: "https://www.nerolac.com/",
+        note: "完全子会社の塗料大手カンサイ・ネロラック・ペインツの本社がムンバイ（ローワーパレル）に所在。",
+      },
+      {
+        name: "ソニーグループ（ソニー・ピクチャーズ ネットワークス・インディア）",
+        url: "https://www.sonypicturesnetworks.com/",
+        note: "傘下のメディア大手カルバーマックス（旧SPNインディア）の本社がムンバイに所在。",
+      },
+    ],
   },
   {
     slug: "delhi-ncr",
@@ -192,6 +219,28 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "ホンダ（ホンダカーズ・インディア）",
+        url: "https://www.hondacarindia.com/",
+        note: "四輪子会社ホンダカーズ・インディアの本社がグレーターノイダに所在。",
+      },
+      {
+        name: "ヤマハ発動機（インディア・ヤマハ・モーター）",
+        url: "https://www.yamaha-motor-india.com/",
+        note: "二輪子会社の本社と主力工場がグレーターノイダ（スラジプール）に所在。",
+      },
+      {
+        name: "NEC（NECコーポレーション・インディア）",
+        url: "https://in.nec.com/",
+        note: "インド法人の本社オフィスがノイダに所在し、数千人規模で展開。",
+      },
+      {
+        name: "デンソー（デンソー・インディア）",
+        url: "https://www.denso.com/in/en/",
+        note: "電装品を生産するデンソー・インディアの主力工場がグレーターノイダに所在。",
+      },
+    ],
   },
   {
     slug: "gurgaon",
@@ -278,6 +327,28 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "スズキ（マルチ・スズキ）",
+        url: "https://www.marutisuzuki.com/",
+        note: "インド四輪最大手マルチ・スズキの主力グルガオン工場（K型エンジン生産含む）が所在。",
+      },
+      {
+        name: "ホンダ（ホンダ・モーターサイクル&スクーター・インディア）",
+        url: "https://www.honda2wheelersindia.com/",
+        note: "二輪子会社HMSIの登記本社と第1工場がグルガオン県マネサールに所在。",
+      },
+      {
+        name: "ダイキン工業（ダイキン・インディア）",
+        url: "https://www.daikinindia.com/",
+        note: "空調インド法人の本社がグルガオンのDLFサイバーシティに所在。",
+      },
+      {
+        name: "パナソニック（パナソニック・インディア）",
+        url: "https://www.panasonic.com/in/",
+        note: "インド・南アジア・中東アフリカ（ISAMEA）地域統括本社をグルガオンに置く。",
+      },
+    ],
   },
   {
     slug: "bengaluru",
@@ -375,6 +446,33 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "トヨタ自動車（トヨタ・キルロスカ・モーター）",
+        url: "https://www.toyotabharat.com/",
+        note: "ベンガルール近郊ビダディの大規模工場で四輪車を生産するインド事業の本拠。",
+      },
+      {
+        name: "ファナック（ファナック・インディア）",
+        url: "https://www.fanucindia.com/",
+        note: "ベンガルールに本社を置き、産業用ロボット・CNCの販売・サービスを展開。",
+      },
+      {
+        name: "ソニー（ソニー・インディア・ソフトウェア・センター）",
+        url: "https://www.sonyindiasoftware.co.in/",
+        note: "ベンガルールでソニーグループ向けのソフトウェア開発・R&Dを担う拠点を運営。",
+      },
+      {
+        name: "楽天グループ（楽天インディア）",
+        url: "https://corp.rakuten.co.in/",
+        note: "日本国外で最大級の開発・R&D拠点をベンガルールに構える。",
+      },
+      {
+        name: "メルカリ（メルカリ・インディア）",
+        url: "https://about.in.mercari.com/",
+        note: "2022年にベンガルールへ日米以外で初の開発拠点（Center of Excellence）を開設。",
+      },
+    ],
   },
   {
     slug: "chennai",
@@ -473,6 +571,28 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "日産自動車（ニッサン・モーター・インディア）",
+        url: "https://www.nissan.in/",
+        note: "チェンナイ近郊オラガダムのアライアンス工場で「マグナイト」を生産し、世界60超市場へ輸出。",
+      },
+      {
+        name: "ヤマハ発動機（インディア・ヤマハ・モーター）",
+        url: "https://www.yamaha-motor-india.com/",
+        note: "チェンナイ郊外バラム・バダガルの工場で二輪車を大量生産。",
+      },
+      {
+        name: "コマツ（コマツ・インディア）",
+        url: "https://www.komatsuindia.in/",
+        note: "チェンナイに本社を置き、オラガダム工場で油圧ショベルや鉱山用ダンプトラックを生産。",
+      },
+      {
+        name: "東芝（東芝JSWパワーシステムズ）",
+        url: "https://www.toshiba-tjps.in/",
+        note: "チェンナイ北部マナリの工場で発電用蒸気タービン・発電機を製造。",
+      },
+    ],
   },
   {
     slug: "pune",
@@ -572,6 +692,28 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "ブリヂストン（ブリヂストン・インディア）",
+        url: "https://www.bridgestone.co.in/",
+        note: "プネに本社を置き、チャカン工場で年400万本超の乗用車用ラジアルタイヤを生産。",
+      },
+      {
+        name: "川崎重工業（インディア・カワサキ・モータース）",
+        url: "https://www.kawasaki-india.com/",
+        note: "チャカンの自社工場で「Ninja」など大型二輪車を組立生産。",
+      },
+      {
+        name: "三菱電機（ミツビシ・エレクトリック・インディア）",
+        url: "https://in.mitsubishielectric.com/en/",
+        note: "プネ近郊タレガオンにインバータ等FA機器の製造工場を開設。",
+      },
+      {
+        name: "富士通（フジツウ・コンサルティング・インディア）",
+        url: "https://global.fujitsu/en-apac/local/about/india",
+        note: "プネにグローバルデリバリーの中核となる大規模開発センターを構える。",
+      },
+    ],
   },
   {
     slug: "hyderabad",
@@ -672,6 +814,28 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "ルネサスエレクトロニクス",
+        url: "https://www.renesas.com/",
+        note: "HITECシティにR&D拠点を置き、TCSと共同で半導体イノベーションセンターを運営。",
+      },
+      {
+        name: "NTTデータ",
+        url: "https://www.nttdata.com/global/en/",
+        note: "ハイデラバードに大規模なグローバルデリバリー拠点を持ち、約12億ドルのAIデータセンター群の建設も発表。",
+      },
+      {
+        name: "東芝（東芝送配電システムズ・インディア）",
+        url: "https://www.global.toshiba/ww/products-solutions/transmission/location/ttdi/about.html",
+        note: "ハイデラバード近郊ルドララムの大型工場で変圧器・開閉装置を生産し、増産投資を継続。",
+      },
+      {
+        name: "富士通",
+        url: "https://global.fujitsu/en-apac/local/about/india",
+        note: "HITECシティに開発拠点を構え、グローバルデリバリー網の一角を担う。",
+      },
+    ],
   },
   {
     slug: "ahmedabad",
@@ -772,6 +936,33 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "スズキ（スズキ・モーター・グジャラート）",
+        url: "https://www.marutisuzuki.com/",
+        note: "アフマダーバード近郊ハンサルプルの工場（現マルチ・スズキ傘下）で小型車を生産し、年産100万台体制へ拡張中。",
+      },
+      {
+        name: "TDSG（東芝・デンソー・スズキ合弁）",
+        url: "https://www.tds-g.co.in/",
+        note: "ハンサルプルの工場でハイブリッド車向けリチウムイオン電池を生産し、電極の現地生産も開始。",
+      },
+      {
+        name: "ルネサスエレクトロニクス（CG Semi合弁）",
+        url: "https://www.renesas.com/",
+        note: "CGパワーとの合弁CG Semiがサナンドの半導体後工程（OSAT）工場で商業生産を開始。",
+      },
+      {
+        name: "日立製作所（日立ハイレル・パワーエレクトロニクス）",
+        url: "https://www.hitachi-hirel.com/",
+        note: "アフマダーバードに本社を置く日立100%子会社で、サナンド等の工場でUPS・産業用インバータを生産。",
+      },
+      {
+        name: "大塚製薬工場（大塚製薬インド）",
+        url: "https://otsukapharma.in/",
+        note: "アフマダーバード近郊サナンドの工場で輸液製剤を生産する大塚製薬工場の完全子会社。",
+      },
+    ],
   },
   {
     slug: "kolkata",
@@ -871,5 +1062,27 @@ export const CITIES: City[] = [
       },
       verifiedAt: "2026-07",
     },
+    japaneseCompanies: [
+      {
+        name: "日立建機（タタ日立コンストラクションマシナリー）",
+        url: "https://www.tatahitachi.co.in/",
+        note: "日立建機60%出資の合弁が西ベンガル州カラグプルの大型工場で油圧ショベル等を生産。",
+      },
+      {
+        name: "日本通運（NXグループ）",
+        url: "https://www.nipponexpress.com/",
+        note: "コルカタ支店を拠点に東インドのフォワーディング・物流サービスを展開。",
+      },
+      {
+        name: "エア・ウォーター（エア・ウォーター・インディア）",
+        url: "https://www.awipl.co.in/",
+        note: "コルカタに本社を置き、東部の製鉄業向けを中心に酸素・窒素等の産業ガスを供給。",
+      },
+      {
+        name: "三菱商事",
+        url: "https://www.mitsubishicorp.com/",
+        note: "ソルトレイク地区にコルカタ事務所を置き、東インドの商取引を担う。",
+      },
+    ],
   },
 ]

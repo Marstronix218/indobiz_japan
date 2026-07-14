@@ -98,6 +98,24 @@ test("全都市が bestMonths / avoidMonths を持ち 1-12 で重複しない", 
   }
 })
 
+// 進出企業も specialties / living と同じ裏取り方針（WebSearch で確認できた企業のみ）。
+// 2026-07 時点では全都市で 3〜5 社を確認済み。
+test("全都市が japaneseCompanies を 3〜5 社持ち、URL が https", () => {
+  for (const city of CITIES) {
+    const companies = city.japaneseCompanies
+    if (!companies?.length) throw new Error(`${city.slug}: japaneseCompanies なし`)
+    assert.ok(
+      companies.length >= 3 && companies.length <= 5,
+      `${city.slug}: ${companies.length} 社（3〜5 社の想定）`,
+    )
+    for (const company of companies) {
+      assert.ok(company.name, `${city.slug}: name`)
+      assert.ok(company.note, `${city.slug}/${company.name}: note`)
+      assert.ok(company.url.startsWith("https://"), `${city.slug}/${company.name}: url`)
+    }
+  }
+})
+
 test("家賃レンジは minUsd <= maxUsd", () => {
   for (const city of CITIES) {
     for (const rent of city.living?.housing?.rents ?? []) {

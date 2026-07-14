@@ -27,6 +27,19 @@ export type CitySpecialty = {
   imageCredit?: string
 }
 
+/**
+ * 日本からの主な進出企業。WebSearch で当該都市での拠点を確認できた企業のみ載せる
+ * （specialties / living と同じ裏取り方針。出典は docs/city-fact-check-2026-07.md）。
+ */
+export type JapaneseCompany = {
+  /** 例: "スズキ（マルチ・スズキ）" */
+  name: string
+  /** 公式サイト。インド法人サイトがあればそちらを優先 */
+  url: string
+  /** 拠点の一行説明 */
+  note: string
+}
+
 export type CityLiving = {
   housing?: {
     areas: string[]
@@ -85,4 +98,5 @@ export type City = {
   avoidMonths?: number[]
   specialties?: CitySpecialty[]
   living?: CityLiving
+  japaneseCompanies?: JapaneseCompany[]
 }

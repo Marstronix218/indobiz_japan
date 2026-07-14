@@ -75,6 +75,28 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </dl>
       </header>
 
+      {city.japaneseCompanies && city.japaneseCompanies.length > 0 && (
+        <section className="mt-10">
+          <h2 className="mb-3 font-serif text-xl font-bold">日本からの主な進出企業</h2>
+          <ul className="divide-y divide-border rounded-md border border-border bg-card">
+            {city.japaneseCompanies.map((company) => (
+              <li key={company.name} className="p-4">
+                <a
+                  href={company.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-serif font-bold text-foreground underline-offset-4 hover:text-accent hover:underline"
+                >
+                  {company.name}
+                  <span className="ml-1 font-mono text-[10px] text-muted-foreground">↗</span>
+                </a>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{company.note}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {climate && (
         <section className="mt-10">
           <h2 className="mb-3 font-serif text-xl font-bold">気候と渡航適期</h2>

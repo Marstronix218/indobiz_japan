@@ -1,6 +1,12 @@
 import { CITIES } from "./data"
 
-export type CityWeather = { tempC: number; weatherCode: number }
+export type CityWeather = {
+  tempC: number
+  weatherCode: number
+  /** 当日の予想最高/最低気温。daily 応答が欠けた都市では undefined */
+  tempMaxC?: number
+  tempMinC?: number
+}
 export type CityWeatherMap = Record<string, CityWeather>
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
@@ -20,7 +26,8 @@ export async function fetchCityWeather(): Promise<CityWeatherMap | null> {
   const longitudes = CITIES.map((city) => city.lon).join(",")
   const url =
     `${FORECAST_URL}?latitude=${latitudes}&longitude=${longitudes}` +
-    `&current=temperature_2m,weather_code&timezone=UTC`
+    `&current=temperature_2m,weather_code` +
+    `&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto`
 
   try {
     const res = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } })
@@ -38,10 +45,20 @@ export async function fetchCityWeather(): Promise<CityWeatherMap | null> {
         .current
       if (typeof current?.temperature_2m !== "number") return
       if (typeof current?.weather_code !== "number") return
-      map[CITIES[index].slug] = {
+      const weather: CityWeather = {
         tempC: Math.round(current.temperature_2m),
         weatherCode: current.weather_code,
       }
+      // 最高/最低は「あれば足す」。daily が欠けても現在天気は返す。
+      const daily = (entry as { daily?: { temperature_2m_max?: number[]; temperature_2m_min?: number[] } })
+        .daily
+      if (typeof daily?.temperature_2m_max?.[0] === "number") {
+        weather.tempMaxC = Math.round(daily.temperature_2m_max[0])
+      }
+      if (typeof daily?.temperature_2m_min?.[0] === "number") {
+        weather.tempMinC = Math.round(daily.temperature_2m_min[0])
+      }
+      map[CITIES[index].slug] = weather
     })
 
     return Object.keys(map).length > 0 ? map : null
