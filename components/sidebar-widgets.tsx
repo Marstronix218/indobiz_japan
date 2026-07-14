@@ -361,6 +361,12 @@ export function CitySpotlightWidget() {
           </button>
         </div>
       </div>
+      <Link
+        href="/city"
+        className="mt-3 flex items-center justify-center gap-1.5 rounded-md border border-border bg-muted/40 py-2 font-mono text-[10px] tracking-wider text-foreground transition-colors hover:border-accent hover:text-accent"
+      >
+        都市一覧を見る →
+      </Link>
     </div>
   )
 }
