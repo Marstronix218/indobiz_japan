@@ -14,18 +14,18 @@ const FALLBACK_ITEMS: LiveQuote[] = [
 
 function TickerRow({ keyPrefix, items }: { keyPrefix: string; items: LiveQuote[] }) {
   return (
-    <div className="flex items-center gap-8 px-4">
+    <div className="flex items-center gap-7 px-3.5">
       {items.map((item, index) => (
         <span
           key={`${keyPrefix}-${index}`}
-          className="flex items-baseline gap-2 whitespace-nowrap font-mono text-xs"
+          className="flex items-baseline gap-1.5 whitespace-nowrap font-mono text-[11px]"
         >
           <span className="text-muted-foreground">{item.label}</span>
           <span className="font-semibold tabular-nums">{item.value}</span>
           <span
             className={
               item.direction === "up"
-                ? "text-emerald-700"
+                ? "text-primary"
                 : item.direction === "down"
                   ? "text-accent"
                   : "text-muted-foreground"
@@ -95,8 +95,8 @@ export function MarketTicker() {
 
   return (
     <div className="marquee-wrap overflow-hidden border-b border-border bg-card">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 sm:px-6 lg:px-8">
-        <span className="shrink-0 bg-foreground px-2 py-1 font-mono text-[10px] tracking-[0.2em] text-background">
+      <div className="mx-auto flex max-w-[1180px] items-center gap-2 px-5 py-1.5 sm:px-6">
+        <span className="shrink-0 bg-foreground px-2 py-1 font-mono text-[10px] tracking-[0.16em] text-background">
           {badgeText}
         </span>
         <div className="flex-1 overflow-hidden">

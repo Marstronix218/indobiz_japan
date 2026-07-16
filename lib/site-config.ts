@@ -55,7 +55,7 @@ export const MEMBERSHIP_BENEFITS = [
 export const EDITORIAL_PILLARS = [
   "RSS/API優先でソースを取得",
   "独自の視点で再構成した日本語記事を公開",
-  "日本企業への示唆を3点以内で整理",
+  "本記事のポイントを3点で整理",
 ]
 
 export const AUTOMATION_STAGES = [
@@ -63,7 +63,7 @@ export const AUTOMATION_STAGES = [
   "重複排除",
   "事実抽出",
   "記事再構成",
-  "示唆生成",
+  "本記事のポイント生成",
   "カテゴリ・業界タグ付与",
   "公開",
 ]

@@ -75,8 +75,14 @@ function normalize(body: CreateBody): InsertArticleInput | { error: string } {
     ? body.industryTags.filter((t): t is string => typeof t === "string")
     : []
   const implications = Array.isArray(body.implications)
-    ? body.implications.filter((t): t is string => typeof t === "string")
+    ? body.implications
+        .filter((t): t is string => typeof t === "string")
+        .map((text) => text.trim())
+        .filter(Boolean)
     : []
+  if (implications.length > 3) {
+    return { error: "implications must contain at most 3 items" }
+  }
 
   return {
     title: body.title,

@@ -6,10 +6,11 @@ import Image from "next/image"
 import {
   BookOpen,
   Building2,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
   ExternalLink,
+  ListChecks,
   Search,
 } from "lucide-react"
 import { MarketTicker } from "@/components/market-ticker"
@@ -268,13 +269,13 @@ function SourceArticleCarousel({
           )
           const card = (
             <>
-              <p className="font-serif text-base font-bold leading-tight text-primary">
+              <p className="font-serif text-sm font-bold leading-tight text-primary">
                 {sourceName}
               </p>
-              <p className="mt-3 line-clamp-3 text-sm font-semibold leading-6 text-foreground">
+              <p className="mt-2 line-clamp-2 text-[12px] font-semibold leading-5 text-foreground">
                 {sourceTitle}
               </p>
-              <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <div className="mt-2.5 flex items-center justify-between gap-3 text-[10px] text-muted-foreground">
                 <span>{sourceDate}</span>
                 {src.originalUrl && (
                   <ExternalLink className="size-4 text-primary" />
@@ -294,12 +295,12 @@ function SourceArticleCarousel({
                   href={src.originalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block h-full rounded-md border border-border bg-background p-4 transition-colors hover:border-primary"
+                  className="block h-full rounded-md border border-border bg-background p-3 transition-colors hover:border-primary"
                 >
                   {card}
                 </a>
               ) : (
-                <div className="h-full rounded-md border border-border bg-background p-4">
+                <div className="h-full rounded-md border border-border bg-background p-3">
                   {card}
                 </div>
               )}
@@ -416,24 +417,17 @@ export function ArticleView({
   const backgroundContext = article.backgroundContext?.trim() || undefined
   const japanBusinessImpact = article.japanBusinessImpact?.trim() || undefined
   const keywords = (article.keywords ?? []).slice(0, 4)
-  const infoCardCount = [
-    backgroundContext,
-    japanBusinessImpact,
-    keywords.length > 0 || undefined,
-  ].filter(Boolean).length
-  const infoGridClass =
-    infoCardCount >= 3
-      ? "sm:grid-cols-2 lg:grid-cols-3"
-      : infoCardCount === 2
-        ? "sm:grid-cols-2"
-        : ""
+  const contextCardCount = [backgroundContext, japanBusinessImpact].filter(
+    Boolean,
+  ).length
+  const contextGridClass = contextCardCount === 2 ? "sm:grid-cols-2" : ""
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <MarketTicker />
 
-      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1180px] px-5 py-4 sm:px-6">
         <nav
           aria-label="パンくず"
           className="mb-4 flex min-w-0 items-center gap-1.5 overflow-hidden text-xs text-muted-foreground"
@@ -472,11 +466,11 @@ export function ArticleView({
           <span className="truncate">{article.title}</span>
         </nav>
 
-        <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_336px]">
-          <article className="min-w-0 rounded-md border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-7">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_252px] xl:grid-cols-[minmax(0,1fr)_300px]">
+          <article className="min-w-0 overflow-hidden rounded-md border border-border bg-card">
             {imageSrc && (
               <figure>
-                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-md border border-border bg-muted sm:aspect-[21/9]">
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted md:aspect-[16/6] lg:aspect-[16/5]">
                   <Image
                     src={imageSrc}
                     alt={article.imageCaption || article.title}
@@ -487,56 +481,62 @@ export function ArticleView({
                   />
                 </div>
                 {article.imageCaption && (
-                  <figcaption className="mt-2 text-xs leading-5 text-muted-foreground">
+                  <figcaption className="border-t border-border/70 px-4 py-1.5 text-[10px] leading-4 text-muted-foreground sm:px-5">
                     {article.imageCaption}
                   </figcaption>
                 )}
               </figure>
             )}
 
-            <div className={imageSrc ? "mt-5 space-y-3" : "space-y-3"}>
-              <h1 className="text-balance font-serif text-[26px] font-bold leading-[1.38] tracking-tight text-foreground sm:text-[34px]">
-                {article.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                <span>{formatJstDateTime(articleDisplayDate(article))}</span>
-                <span aria-hidden>｜</span>
-                <span>IndoBiz Japan編集部</span>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  asChild
-                  className={`${CATEGORY_COLORS[article.category]} rounded-sm border-none px-2 py-1 text-[11px]`}
-                >
-                  <Link href={`/?category=${article.category}`}>
-                    {CATEGORY_LABELS[article.category]}
-                  </Link>
-                </Badge>
-                {article.industryTags.map((tag) => (
+            <div className="px-4 pb-6 sm:px-5 sm:pb-7">
+              <div
+                className={
+                  imageSrc ? "mt-3.5 space-y-2.5" : "space-y-2.5 pt-5"
+                }
+              >
+                <h1 className="text-balance font-serif text-[23px] font-bold leading-[1.42] tracking-tight text-foreground sm:text-[26px]">
+                  {article.title}
+                </h1>
+                <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-muted-foreground">
+                  <span>{formatJstDateTime(articleDisplayDate(article))}</span>
+                  <span aria-hidden>｜</span>
+                  <span>IndoBiz Japan編集部</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge
-                    key={tag}
                     asChild
-                    variant="outline"
-                    className="rounded-sm border-border bg-white px-2 py-1 text-[11px] text-foreground hover:border-primary hover:bg-secondary/40"
+                    className={`${CATEGORY_COLORS[article.category]} rounded-sm border-none px-2 py-1 text-[11px]`}
                   >
-                    <Link href={`/?tag=${tag}`}>{INDUSTRY_LABELS[tag]}</Link>
+                    <Link href={`/?category=${article.category}`}>
+                      {CATEGORY_LABELS[article.category]}
+                    </Link>
                   </Badge>
-                ))}
+                  {article.industryTags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      asChild
+                      variant="outline"
+                      className="rounded-sm border-border bg-background px-2 py-1 text-[11px] text-foreground hover:border-primary hover:bg-secondary/40"
+                    >
+                      <Link href={`/?tag=${tag}`}>{INDUSTRY_LABELS[tag]}</Link>
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
 
             {takeawayBullets.length > 0 && (
-              <section className="mt-5 rounded-md border border-primary/25 bg-primary/5 p-4 sm:p-5">
-                <h2 className="text-base font-bold text-primary">
+              <section className="mt-4 rounded-md border border-primary/25 bg-primary/5 p-4">
+                <h2 className="flex items-center gap-2 text-base font-bold text-primary">
+                  <ListChecks className="size-4" />
                   本記事のポイント
                 </h2>
-                <ol className="mt-3 space-y-2.5">
+                <ol className="mt-2.5 space-y-2">
                   {takeawayBullets.map((item, index) => (
                     <li
                       key={`${index}-${item}`}
-                      className="flex items-start gap-3 text-base leading-8 text-foreground sm:text-[17px]"
+                      className="flex items-start gap-2.5 text-sm leading-7 text-foreground"
                     >
-                      <span className="mt-1.5 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      <span className="mt-0.5 grid size-[22px] shrink-0 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
                         {index + 1}
                       </span>
                       <span>{item}</span>
@@ -546,65 +546,43 @@ export function ArticleView({
               </section>
             )}
 
-            {infoCardCount > 0 && (
-              <div className={`mt-5 grid gap-4 ${infoGridClass}`}>
+            {contextCardCount > 0 && (
+              <div className={`mt-4 grid gap-3 ${contextGridClass}`}>
                 {backgroundContext && (
-                  <section className="rounded-md border border-border bg-secondary/25 p-4">
-                    <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-                      <BookOpen className="size-4 shrink-0 text-primary" />
+                  <section className="rounded-md border border-border bg-secondary/20 p-4">
+                    <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+                      <BookOpen className="size-[18px] shrink-0 text-primary" />
                       ニュースの背景
                     </h2>
-                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
+                    <p className="mt-2.5 whitespace-pre-line text-[13px] leading-6 text-foreground">
                       {backgroundContext}
                     </p>
                   </section>
                 )}
                 {japanBusinessImpact && (
-                  <section className="rounded-md border border-border bg-secondary/25 p-4">
-                    <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-                      <Building2 className="size-4 shrink-0 text-primary" />
+                  <section className="rounded-md border border-border bg-secondary/20 p-4">
+                    <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+                      <Building2 className="size-[18px] shrink-0 text-primary" />
                       日本企業への影響
                     </h2>
-                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
+                    <p className="mt-2.5 whitespace-pre-line text-[13px] leading-6 text-foreground">
                       {japanBusinessImpact}
                     </p>
-                  </section>
-                )}
-                {keywords.length > 0 && (
-                  <section className="rounded-md border border-border bg-secondary/25 p-4">
-                    <h2 className="flex items-center gap-2 text-sm font-bold text-foreground">
-                      <Search className="size-4 shrink-0 text-primary" />
-                      キーワード解説
-                      <span className="text-xs font-normal text-muted-foreground">
-                        （主な用語）
-                      </span>
-                    </h2>
-                    <ul className="mt-2.5 space-y-2 text-sm leading-6 text-foreground">
-                      {keywords.map((keyword, index) => (
-                        <li key={`${index}-${keyword.term}`} className="flex gap-2">
-                          <span aria-hidden className="mt-2.5 size-1 shrink-0 rounded-full bg-foreground/60" />
-                          <span>
-                            <span className="font-semibold">{keyword.term}</span>
-                            ：{keyword.fullName ?? keyword.definition}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
                   </section>
                 )}
               </div>
             )}
 
-            <section className="mt-7">
-              <h2 className="flex items-center gap-1.5 text-base font-bold text-primary">
-                <span aria-hidden className="text-xs">▶</span>
+            <section className="mt-5 border-t border-border pt-4">
+              <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+                <ClipboardList className="size-[18px] text-primary" />
                 この記事の概要
               </h2>
-              <div className="mt-3 space-y-4">
+              <div className="mt-2.5 space-y-3">
                 {summaryParagraphs.map((paragraph, idx) => (
                   <p
                     key={idx}
-                    className="whitespace-pre-line text-[17px] leading-9 text-foreground sm:text-lg"
+                    className="whitespace-pre-line text-[15px] leading-8 text-foreground sm:text-sm sm:leading-7"
                   >
                     {paragraph}
                   </p>
@@ -613,37 +591,32 @@ export function ArticleView({
             </section>
 
             {keywords.length > 0 && (
-              <section className="mt-7">
-                <h2 className="flex items-baseline gap-2 text-base font-bold text-foreground">
-                  この記事のキーワード
-                  <span className="text-xs font-normal text-muted-foreground">
-                    （クリックで展開）
-                  </span>
+              <section className="mt-5 border-t border-border pt-4">
+                <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+                  <Search className="size-[18px] text-primary" />
+                  キーワード解説
                 </h2>
-                <div className="mt-3 divide-y divide-border overflow-hidden rounded-md border border-border">
+                <ul className="mt-3 grid gap-2.5 sm:grid-cols-2">
                   {keywords.map((keyword, index) => (
-                    <details key={`${index}-${keyword.term}`} className="group bg-background">
-                      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-                        <span className="shrink-0 text-sm font-semibold text-primary">
-                          {keyword.term}
-                          {keyword.fullName && (
-                            <span className="font-medium">
-                              （{keyword.fullName}）
-                            </span>
-                          )}
-                        </span>
-                        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground group-open:invisible">
-                          {keyword.definition}
-                        </span>
-                        <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-                      </summary>
-                      <p className="px-4 pb-3.5 text-sm leading-7 text-foreground">
+                    <li
+                      key={`${index}-${keyword.term}`}
+                      className="rounded-md border border-border bg-secondary/15 p-3"
+                    >
+                      <p className="text-[13px] font-bold leading-5 text-primary">
+                        {keyword.term}
+                        {keyword.fullName && (
+                          <span className="ml-1 font-semibold">
+                            （{keyword.fullName}）
+                          </span>
+                        )}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-foreground">
                         {keyword.definition}
                       </p>
-                    </details>
+                    </li>
                   ))}
-                </div>
-                <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
+                </ul>
+                <p className="mt-2 text-[10px] leading-5 text-muted-foreground">
                   ※用語解説は記事の理解を補助するための一般的な説明であり、法務・税務・投資その他の専門的助言を目的とするものではありません。
                 </p>
               </section>
@@ -693,12 +666,12 @@ export function ArticleView({
             )}
 
             {sourceCards.length > 0 && (
-              <section className="mt-8 border-t border-border pt-6">
-                <div className="mb-4 flex items-center gap-2">
-                  <h2 className="font-serif text-xl font-bold text-primary">
-                    参考記事
+              <section className="mt-5 border-t border-border pt-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <ExternalLink className="size-[18px] text-primary" />
+                  <h2 className="font-serif text-base font-bold text-foreground">
+                    参考記事（原文）
                   </h2>
-                  <ExternalLink className="size-4 text-primary" />
                 </div>
                 <SourceArticleCarousel
                   sources={sourceCards}
@@ -710,7 +683,7 @@ export function ArticleView({
             )}
 
             {relatedArticles.length > 0 && (
-              <section className="mt-8 border-t border-border pt-6">
+              <section className="mt-7 border-t border-border pt-5">
                 <div className="mb-4 flex items-end justify-between gap-4">
                   <div className="flex items-baseline gap-3">
                     <span className="size-2.5 rounded-sm bg-accent" />
@@ -730,6 +703,7 @@ export function ArticleView({
                 </div>
               </section>
             )}
+            </div>
           </article>
 
           <PortalSidebar rankedViewIds={rankedViewIds} />

@@ -347,6 +347,11 @@ export function ArticleFormDialog({
       return
     }
 
+    if (implications.length > 3) {
+      toast.error("本記事のポイントは3件までです。1行につき1件で入力してください。")
+      return
+    }
+
     const visibility =
       form.workflowStatus === "published" ? "public" : "member"
 
@@ -422,7 +427,7 @@ export function ArticleFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto bg-card">
+      <DialogContent className="max-h-[94vh] max-w-[calc(100%_-_1rem)] overflow-y-auto bg-card p-4 sm:max-w-6xl sm:p-6">
         <DialogHeader>
           <DialogTitle>{isEditing ? "記事を編集" : "記事を追加"}</DialogTitle>
           <DialogDescription>
@@ -842,127 +847,152 @@ export function ArticleFormDialog({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="implicationsText">日本企業への示唆（任意）</Label>
-            <Textarea
-              id="implicationsText"
-              value={form.implicationsText}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  implicationsText: event.target.value,
-                }))
-              }
-              placeholder={"1行につき1つ。空欄でも保存できます。\n勝機あり: ...\n注意点: ..."}
-              className="min-h-24"
-            />
-            <p className="text-xs text-muted-foreground">
-              入力した場合のみ記事下部に箇条書きで表示されます。
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="backgroundContext">ニュースの背景（任意）</Label>
-            <Textarea
-              id="backgroundContext"
-              value={form.backgroundContext}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  backgroundContext: event.target.value,
-                }))
-              }
-              placeholder="これまでの制度・何が問題だったか・今回何が変わったかを200〜300字程度で"
-              className="min-h-28"
-            />
-            <p className="text-xs text-muted-foreground">
-              入力した場合のみ記事上部の「ニュースの背景」ボックスに表示されます。
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="japanBusinessImpact">日本企業への影響（任意）</Label>
-            <Textarea
-              id="japanBusinessImpact"
-              value={form.japanBusinessImpact}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  japanBusinessImpact: event.target.value,
-                }))
-              }
-              placeholder="対象企業・直接/間接の別・確認事項を100〜180字程度で"
-              className="min-h-24"
-            />
-            <p className="text-xs text-muted-foreground">
-              入力した場合のみ記事上部の「日本企業への影響」ボックスに表示されます。
-            </p>
-          </div>
-
-          <div className="space-y-3 rounded-2xl border border-border bg-secondary/20 p-4">
-            <div className="flex items-baseline justify-between gap-2">
+          <section className="space-y-4 rounded-2xl border border-emerald-700/25 bg-emerald-50/40 p-4 sm:p-5 dark:bg-emerald-950/10">
+            <div className="flex items-start gap-3 border-b border-emerald-700/20 pb-4">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white">
+                <Sparkles className="size-4" />
+              </span>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-foreground">
-                  キーワード解説（任意・最大{ARTICLE_KEYWORDS_MAX}語）
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  用語名と説明文の両方がある行だけ保存されます。0件なら記事にセクション自体が表示されません。
+                <h3 className="font-semibold text-emerald-950 dark:text-emerald-100">
+                  AI生成コンテンツ
+                </h3>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  自動生成された記事の理解補助セクションです。公開前に内容を確認し、必要に応じて編集してください。
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addKeyword}
-                disabled={form.keywords.length >= ARTICLE_KEYWORDS_MAX}
-              >
-                用語を追加
-              </Button>
             </div>
 
-            {form.keywords.map((keyword, index) => (
-              <div
-                key={index}
-                className="space-y-2 rounded-xl border border-border bg-background p-3"
-              >
-                <div className="grid gap-2 md:grid-cols-2">
-                  <Input
-                    value={keyword.term}
-                    onChange={(event) =>
-                      updateKeyword(index, "term", event.target.value)
-                    }
-                    placeholder="用語名（例: EPFO）"
-                  />
-                  <Input
-                    value={keyword.fullName ?? ""}
-                    onChange={(event) =>
-                      updateKeyword(index, "fullName", event.target.value)
-                    }
-                    placeholder="正式名称（任意）"
-                  />
-                </div>
+            <div className="space-y-2 rounded-xl border border-emerald-700/20 bg-card/90 p-4">
+              <Label htmlFor="implicationsText" className="text-emerald-900 dark:text-emerald-100">
+                本記事のポイント（任意）
+              </Label>
+              <Textarea
+                id="implicationsText"
+                value={form.implicationsText}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    implicationsText: event.target.value,
+                  }))
+                }
+                placeholder={"1行につき1項目（推奨：ちょうど3行）\n何がどう変わったか\n誰が対象となるか\n期限や確認すべき事項"}
+                className="min-h-32 bg-background"
+              />
+              <p className="text-xs text-muted-foreground">
+                記事上部の「本記事のポイント」に番号付きリストで表示されます。1行1項目・3件まで（AI生成は3件）です。
+              </p>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="space-y-2 rounded-xl border border-emerald-700/20 bg-card/90 p-4">
+                <Label htmlFor="backgroundContext" className="text-emerald-900 dark:text-emerald-100">
+                  ニュースの背景（任意）
+                </Label>
                 <Textarea
-                  value={keyword.definition}
+                  id="backgroundContext"
+                  value={form.backgroundContext}
                   onChange={(event) =>
-                    updateKeyword(index, "definition", event.target.value)
+                    setForm((current) => ({
+                      ...current,
+                      backgroundContext: event.target.value,
+                    }))
                   }
-                  placeholder="50〜120字程度の説明文"
-                  className="min-h-16"
+                  placeholder="これまでの制度・何が問題だったか・今回何が変わったかを200〜300字程度で"
+                  className="min-h-40 bg-background"
                 />
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeKeyword(index)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    この用語を削除
-                  </Button>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  入力した場合のみ記事上部の「ニュースの背景」ボックスに表示されます。
+                </p>
               </div>
-            ))}
-          </div>
+
+              <div className="space-y-2 rounded-xl border border-emerald-700/20 bg-card/90 p-4">
+                <Label htmlFor="japanBusinessImpact" className="text-emerald-900 dark:text-emerald-100">
+                  日本企業への影響（任意）
+                </Label>
+                <Textarea
+                  id="japanBusinessImpact"
+                  value={form.japanBusinessImpact}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      japanBusinessImpact: event.target.value,
+                    }))
+                  }
+                  placeholder="対象企業・直接/間接の別・確認事項を100〜180字程度で"
+                  className="min-h-40 bg-background"
+                />
+                <p className="text-xs text-muted-foreground">
+                  入力した場合のみ記事上部の「日本企業への影響」ボックスに表示されます。
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-emerald-700/20 bg-card/90 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
+                    キーワード解説（任意・最大{ARTICLE_KEYWORDS_MAX}語）
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    用語名と説明文の両方がある行だけ保存されます。0件なら記事にセクション自体が表示されません。
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addKeyword}
+                  disabled={form.keywords.length >= ARTICLE_KEYWORDS_MAX}
+                  className="border-emerald-700/30"
+                >
+                  用語を追加
+                </Button>
+              </div>
+
+              {form.keywords.map((keyword, index) => (
+                <div
+                  key={index}
+                  className="space-y-2 rounded-xl border border-emerald-700/15 bg-background p-3"
+                >
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <Input
+                      value={keyword.term}
+                      onChange={(event) =>
+                        updateKeyword(index, "term", event.target.value)
+                      }
+                      placeholder="用語名（例: EPFO）"
+                    />
+                    <Input
+                      value={keyword.fullName ?? ""}
+                      onChange={(event) =>
+                        updateKeyword(index, "fullName", event.target.value)
+                      }
+                      placeholder="正式名称（任意）"
+                    />
+                  </div>
+                  <Textarea
+                    value={keyword.definition}
+                    onChange={(event) =>
+                      updateKeyword(index, "definition", event.target.value)
+                    }
+                    placeholder="50〜120字程度の説明文"
+                    className="min-h-16"
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeKeyword(index)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      この用語を削除
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
           {form.category === "market" && (
             <div className="space-y-4 rounded-2xl border border-border bg-secondary/20 p-4">
@@ -1042,7 +1072,7 @@ export function ArticleFormDialog({
             <span>トップの注目記事として表示する</span>
           </label>
 
-          <div className="flex justify-end gap-2">
+          <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex justify-end gap-2 border-t border-border bg-card/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:-mb-6 sm:px-6">
             <Button
               type="button"
               variant="outline"

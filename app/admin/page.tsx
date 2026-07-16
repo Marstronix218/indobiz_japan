@@ -404,7 +404,7 @@ export default function AdminPage() {
                   未合成の下書きが {counts.unsynthesized} 件あります
                 </p>
                 <p className="text-muted-foreground">
-                  LLMで生成されていない古い下書きで、本文・示唆が定型文です。一括削除を推奨します。
+                  LLMで生成されていない古い下書きで、本文・本記事のポイントが定型文です。一括削除を推奨します。
                 </p>
               </div>
             </div>
@@ -430,7 +430,7 @@ export default function AdminPage() {
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="タイトル・要約・示唆で検索"
+                placeholder="タイトル・要約・本記事のポイントで検索"
                 className="pl-9"
               />
             </div>
@@ -565,6 +565,10 @@ function AdminArticleCard({
   const isReview = article.workflowStatus === "review"
   const isPublished = article.workflowStatus === "published"
   const isUnsynthesized = article.isSynthesized === false
+  const pointCount = article.implications.filter((point) => point.trim()).length
+  const hasBackground = Boolean(article.backgroundContext?.trim())
+  const hasImpact = Boolean(article.japanBusinessImpact?.trim())
+  const keywordCount = article.keywords?.length ?? 0
 
   return (
     <article
@@ -644,6 +648,24 @@ function AdminArticleCard({
           <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
             {article.summary}
           </p>
+        </div>
+
+        <div
+          className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground"
+          aria-label="記事補助項目の入力状況"
+        >
+          <span className={pointCount === 3 ? "text-emerald-700" : ""}>
+            ポイント {pointCount}/3
+          </span>
+          <span className={hasBackground ? "text-emerald-700" : ""}>
+            背景 {hasBackground ? "✓" : "—"}
+          </span>
+          <span className={hasImpact ? "text-emerald-700" : ""}>
+            影響 {hasImpact ? "✓" : "—"}
+          </span>
+          <span className={keywordCount > 0 ? "text-emerald-700" : ""}>
+            用語 {keywordCount}
+          </span>
         </div>
 
         {article.marketSnapshot && (

@@ -15,7 +15,7 @@ import { LineCtaBox } from "@/components/line-cta-box"
  */
 export function PortalSidebar({ rankedViewIds }: { rankedViewIds: string[] }) {
   return (
-    <aside className="space-y-5 self-start">
+    <aside className="space-y-3 self-start">
       <EditorialColumnWidget />
       <ImportantNewsWidget />
       <AccessRankingWidget rankedIds={rankedViewIds} />

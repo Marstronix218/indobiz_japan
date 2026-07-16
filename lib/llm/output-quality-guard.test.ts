@@ -38,9 +38,9 @@ function output(overrides: Partial<SynthesisOutput>): SynthesisOutput {
     title: "ルピーが94.63まで下落、RBIが外為市場に介入",
     summary: validSummary,
     implications: [
-      "ルピー下落で輸入採算の確認が必要だ。",
-      "ドル建て部材の支払い時期を見直す局面だ。",
-      "価格転嫁条件を販売契約と連動させるべきだ。",
+      "ルピー下落で輸入採算の再確認が必要となり、ドル建て部材を扱う製造業は支払い条件の点検を迫られる。",
+      "インド準備銀行の市場介入が続く局面では、財務と調達が同じ為替前提を共有して予算を管理する必要がある。",
+      "販売契約の価格転嫁条項と見積もり有効期限を見直し、為替変動を部門横断で管理する体制が重要となる。",
     ],
     industryTags: [],
     category: "market",
@@ -69,7 +69,7 @@ test("flags generated body text outside the target length", () => {
   assert(qc?.issues.some((issue) => issue.includes("summary の文字数")))
 })
 
-test("flags takeaways longer than 90 characters", () => {
+test("flags takeaways outside the 40 to 90 character range", () => {
   const qc = runDeterministicQualityGuard(
     output({
       implications: [
@@ -82,7 +82,7 @@ test("flags takeaways longer than 90 characters", () => {
   )
 
   assert.equal(qc?.verdict, "REVISION")
-  assert(qc?.issues.some((issue) => issue.includes("90字")))
+  assert(qc?.issues.some((issue) => issue.includes("指定範囲外")))
 })
 
 test("allows takeaways between 50 and 90 characters", () => {
@@ -90,8 +90,8 @@ test("allows takeaways between 50 and 90 characters", () => {
     output({
       implications: [
         "ルピー下落で輸入採算の確認が必要になり、ドル建て部材を調達する製造業は支払い時期の再点検を迫られる。",
-        "ドル建て部材の支払い時期を見直す局面だ。",
-        "価格転嫁条件を販売契約と連動させるべきだ。",
+        "インド準備銀行の市場介入が続く局面では、財務と調達が同じ為替前提を共有して予算を管理する必要がある。",
+        "販売契約の価格転嫁条項と見積もり有効期限を見直し、為替変動を部門横断で管理する体制が重要となる。",
       ],
     }),
     cluster,
@@ -112,6 +112,53 @@ test("flags takeaway count other than three", () => {
 
   assert.equal(qc?.verdict, "REVISION")
   assert(qc?.issues.some((issue) => issue.includes("3件")))
+})
+
+test("accepts enrichment fields inside their requested ranges", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      backgroundContext: "背".repeat(200),
+      japanBusinessImpact: "影".repeat(100),
+      imageCaption: "写".repeat(40),
+      keywords: [
+        { term: "EPFO", definition: "定".repeat(50) },
+        { term: "PF", definition: "義".repeat(120) },
+      ],
+    }),
+    cluster,
+  )
+
+  assert.equal(qc, null)
+})
+
+test("accepts the explicit no-direct-impact statement allowed by the prompt", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      japanBusinessImpact:
+        "現時点で公表されている情報からは、日本企業への直接的な影響は確認できません。",
+    }),
+    cluster,
+  )
+
+  assert.equal(qc, null)
+})
+
+test("flags generated enrichment fields outside their requested ranges", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      backgroundContext: "背".repeat(198),
+      japanBusinessImpact: "影".repeat(181),
+      imageCaption: "写".repeat(20),
+      keywords: [{ term: "EPFO", definition: "定".repeat(32) }],
+    }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("ニュースの背景")))
+  assert(qc?.issues.some((issue) => issue.includes("日本企業への影響")))
+  assert(qc?.issues.some((issue) => issue.includes("画像キャプション")))
+  assert(qc?.issues.some((issue) => issue.includes("キーワード解説")))
 })
 
 test("flags unsupported numbers introduced from outside the provided sources", () => {

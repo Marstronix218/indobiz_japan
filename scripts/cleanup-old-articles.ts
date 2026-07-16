@@ -19,7 +19,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs"
 import { resolve } from "node:path"
 import Anthropic from "@anthropic-ai/sdk"
-import OpenAI from "openai"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
 // ---- env ----
@@ -35,9 +34,7 @@ for (const line of readFileSync(envPath, "utf8").split("\n")) {
 }
 
 const BUCKET = process.env.SUPABASE_IMAGE_BUCKET ?? "article-images"
-const PROVIDER = (process.env.CLEANUP_PROVIDER ?? "openai").toLowerCase() // "openai" | "anthropic"
 const ANTHROPIC_MODEL = process.env.LLM_MODEL_ANTHROPIC ?? "claude-sonnet-4-6"
-const OPENAI_MODEL = process.env.LLM_MODEL_OPENAI ?? "gpt-5-mini"
 const CONCURRENCY = 4
 const BACKUP_DIR = resolve(process.cwd(), "scripts/cleanup-backup")
 
@@ -48,14 +45,13 @@ function sb(): SupabaseClient {
 }
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 0 })
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
 
 // ---- prompts (no-source, intrinsic) ----
 const CHECK_SYSTEM = `あなたはインド市場専門の編集チーフです。すでに公開済みの日本語記事を、参考元の原文なしで「記事単体」として評価します。著作権・原文流用の照合は今回できないため評価対象外です。以下の観点だけで判定してください。
 
 【評価観点(記事単体で判断できるもの)】
 A. インド/日本企業関連性: インド(またはインド×日本ビジネス)を主題にしているか。インドとほぼ無関係、または日本企業への示唆が成立しない題材は価値が低い。
-B. 独自性・脱テンプレート: 「日本企業への示唆」が具体的で行動に結びつくか。「背景として」「意思決定では」「示唆を整理する」「注視が必要」「今後の動向が注目される」等の、どの記事にも使い回せる汎用・空虚な表現に終始していないか。
+B. 独自性・脱テンプレート: 「本記事のポイント」が、記事で起きたことを具体的に要約しているか。「背景として」「示唆を整理する」「注視が必要」「今後の動向が注目される」等の、どの記事にも使い回せる汎用・空虚な表現に終始していないか。
 C. ニュース価値・実体: 具体的な事実(数値・固有名詞・制度・出来事)に基づく実体のある記事か。中身が薄い一般論だけ、または陳腐・些末でないか。
 D. 文章品質・整合: タイトルと本文の主張が一致し、同一の言い回しの繰り返しがなく、category と industryTags が内容と整合しているか。
 
@@ -72,7 +68,7 @@ const REWRITE_SYSTEM = `あなたはインド市場を取材する日本語ビ�
 【厳守事項】
 - 参考元の原文は手元にありません。元記事に書かれている事実(数値・固有名詞・日付・制度・出来事)のみを使い、新しい事実・数値を創作してはいけません。検証できない新情報を足さないこと。
 - 表現・分析・示唆はあなた自身の言葉で書き起こす。原文の言い回しの流用や、テンプレ的な汎用表現(「背景として」「意思決定では」「示唆を整理する」「注視が必要」「今後の動向が注目される」等)を避ける。
-- 「日本企業への示唆」(implications)は、進出・調達・採用・リスク管理など具体的な行動に直結する内容を3点。
+- 「本記事のポイント」(implications)は、何がどう変わり誰に関係するかが分かる具体的な要約を3点。
 - summary は日本語で約450〜600字の自然な記事本文。
 - category は次のいずれか1つ: economy / regulation / social / culture / market / column
 - industryTags は次から該当するもののみを0個以上: automotive, semiconductor, machine_tools, food, chemicals, logistics, agriculture, steel, education, entertainment, talent
@@ -99,7 +95,7 @@ function articleBlock(a: ArticleRow): string {
 本文:
 ${a.summary}
 
-日本企業への示唆:
+本記事のポイント:
 ${imp}`
 }
 
@@ -116,34 +112,18 @@ function isCreditError(e: unknown): boolean {
 }
 
 async function callOnce(system: string, user: string): Promise<string> {
-  if (PROVIDER === "anthropic") {
-    const res = await anthropic.messages.create(
-      { model: ANTHROPIC_MODEL, max_tokens: 2000, system, messages: [{ role: "user", content: user }] },
-      { timeout: 60000 },
-    )
-    const block = res.content.find((b) => b.type === "text")
-    if (!block || block.type !== "text") throw new Error("no text block")
-    return block.text
-  }
-  // openai
-  const res = await openai.chat.completions.create(
+  const res = await anthropic.messages.create(
     {
-      model: OPENAI_MODEL,
-      max_completion_tokens: 4000,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      ...(OPENAI_MODEL.startsWith("gpt-5") || OPENAI_MODEL.startsWith("o1") || OPENAI_MODEL.startsWith("o3")
-        ? { reasoning_effort: "low" as const }
-        : {}),
+      model: ANTHROPIC_MODEL,
+      max_tokens: 4000,
+      system,
+      messages: [{ role: "user", content: user }],
     },
     { timeout: 90000 },
   )
-  const content = res.choices[0]?.message?.content
-  if (!content) throw new Error("empty OpenAI response")
-  return content
+  const block = res.content.find((b) => b.type === "text")
+  if (!block || block.type !== "text") throw new Error("Claude response has no text block")
+  return block.text
 }
 
 async function callLLM(system: string, user: string): Promise<string> {

@@ -41,27 +41,38 @@ export class AnthropicClient implements LLMClient {
 
   async synthesize(input: SynthesisInput, opts?: SynthesizeOptions): Promise<SynthesisOutput> {
     const { system, user } = (opts?.promptBuilder ?? getDefaultSynthesisPromptBuilder())(input)
-    const raw = await this.callMessage(system, user, "synthesize")
-    return parseSynthesisOutput(raw, input)
+    return this.callMessage(system, user, "synthesize", (raw) =>
+      parseSynthesisOutput(raw, input),
+    )
   }
 
   async checkQuality(input: QualityCheckInput): Promise<QualityCheckOutput> {
     const { system, user } = buildQualityCheckPrompt(input)
-    const raw = await this.callMessage(system, user, "checkQuality")
-    return parseQualityCheckOutput(raw)
+    return this.callMessage(
+      system,
+      user,
+      "checkQuality",
+      parseQualityCheckOutput,
+    )
   }
 
   async reviseSynthesis(input: ReviseSynthesisInput): Promise<SynthesisOutput> {
     const { user, system } = buildRevisionPrompt(input)
-    const raw = await this.callMessage(system, user, "reviseSynthesis")
-    return parseSynthesisOutput(raw, {
-      cluster: input.cluster,
-      categoryHint: input.categoryHint,
-      industryHints: input.industryHints,
-    })
+    return this.callMessage(system, user, "reviseSynthesis", (raw) =>
+      parseSynthesisOutput(raw, {
+        cluster: input.cluster,
+        categoryHint: input.categoryHint,
+        industryHints: input.industryHints,
+      }),
+    )
   }
 
-  private async callMessage(system: string, user: string, label: string): Promise<string> {
+  private async callMessage<T>(
+    system: string,
+    user: string,
+    label: string,
+    parse: (raw: string) => T,
+  ): Promise<T> {
     let lastError: unknown
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
@@ -97,7 +108,9 @@ export class AnthropicClient implements LLMClient {
           throw new LLMError("Claude応答にテキストブロックがありません")
         }
 
-        return textBlock.text
+        // Parse inside the retry boundary. A truncated/malformed JSON response
+        // is just as retryable as a transient transport error.
+        return parse(textBlock.text)
       } catch (error) {
         lastError = error
         const isParseError =

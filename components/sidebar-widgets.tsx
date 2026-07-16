@@ -42,10 +42,10 @@ function RailHead({
   icon: React.ReactNode
 }) {
   return (
-    <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
-      <div className="flex items-center gap-2">
+    <div className="mb-2.5 flex items-center justify-between border-b border-border pb-2">
+      <div className="flex items-center gap-1.5">
         <span className="text-accent">{icon}</span>
-        <h3 className="font-serif text-sm font-bold">{label}</h3>
+        <h3 className="font-serif text-[13px] font-bold">{label}</h3>
       </div>
       <span className="font-mono text-[9px] tracking-[0.2em] text-muted-foreground">
         {en}
@@ -619,26 +619,26 @@ export function EditorialColumnWidget() {
   if (columns.length === 0) return null
 
   return (
-    <div className="rounded-md border border-border bg-card p-5">
+    <div className="rounded-md border border-border bg-card p-4">
       <RailHead
         label="編集部コラム"
         en="EDITORIAL"
-        icon={<Feather className="size-4" />}
+        icon={<Feather className="size-3.5" />}
       />
-      <ul className="space-y-4">
+      <ul className="space-y-3">
         {columns.map((article) => {
           const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
           return (
             <li key={article.id}>
-              <Link href={`/article/${article.id}`} className="group flex gap-3">
-                <div className="relative size-16 shrink-0 overflow-hidden rounded bg-muted">
+              <Link href={`/article/${article.id}`} className="group flex gap-2.5">
+                <div className="relative size-14 shrink-0 overflow-hidden rounded bg-muted">
                   {imageSrc ? (
                     <Image
                       src={imageSrc}
                       alt={article.title}
                       fill
                       className="object-cover"
-                      sizes="64px"
+                      sizes="56px"
                     />
                   ) : (
                     <div className="absolute inset-0 ph-stripe" />
@@ -648,7 +648,7 @@ export function EditorialColumnWidget() {
                   <p className="line-clamp-2 text-xs font-semibold leading-snug group-hover:text-accent">
                     {article.title}
                   </p>
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+                  <p className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-muted-foreground">
                     {article.summary}
                   </p>
                   <p className="mt-1 font-mono text-[10px] text-muted-foreground">
@@ -660,6 +660,13 @@ export function EditorialColumnWidget() {
           )
         })}
       </ul>
+      <Link
+        href="/?category=column"
+        className="mt-3 flex items-center justify-end gap-0.5 text-[11px] font-semibold text-primary hover:underline"
+      >
+        一覧を見る
+        <ChevronRight className="size-3.5" />
+      </Link>
     </div>
   )
 }

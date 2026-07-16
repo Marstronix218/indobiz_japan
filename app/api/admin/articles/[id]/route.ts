@@ -32,7 +32,10 @@ function pickUpdate(body: Record<string, unknown>): UpdateArticleInput {
     input.industryTags = body.industryTags.filter((t): t is string => typeof t === "string") as IndustryTag[]
   }
   if (Array.isArray(body.implications)) {
-    input.implications = body.implications.filter((t): t is string => typeof t === "string")
+    input.implications = body.implications
+      .filter((t): t is string => typeof t === "string")
+      .map((text) => text.trim())
+      .filter(Boolean)
   }
   if (typeof body.contentType === "string") input.contentType = body.contentType as ContentType
   if (typeof body.visibility === "string") input.visibility = body.visibility as Visibility
@@ -74,6 +77,19 @@ export async function PATCH(
     body = (await request.json()) as Record<string, unknown>
   } catch {
     return NextResponse.json({ ok: false, error: "invalid json" }, { status: 400 })
+  }
+
+  if (
+    Array.isArray(body.implications) &&
+    body.implications.filter(
+      (item): item is string =>
+        typeof item === "string" && item.trim().length > 0,
+    ).length > 3
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "implications must contain at most 3 items" },
+      { status: 400 },
+    )
   }
 
   const update = pickUpdate(body)

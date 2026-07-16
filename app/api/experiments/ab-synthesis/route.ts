@@ -4,7 +4,6 @@ import { resolve } from "node:path"
 import { fetchIndiaNews } from "@/lib/scrapers/fetch-india-news"
 import { clusterArticles, readClusterOptionsFromEnv } from "@/lib/clustering"
 import type { RawSourceArticle } from "@/lib/automation"
-import { OpenAIClient } from "@/lib/llm/openai-client"
 import { AnthropicClient } from "@/lib/llm/anthropic-client"
 import { buildSynthesisPrompt, buildSynthesisPromptCoreFirst } from "@/lib/llm/prompt"
 import type { LLMClient, SynthesisInput, SynthesisOutput } from "@/lib/llm/types"
@@ -16,11 +15,11 @@ export const maxDuration = 300
 
 // 開発専用の使い捨て実験ルート。
 // プロンプト構造「フラット統合(現行) vs 主軸＋肉付け(新)」をA/B比較する。
-// モデルは gpt-5-mini に固定し、唯一の変数をプロンプト構造だけに絞る。検証後は削除可。
+// 記事生成は Anthropic に固定し、唯一の変数をプロンプト構造だけに絞る。検証後は削除可。
 
 const EXP_DIR = resolve(process.cwd(), "scripts/experiments")
 const FROZEN_PATH = resolve(EXP_DIR, "frozen-clusters.json")
-const MODEL = "gpt-5-mini"
+const MODEL = process.env.LLM_MODEL_ANTHROPIC ?? "claude-sonnet-4-6"
 
 interface FrozenFile {
   capturedAt: string
@@ -94,7 +93,7 @@ function renderArm(label: string, out: SynthesisOutput): string {
     "",
     out.summary,
     "",
-    "**日本企業への示唆:**",
+    "**本記事のポイント:**",
     ...out.implications.map((s) => `- ${s}`),
     "",
   ].join("\n")
@@ -108,7 +107,7 @@ async function handleRun(): Promise<NextResponse> {
     )
   }
   const frozen = JSON.parse(readFileSync(FROZEN_PATH, "utf8")) as FrozenFile
-  const llm = new OpenAIClient({ model: MODEL })
+  const llm = new AnthropicClient({ model: MODEL })
 
   const lines: string[] = [
     `# A/Bテスト結果: フラット統合(A) vs 主軸＋肉付け(B)`,
@@ -159,11 +158,12 @@ async function handleRun(): Promise<NextResponse> {
   return NextResponse.json({ ok: true, mode: "run", model: MODEL, path: outPath, summary })
 }
 
-// 実験②: プロンプトを core-first に固定し、モデルだけを変えて比較する。
+// 実験②: プロンプトを core-first に固定し、Claudeモデルだけを変えて比較する。
 function makeClient(modelId: string): LLMClient {
-  return modelId.startsWith("claude")
-    ? new AnthropicClient({ model: modelId })
-    : new OpenAIClient({ model: modelId })
+  if (!modelId.toLowerCase().startsWith("claude")) {
+    throw new Error(`記事生成の比較対象にはClaudeモデルのみ指定できます: ${modelId}`)
+  }
+  return new AnthropicClient({ model: modelId })
 }
 
 async function handleModels(modelsCsv: string): Promise<NextResponse> {
@@ -177,7 +177,7 @@ async function handleModels(modelsCsv: string): Promise<NextResponse> {
   const frozen = JSON.parse(readFileSync(FROZEN_PATH, "utf8")) as FrozenFile
 
   const lines: string[] = [
-    `# モデル比較: 同一プロンプト(主軸＋肉付け)で gpt vs claude`,
+    `# Claudeモデル比較: 同一プロンプト(主軸＋肉付け)`,
     "",
     `- 実行時刻: ${new Date().toISOString()}`,
     `- 凍結データ: ${frozen.capturedAt} 取得 / ${frozen.clusters.length} クラスタ`,
@@ -244,7 +244,7 @@ export async function GET(request: Request) {
     if (mode === "freeze") return await handleFreeze(n)
     if (mode === "run") return await handleRun()
     if (mode === "models") {
-      const models = url.searchParams.get("models") ?? "gpt-5-mini,gpt-5.4,claude-sonnet-4-6"
+      const models = url.searchParams.get("models") ?? MODEL
       return await handleModels(models)
     }
     return NextResponse.json(

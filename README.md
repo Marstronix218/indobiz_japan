@@ -13,7 +13,7 @@ IndoBiz Japan is a Next.js intelligence platform for Japanese companies tracking
 - Stripe checkout, customer portal, and webhook routes for paid memberships
 - Admin area for article management, image upload, and scraper execution
 - RSS/API scraping pipeline with source URL quality gates and provenance snippets
-- Optional LLM synthesis through Anthropic or OpenAI
+- Article synthesis, quality checks, and revisions through Anthropic Claude
 - Optional AI image generation through OpenAI Images or Runware with Supabase Storage upload
 
 ## Tech Stack
@@ -71,12 +71,12 @@ Open `http://localhost:3000`.
 
 Key groups in `.env.example`:
 
-- `LLM_PROVIDER`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`: article synthesis provider and model settings
+- `ANTHROPIC_API_KEY`, `LLM_MODEL_ANTHROPIC`: Claude article synthesis, quality-check, and revision settings
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`: Supabase app and server access
 - `CRON_SECRET`, `ADMIN_API_KEY`: cron and admin API protection
 - `GNEWS_API_KEY`, `GNEWS_QUERY`, `GNEWS_LANG`, `GNEWS_COUNTRY`: optional GNews integration for scraping
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`, `NEXT_PUBLIC_APP_URL`: Stripe membership payments
-- `IMAGE_PROVIDER`, `OPENAI_IMAGE_*`, `RUNWARE_*`, `SUPABASE_IMAGE_BUCKET`: generated article image settings
+- `IMAGE_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_IMAGE_*`, `RUNWARE_*`, `SUPABASE_IMAGE_BUCKET`: generated article image settings
 
 ## Useful Scripts
 

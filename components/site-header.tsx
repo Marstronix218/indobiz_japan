@@ -25,7 +25,7 @@ function BrandWordmark({ compact = false }: { compact?: boolean }) {
       className={
         compact
           ? "font-serif text-sm font-bold tracking-normal"
-          : "font-serif text-2xl font-bold tracking-normal sm:text-[32px]"
+          : "font-serif text-2xl font-bold tracking-normal sm:text-[26px]"
       }
     >
       <span className="text-primary">IndoBiz</span>{" "}
@@ -40,7 +40,7 @@ export function SiteHeader() {
   return (
     <header className="border-b border-border bg-background">
       <div className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 text-[11px] sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-5 py-1.5 text-[11px] sm:px-6">
           <p className="truncate font-semibold text-primary-foreground">
             日本企業向けインド市場インテリジェンス
           </p>
@@ -63,43 +63,43 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-end">
-          <Link href="/" className="inline-flex min-w-0 items-center gap-4">
-            <span className="relative size-14 shrink-0 overflow-hidden rounded-md border border-border bg-background">
+      <div className="mx-auto max-w-[1180px] px-5 py-2 sm:px-6">
+        <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-end">
+          <Link href="/" className="inline-flex min-w-0 items-center gap-3">
+            <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-background">
               <Image
                 src="/goindia.png"
                 alt="IndoBiz Japan logo"
-                width={56}
-                height={56}
+                width={48}
+                height={48}
                 className="size-full object-contain"
                 priority
               />
             </span>
             <span className="min-w-0 leading-tight">
               <BrandWordmark />
-              <span className="mt-1 block truncate text-xs text-muted-foreground">
+              <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
                 日本企業向けインド市場インテリジェンス · 編集部監修
               </span>
             </span>
           </Link>
 
-          <div className="flex min-w-0 flex-col gap-3 lg:items-end">
+          <div className="flex min-w-0 flex-col gap-2 lg:items-end">
             <form
               action="/"
-              className="relative hidden w-full max-w-[220px] items-center md:flex"
+              className="relative hidden w-full max-w-[200px] items-center md:flex"
             >
-              <Search className="pointer-events-none absolute right-3 size-4 text-muted-foreground" />
+              <Search className="pointer-events-none absolute right-2.5 size-3.5 text-muted-foreground" />
               <input
                 type="search"
                 name="q"
                 placeholder="記事を検索..."
-                className="h-10 w-full rounded-md border border-input bg-background px-3 pr-10 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/20"
+                className="h-8 w-full rounded-md border border-input bg-background px-2.5 pr-8 text-xs outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/20"
               />
             </form>
             <nav
               aria-label="主要カテゴリ"
-              className="flex w-full min-w-0 items-center justify-start gap-5 overflow-x-auto text-sm font-semibold lg:justify-end [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex w-full min-w-0 items-center justify-start gap-4 overflow-x-auto text-[13px] font-semibold lg:justify-end [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <Link href="/" className="shrink-0 hover:text-accent">
                 トップ

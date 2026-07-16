@@ -13,8 +13,17 @@ const ARTICLE_BODY_MIN_CHARS = 450
 const ARTICLE_BODY_MAX_CHARS = 700
 const TAKEAWAY_COUNT = 3
 // 本記事のポイントは「読者が何が起きたか理解できる具体的な一文」(40〜90字目安)。
-// ガードでは上限のみ機械判定し、羅列的な短文の検出は LLM 品質チェックに委ねる。
+// 極端な短文と長文は機械判定し、内容の具体性は LLM 品質チェックに委ねる。
+const TAKEAWAY_MIN_CHARS = 40
 const TAKEAWAY_MAX_CHARS = 90
+const BACKGROUND_CONTEXT_MIN_CHARS = 200
+const BACKGROUND_CONTEXT_MAX_CHARS = 300
+const JAPAN_BUSINESS_IMPACT_MIN_CHARS = 100
+const JAPAN_BUSINESS_IMPACT_MAX_CHARS = 180
+const KEYWORD_DEFINITION_MIN_CHARS = 50
+const KEYWORD_DEFINITION_MAX_CHARS = 120
+const IMAGE_CAPTION_MIN_CHARS = 40
+const IMAGE_CAPTION_MAX_CHARS = 90
 const SIGNIFICANT_NUMBER_MIN = 13
 const GENERIC_KATAKANA_TERMS = new Set([
   "インド",
@@ -82,6 +91,7 @@ export function runDeterministicQualityGuard(
 ): QualityCheckOutput | null {
   const issues: DeterministicIssue[] = [
     ...checkArticleFormat(output),
+    ...checkEnrichmentFormat(output),
     ...checkMetaAndTemplateText(output),
     ...checkIndustryTagAlignment(output, cluster),
     ...checkReferenceMapping(output, cluster),
@@ -104,6 +114,70 @@ export function runDeterministicQualityGuard(
       ? issues.map((issue) => `- ${issue.instruction}`).join("\n")
       : undefined,
   }
+}
+
+function checkEnrichmentFormat(output: SynthesisOutput): DeterministicIssue[] {
+  const issues: DeterministicIssue[] = []
+
+  const checkOptionalLength = (
+    label: string,
+    field: string,
+    value: string | undefined,
+    min: number,
+    max: number,
+  ) => {
+    if (!value) return
+    const length = value.trim().length
+    if (length >= min && length <= max) return
+    issues.push({
+      issue: `${label}の文字数が指定範囲外である: ${length}字`,
+      instruction: `${field} は${min}〜${max}字に収めること。参照資料で確認できる事実だけを使い、根拠が足りなければ null にすること。`,
+    })
+  }
+
+  checkOptionalLength(
+    "ニュースの背景",
+    "backgroundContext",
+    output.backgroundContext,
+    BACKGROUND_CONTEXT_MIN_CHARS,
+    BACKGROUND_CONTEXT_MAX_CHARS,
+  )
+  checkOptionalLength(
+    "日本企業への影響",
+    "japanBusinessImpact",
+    output.japanBusinessImpact &&
+      /日本企業への直接的な影響.*確認でき(?:ません|ない)/.test(
+        output.japanBusinessImpact,
+      ) &&
+      output.japanBusinessImpact.length <= JAPAN_BUSINESS_IMPACT_MAX_CHARS
+      ? undefined
+      : output.japanBusinessImpact,
+    JAPAN_BUSINESS_IMPACT_MIN_CHARS,
+    JAPAN_BUSINESS_IMPACT_MAX_CHARS,
+  )
+  checkOptionalLength(
+    "画像キャプション",
+    "imageCaption",
+    output.imageCaption,
+    IMAGE_CAPTION_MIN_CHARS,
+    IMAGE_CAPTION_MAX_CHARS,
+  )
+
+  for (const [index, keyword] of (output.keywords ?? []).entries()) {
+    const length = keyword.definition.trim().length
+    if (
+      length >= KEYWORD_DEFINITION_MIN_CHARS &&
+      length <= KEYWORD_DEFINITION_MAX_CHARS
+    ) {
+      continue
+    }
+    issues.push({
+      issue: `キーワード解説${index + 1}（${keyword.term}）の説明が指定範囲外である: ${length}字`,
+      instruction: `keywords[${index}].definition は${KEYWORD_DEFINITION_MIN_CHARS}〜${KEYWORD_DEFINITION_MAX_CHARS}字で、参照資料から確認できる定義だけを書くこと。根拠が足りなければその用語を削除すること。`,
+    })
+  }
+
+  return issues
 }
 
 function checkArticleFormat(output: SynthesisOutput): DeterministicIssue[] {
@@ -129,10 +203,10 @@ function checkArticleFormat(output: SynthesisOutput): DeterministicIssue[] {
 
   output.implications.forEach((item, index) => {
     const length = item.trim().length
-    if (length > TAKEAWAY_MAX_CHARS) {
+    if (length < TAKEAWAY_MIN_CHARS || length > TAKEAWAY_MAX_CHARS) {
       issues.push({
-        issue: `本記事のポイント${index + 1}が${TAKEAWAY_MAX_CHARS}字を超えている: ${length}字`,
-        instruction: `implications[${index}] は${TAKEAWAY_MAX_CHARS}字以内の具体的な一文に要約すること。`,
+        issue: `本記事のポイント${index + 1}が指定範囲外である: ${length}字`,
+        instruction: `implications[${index}] は${TAKEAWAY_MIN_CHARS}〜${TAKEAWAY_MAX_CHARS}字の具体的な一文にすること。`,
       })
     }
   })
