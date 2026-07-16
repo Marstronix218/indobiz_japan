@@ -153,7 +153,7 @@ export function NewsCardMosaic({
           alt={article.title}
           fill
           priority={priority}
-          loading={priority ? "eager" : undefined}
+          loading="eager"
           className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 1024px) 100vw, 33vw"
         />

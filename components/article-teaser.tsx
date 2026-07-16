@@ -68,6 +68,7 @@ export function ArticleTeaser({
                 alt={article.title}
                 fill
                 priority
+                loading="eager"
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 448px"
               />

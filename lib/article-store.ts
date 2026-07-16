@@ -1,11 +1,25 @@
 "use client"
 
-import { useCallback, useEffect, useSyncExternalStore } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+} from "react"
 import { type NewsArticle } from "./news-data"
 
 let articles: NewsArticle[] = []
 let hydrated = false
 const listeners = new Set<() => void>()
+const EMPTY_ARTICLES: NewsArticle[] = []
+
+// Client components are also rendered on the server. Supplying the request's
+// initial articles through context prevents the server snapshot from reading
+// the process-global (initially empty) client store and rendering a false
+// "記事が見つかりません" state before hydration.
+export const ArticleStoreInitialContext =
+  createContext<NewsArticle[] | null>(null)
 
 function emitChange() {
   listeners.forEach((listener) => listener())
@@ -93,7 +107,12 @@ export function getArticleById(id: string) {
 }
 
 export function useArticles() {
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const initial = useContext(ArticleStoreInitialContext)
+  return useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    () => initial ?? EMPTY_ARTICLES,
+  )
 }
 
 export function usePublicArticles() {

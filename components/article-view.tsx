@@ -476,6 +476,7 @@ export function ArticleView({
                     alt={article.imageCaption || article.title}
                     fill
                     priority
+                    loading="eager"
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 780px"
                   />

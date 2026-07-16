@@ -1,6 +1,9 @@
 "use client"
 
-import { useHydrateArticles } from "@/lib/article-store"
+import {
+  ArticleStoreInitialContext,
+  useHydrateArticles,
+} from "@/lib/article-store"
 import type { NewsArticle } from "@/lib/news-data"
 
 export function ArticleStoreProvider({
@@ -12,5 +15,9 @@ export function ArticleStoreProvider({
 }) {
   useHydrateArticles(initial)
 
-  return <>{children}</>
+  return (
+    <ArticleStoreInitialContext.Provider value={initial}>
+      {children}
+    </ArticleStoreInitialContext.Provider>
+  )
 }
