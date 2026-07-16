@@ -74,6 +74,14 @@ export class AnthropicClient implements LLMClient {
     parse: (raw: string) => T,
   ): Promise<T> {
     let lastError: unknown
+    const operationTimeout = label === "reviseSynthesis"
+      ? Number(process.env.LLM_REVISION_TIMEOUT_MS ?? this.timeoutMs)
+      : label === "synthesize"
+        ? Number(process.env.LLM_SYNTHESIS_TIMEOUT_MS ?? this.timeoutMs)
+        : Number(process.env.LLM_QUALITY_TIMEOUT_MS ?? this.timeoutMs)
+    const timeoutMs = Number.isFinite(operationTimeout) && operationTimeout > 0
+      ? operationTimeout
+      : this.timeoutMs
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
         // システムプロンプト(巨大かつ1回の実行で全クラスタ共通)をプレフィックスキャッシュする。
@@ -83,14 +91,22 @@ export class AnthropicClient implements LLMClient {
         const cachedSystem = [
           { type: "text", text: system, cache_control: { type: "ephemeral" } },
         ] as unknown as string
+        // Sonnet 5 enables adaptive thinking by default. These calls are
+        // schema-constrained editorial transformations, and the default
+        // thinking mode consumed the entire output budget or timed out before
+        // emitting JSON during revisions. Disable it explicitly for stable
+        // latency; factual quality is enforced by the deterministic guard plus
+        // a separate Claude editorial pass.
+        const request = {
+          model: this.model,
+          max_tokens: this.maxTokens,
+          thinking: { type: "disabled" },
+          system: cachedSystem,
+          messages: [{ role: "user", content: user }],
+        } as unknown as Anthropic.MessageCreateParamsNonStreaming
         const response = await this.client.messages.create(
-          {
-            model: this.model,
-            max_tokens: this.maxTokens,
-            system: cachedSystem,
-            messages: [{ role: "user", content: user }],
-          },
-          { timeout: this.timeoutMs },
+          request,
+          { timeout: timeoutMs },
         )
 
         const u = response.usage as typeof response.usage & {
@@ -117,7 +133,8 @@ export class AnthropicClient implements LLMClient {
           error instanceof LLMError &&
           (error.message.includes("JSONパースに失敗") ||
             error.message.includes("JSONオブジェクトが見つかりません") ||
-            error.message.includes("必須フィールドが欠落"))
+            error.message.includes("必須フィールドが欠落") ||
+            error.message.includes("テキストブロックがありません"))
         const retryable = isParseError || isRetryableLLMError(error)
         if (attempt < this.maxRetries && retryable) {
           const delayMs = Math.min(1000 * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 500)

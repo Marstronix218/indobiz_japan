@@ -28,11 +28,13 @@ import { buildSafeImagePrompt } from "@/lib/image-gen/safe-prompt"
 import {
   fetchArticleBody,
   fetchSimilarArticles,
+  buildEvidenceSnippets,
   isGoogleNewsArticleUrl,
+  isUsableArticleBody,
   resolveGoogleNewsUrl,
 } from "@/lib/scrapers/fetch-india-news"
 import { isCoreFirstSynthesisEnabled } from "@/lib/llm/prompt"
-import { normalizeSourceTitle } from "@/lib/llm/source-policy"
+import { normalizeSourceTitle, normalizeSourceUrl } from "@/lib/llm/source-policy"
 import { runDeterministicQualityGuard } from "@/lib/llm/output-quality-guard"
 
 export type ConnectorMode = "rss" | "api"
@@ -246,6 +248,9 @@ function evidenceProblem(article: RawSourceArticle): string | null {
   }
   if (body.length < MIN_EVIDENCE_BODY_CHARS) {
     return `本文根拠が短すぎる (${body.length}字)`
+  }
+  if (!isUsableArticleBody(body, article.originalTitle ?? article.title)) {
+    return "取得本文が見出しと対応しない、または著者紹介・購読導線などのボイラープレートである"
   }
   return null
 }
@@ -487,13 +492,31 @@ function buildSynthesizedDraft(
   const category = normalizeLegacyCategory(output.category || primary.legacyCategory || "economy")
   const llmTags = normalizeTagList(output.industryTags)
   const industryTags = llmTags.length > 0 ? llmTags : primary.industryHints ?? []
-  const sources: SourceProvenance[] = output.referenceUrls.map((ref) => ({
-    originalTitle: ref.title,
-    originalUrl: ref.url,
-  }))
+  // Preserve the complete provenance captured by the scraper/body-enrichment
+  // phase.  Rebuilding sources from the LLM's title+URL output used to discard
+  // source_name, canonical URL, timestamps, extraction method and all evidence
+  // snippets, making later editorial audits impossible.
+  const referencedRawSources = output.referenceUrls.map((ref) => {
+    const urlKey = normalizeSourceUrl(ref.url)
+    const titleKey = normalizeSourceTitle(ref.title)
+    return cluster.find((item) =>
+      normalizeSourceUrl(item.canonicalUrl ?? item.url) === urlKey ||
+      normalizeSourceUrl(item.url) === urlKey ||
+      normalizeSourceTitle(item.originalTitle ?? item.title) === titleKey
+    )
+  })
+  const sources: SourceProvenance[] = output.referenceUrls.map((ref, index) => {
+    const matched = referencedRawSources[index]
+    return matched
+      ? toProvenance(matched)
+      : { originalTitle: ref.title, originalUrl: ref.url }
+  })
+  const usedSourceNames = referencedRawSources
+    .filter((source): source is RawSourceArticle => Boolean(source))
+    .map((source) => source.source)
 
   const baseStatus: WorkflowStatus =
-    category === "regulation" && cluster.length === 1 ? "review" : "published"
+    category === "regulation" && sources.length < 2 ? "review" : "published"
   const workflowStatus: WorkflowStatus = opts?.forceReview ? "review" : baseStatus
 
   return {
@@ -503,8 +526,10 @@ function buildSynthesizedDraft(
     imageUrl: primary.imageUrl,
     provenance: sources[0],
     sources,
-    source: cluster.length > 1 ? `${primary.source}、他${cluster.length - 1}件` : primary.source,
-    sourceUrl: primary.url,
+    source: usedSourceNames.length > 1
+      ? `${usedSourceNames[0]}、他${usedSourceNames.length - 1}件`
+      : usedSourceNames[0] ?? primary.source,
+    sourceUrl: sources[0]?.canonicalUrl ?? sources[0]?.originalUrl ?? primary.url,
     publishedAt: primary.publishedAt,
     category,
     industryTags,
@@ -629,11 +654,16 @@ async function buildDraft(
       }
     }
 
-    primary.imageUrl = await tryGenerateImage(
-      imageClient,
-      finalOutput.imagePrompt,
-      primary.title,
-    ) ?? undefined
+    // Avoid paying for (and storing) a generated image for content which the
+    // editorial gate has already held for review.  Remediation can generate an
+    // image after the article itself reaches PASS.
+    if (!forceReview && (!qualityCheck || qualityCheck.verdict === "PASS")) {
+      primary.imageUrl = await tryGenerateImage(
+        imageClient,
+        finalOutput.imagePrompt,
+        primary.title,
+      ) ?? undefined
+    }
 
     return buildSynthesizedDraft(evidenceCluster, primary, finalOutput, { qualityCheck, forceReview })
   } catch (error) {
@@ -791,10 +821,17 @@ async function enrichClusterBodies(clusters: RawSourceArticle[][]): Promise<numb
       }
     }
 
-    const fetched = await fetchArticleBody(targetUrl, timeoutMs)
-    if (fetched && fetched.length > cleanText(article.bodyText ?? "").length) {
+    const expectedTitle = article.originalTitle ?? article.title
+    const fetched = await fetchArticleBody(targetUrl, timeoutMs, expectedTitle)
+    if (
+      fetched &&
+      isUsableArticleBody(fetched, expectedTitle) &&
+      fetched.length > cleanText(article.bodyText ?? "").length
+    ) {
       article.bodyText = fetched
       article.extractedBy = "article-body-fetch"
+      article.fetchedAt = new Date().toISOString()
+      article.evidenceSnippets = buildEvidenceSnippets(fetched)
       enriched += 1
     }
   })

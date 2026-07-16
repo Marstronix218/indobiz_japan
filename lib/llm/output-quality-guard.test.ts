@@ -146,7 +146,7 @@ test("accepts the explicit no-direct-impact statement allowed by the prompt", ()
 test("flags generated enrichment fields outside their requested ranges", () => {
   const qc = runDeterministicQualityGuard(
     output({
-      backgroundContext: "背".repeat(198),
+      backgroundContext: "背".repeat(140),
       japanBusinessImpact: "影".repeat(181),
       imageCaption: "写".repeat(20),
       keywords: [{ term: "EPFO", definition: "定".repeat(32) }],
@@ -171,6 +171,75 @@ test("flags unsupported numbers introduced from outside the provided sources", (
 
   assert.equal(qc?.verdict, "REVISION")
   assert(qc?.issues.some((issue) => issue.includes("10")))
+})
+
+test("accepts equivalent crore and Japanese oku notation", () => {
+  const source: SynthesisSource[] = [{
+    source: "PIB",
+    sourceUrl: "https://example.com/mpms",
+    publishedAt: "2026-07-14",
+    title: "Cabinet approves MPMS with Rs 62,500 crore outlay",
+    bodyText: "The scheme has an outlay of Rs 62,500 crore and is expected to create 60,000 jobs.",
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "インド政府、MPMSに6,250億ルピーを投じる制度案を承認",
+      summary: validSummary
+        .replaceAll("94.63", "6,250億")
+        .replace("インドルピー", "インド政府はMPMSに") + "同制度は6万人の雇用創出を見込む。",
+      referenceUrls: [{ title: source[0].title, url: source[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["6,250億ルピー", "6万人"] }],
+    }),
+    source,
+  )
+
+  assert.equal(qc?.issues.some((issue) => issue.includes("6,250")), false)
+  assert.equal(qc?.issues.some((issue) => issue.includes("6万人")), false)
+})
+
+test("flags a draft regulation presented without draft status", () => {
+  const source: SynthesisSource[] = [{
+    source: "RBI",
+    sourceUrl: "https://example.com/rbi-draft",
+    publishedAt: "2026-07-15",
+    title: "RBI issues draft data governance guidance for public comments",
+    bodyText: "The Reserve Bank of India released draft guidance for public comments. Regulated entities shall designate accountable officers under the proposed framework.",
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "RBIが銀行にデータ統治指針、管理責任を義務付け",
+      summary: validSummary,
+      category: "regulation",
+      referenceUrls: [{ title: source[0].title, url: source[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["draft data governance guidance"] }],
+    }),
+    source,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("草案・提案")))
+})
+
+test("flags future effective dates written as already effective", () => {
+  const source: SynthesisSource[] = [{
+    source: "Government",
+    sourceUrl: "https://example.com/future-fta",
+    publishedAt: "2026-07-12",
+    title: "India UK trade agreement will enter into force on July 15",
+    bodyText: "The agreement will enter into force on July 15 after ratification.",
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "印英FTAが発効、関税を撤廃",
+      summary: validSummary.replace("インドルピーは", "印英FTAは発効し、"),
+      referenceUrls: [{ title: source[0].title, url: source[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["July 15"] }],
+    }),
+    source,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("将来の発効")))
 })
 
 test("flags rupee articles that accidentally use yen-level wording", () => {

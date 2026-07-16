@@ -28,3 +28,6 @@ AGENTS.md
 scripts/experiments/frozen-clusters.json
 scripts/experiments/ab-results-*.md
 scripts/experiments/model-results-*.md
+
+# Production remediation artifacts (DB backups + fetched source bodies)
+scripts/remediation-backup/

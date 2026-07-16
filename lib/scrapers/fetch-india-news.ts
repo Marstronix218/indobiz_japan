@@ -368,26 +368,146 @@ function htmlFragmentToText(fragment: string): string {
 const ARTICLE_BODY_MAX_CHARS = 4000
 const ARTICLE_BODY_MIN_USABLE_CHARS = 200
 
+// Publisher chrome can contain several hundred characters of author bios,
+// calculators and subscription prompts.  Length alone is therefore not a
+// sufficient signal that we extracted the article itself (TOI is the most
+// common example).  Keep these patterns deliberately specific so a real
+// article which merely mentions a subscription is not rejected.
+const ARTICLE_BODY_BOILERPLATE_PATTERNS = [
+  /the toi business desk is a vigilant and dedicated team of journalists/i,
+  /determine the monthly installment.*(?:emi|loan)/i,
+  /calculate your (?:income )?tax/i,
+  /subscribe to continue reading/i,
+  /sign in to read the full article/i,
+]
+
+const TITLE_TOKEN_STOPWORDS = new Set([
+  "about", "after", "amid", "from", "into", "over", "that", "their", "this",
+  "with", "will", "says", "said", "news", "india", "indian", "business",
+  "the", "and", "for", "but", "not", "its", "are", "has", "have", "how",
+])
+
+function decodeJsonString(value: string): string {
+  try {
+    return JSON.parse(`"${value}"`)
+  } catch {
+    return value
+      .replace(/\\n/g, " ")
+      .replace(/\\"/g, '"')
+      .replace(/\\\//g, "/")
+  }
+}
+
+function extractJsonLdArticleBody(html: string): string {
+  const candidates: string[] = []
+  for (const match of html.matchAll(
+    /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+  )) {
+    const raw = match[1]
+    // Some publishers emit invalid/concatenated JSON-LD.  Pulling the
+    // articleBody string directly is more resilient than rejecting the whole
+    // block when JSON.parse fails.
+    const bodyMatch = raw.match(/"articleBody"\s*:\s*"((?:\\.|[^"\\])*)"/i)
+    if (!bodyMatch) continue
+    const text = htmlFragmentToText(decodeJsonString(bodyMatch[1]))
+    if (text.length >= ARTICLE_BODY_MIN_USABLE_CHARS) candidates.push(text)
+  }
+  return candidates.sort((a, b) => b.length - a.length)[0] ?? ""
+}
+
 function extractMainText(html: string): string {
+  const jsonLdBody = extractJsonLdArticleBody(html)
   const cleaned = html
     .replace(/<!--[\s\S]*?-->/g, " ")
-    .replace(/<(script|style|noscript|svg|template|form|iframe)\b[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<(script|style|noscript|svg|template|iframe)\b[\s\S]*?<\/\1>/gi, " ")
+    // Forms on PIB/Nifty wrap the entire page, including the real article.
+    // Remove only the form tags; removing the whole element deletes the body.
+    .replace(/<\/?form\b[^>]*>/gi, " ")
 
   // 本文は <article> 内にあることが多い。十分な長さがあればそこに絞る。
   const articleMatch = cleaned.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)
-  const scope = articleMatch && articleMatch[1].length > 400 ? articleMatch[1] : cleaned
+  const mainMatch = cleaned.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)
+  // TOI does not consistently use an <article> element, but marks the actual
+  // story container with data-articlebody="1".  Starting the extraction at
+  // that marker avoids the author bio and calculator paragraphs which precede
+  // the story in the DOM.  The early 80k slice is ample for the 4k output cap
+  // and avoids drifting into related stories.
+  const markedBodyStart = cleaned.search(/<[^>]+data-articlebody=["']1["'][^>]*>/i)
+  const markedScope = markedBodyStart >= 0
+    ? cleaned.slice(markedBodyStart, markedBodyStart + 80_000)
+    : ""
+  // Government/official pages often do not use <article>. PIB exposes the
+  // release timestamp immediately before the release body; Nifty Indices uses
+  // a dedicated niftyInfoCont block. Limit extraction to those regions and
+  // include lists/headings, since key scheme facts are frequently in <li>.
+  const publisherBodyStart = cleaned.search(
+    /(?:id=["']PrDateTime["']|class=["'][^"']*niftyInfoCont[^"']*["'])/i,
+  )
+  const publisherScope = publisherBodyStart >= 0
+    ? cleaned.slice(publisherBodyStart, publisherBodyStart + 100_000)
+    : ""
+  const scope = publisherScope || markedScope || (articleMatch && articleMatch[1].length > 400
+    ? articleMatch[1]
+    : mainMatch && mainMatch[1].length > 400
+      ? mainMatch[1]
+      : cleaned)
+  const includeStructuredBlocks = Boolean(publisherScope || markedScope || articleMatch || mainMatch)
 
-  const paragraphs = [...scope.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+  const blockPattern = includeStructuredBlocks
+    ? /<(?:p|li|h2)\b[^>]*>([\s\S]*?)<\/(?:p|li|h2)>/gi
+    : /<p\b[^>]*>([\s\S]*?)<\/p>/gi
+  const paragraphs = [...scope.matchAll(blockPattern)]
     .map((match) => htmlFragmentToText(match[1]))
     // ナビ・キャプション・著作権表記などの短い断片を除外し、本文段落だけ残す。
-    .filter((text) => text.length >= 40)
+    .filter((text) =>
+      text.length >= 40 &&
+      !/^(?:We use some essential cookies|You have (?:accepted|rejected) additional cookies|To help us improve GOV\.UK)/i.test(text)
+    )
 
   let text = paragraphs.join("\n")
   if (text.length < ARTICLE_BODY_MIN_USABLE_CHARS) {
     // <p> が無いサイト向けのフォールバック: スコープ全体をテキスト化する。
     text = htmlFragmentToText(scope)
   }
-  return text.slice(0, ARTICLE_BODY_MAX_CHARS)
+  // Prefer a structured articleBody when it is materially richer.  Otherwise
+  // use the visible paragraph extraction, which tends to retain useful
+  // sub-headings and paragraph boundaries.
+  const best = jsonLdBody.length > text.length * 1.2 ? jsonLdBody : text
+  return best.slice(0, ARTICLE_BODY_MAX_CHARS)
+}
+
+function titleEvidenceTokens(title: string): string[] {
+  return Array.from(new Set(
+    title
+      .normalize("NFKC")
+      .toLowerCase()
+      .match(/[a-z0-9][a-z0-9.-]{2,}/g) ?? [],
+  )).filter((token) => !TITLE_TOKEN_STOPWORDS.has(token) && !/^\d+$/.test(token))
+}
+
+/**
+ * Verify that extracted page text is article-like and relevant to the
+ * expected publisher headline.  This is intentionally exported so the
+ * pipeline and maintenance/remediation jobs use the same fail-closed gate.
+ */
+export function isUsableArticleBody(body: string, expectedTitle = ""): boolean {
+  const normalizedBody = body.replace(/\s+/g, " ").trim()
+  if (normalizedBody.length < ARTICLE_BODY_MIN_USABLE_CHARS) return false
+
+  const boilerplateHits = ARTICLE_BODY_BOILERPLATE_PATTERNS.filter((pattern) =>
+    pattern.test(normalizedBody)
+  ).length
+  const tokens = titleEvidenceTokens(expectedTitle)
+  const lowerBody = normalizedBody.toLowerCase()
+  const matchingTokens = tokens.filter((token) => lowerBody.includes(token)).length
+
+  // For Latin-script source titles, require two distinctive headline tokens.
+  // This rejects a long but unrelated author bio.  Japanese titles are not
+  // compared to English source bodies because lexical overlap is not expected.
+  if (tokens.length >= 2 && matchingTokens < Math.min(2, tokens.length)) return false
+  if (boilerplateHits > 0 && matchingTokens < 2) return false
+
+  return true
 }
 
 export function isGoogleNewsArticleUrl(url: string): boolean {
@@ -477,7 +597,11 @@ export async function resolveGoogleNewsUrl(
  * Google News のリダイレクトURLは本文抽出できないので、先に resolveGoogleNewsUrl で実URLに
  * 変換してから渡すこと(この関数自体は news.google.com を弾く)。
  */
-export async function fetchArticleBody(url: string, timeoutMs = 6_000): Promise<string> {
+export async function fetchArticleBody(
+  url: string,
+  timeoutMs = 6_000,
+  expectedTitle = "",
+): Promise<string> {
   if (!url || !isLikelyArticleUrl(url)) return ""
   try {
     if (new URL(url).hostname.toLowerCase() === "news.google.com") return ""
@@ -501,7 +625,7 @@ export async function fetchArticleBody(url: string, timeoutMs = 6_000): Promise<
     if (!contentType.toLowerCase().includes("html")) return ""
     const html = await response.text()
     const text = extractMainText(html)
-    return text.length >= ARTICLE_BODY_MIN_USABLE_CHARS ? text : ""
+    return isUsableArticleBody(text, expectedTitle) ? text : ""
   } catch {
     return ""
   } finally {
@@ -509,7 +633,7 @@ export async function fetchArticleBody(url: string, timeoutMs = 6_000): Promise<
   }
 }
 
-function buildEvidenceSnippets(text: string, maxItems = 3): string[] {
+export function buildEvidenceSnippets(text: string, maxItems = 3): string[] {
   const cleaned = stripHtml(text)
     .replace(/\[\s*\+\s*\d+\s*chars?\s*\]/gi, "")
     .replace(/\s+/g, " ")

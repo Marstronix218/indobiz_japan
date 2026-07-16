@@ -10,18 +10,21 @@ const MAX_ISSUES = 8
 // 本文長の許容幅。狙いは約500〜620字だが、情報量の多い規制・通商記事は自然に長くなる。
 // 厳密な560字上限だと公開水準の記事まで review に落ちていたため、ゲートの許容幅を広げる。
 const ARTICLE_BODY_MIN_CHARS = 450
-const ARTICLE_BODY_MAX_CHARS = 700
+const ARTICLE_BODY_MAX_CHARS = 750
 const TAKEAWAY_COUNT = 3
 // 本記事のポイントは「読者が何が起きたか理解できる具体的な一文」(40〜90字目安)。
 // 極端な短文と長文は機械判定し、内容の具体性は LLM 品質チェックに委ねる。
 const TAKEAWAY_MIN_CHARS = 40
 const TAKEAWAY_MAX_CHARS = 90
-const BACKGROUND_CONTEXT_MIN_CHARS = 200
-const BACKGROUND_CONTEXT_MAX_CHARS = 300
+// These are editorial guidance, not a proxy for factual quality. A concise,
+// sourced 150-character background is publishable; the former hard 200 floor
+// caused otherwise complete articles to churn through every revision.
+const BACKGROUND_CONTEXT_MIN_CHARS = 150
+const BACKGROUND_CONTEXT_MAX_CHARS = 320
 const JAPAN_BUSINESS_IMPACT_MIN_CHARS = 100
 const JAPAN_BUSINESS_IMPACT_MAX_CHARS = 180
-const KEYWORD_DEFINITION_MIN_CHARS = 50
-const KEYWORD_DEFINITION_MAX_CHARS = 120
+const KEYWORD_DEFINITION_MIN_CHARS = 40
+const KEYWORD_DEFINITION_MAX_CHARS = 130
 const IMAGE_CAPTION_MIN_CHARS = 40
 const IMAGE_CAPTION_MAX_CHARS = 90
 const SIGNIFICANT_NUMBER_MIN = 13
@@ -95,6 +98,7 @@ export function runDeterministicQualityGuard(
     ...checkMetaAndTemplateText(output),
     ...checkIndustryTagAlignment(output, cluster),
     ...checkReferenceMapping(output, cluster),
+    ...checkEventStatusFidelity(output, cluster),
     ...checkUnsupportedNumbers(output, cluster),
     ...checkCurrencyConfusion(output),
     ...checkSourceUsageEvidence(output, cluster),
@@ -114,6 +118,44 @@ export function runDeterministicQualityGuard(
       ? issues.map((issue) => `- ${issue.instruction}`).join("\n")
       : undefined,
   }
+}
+
+function checkEventStatusFidelity(
+  output: SynthesisOutput,
+  cluster: SynthesisSource[],
+): DeterministicIssue[] {
+  const sources = allSourceText(cluster)
+  const issues: DeterministicIssue[] = []
+  // A word such as "draft" can appear in an unrelated annex or historical
+  // document on trade/economy pages. Apply the strict status-preservation gate
+  // to regulation articles, or whenever a source headline itself identifies
+  // the item as draft/proposed/under consultation.
+  const draftStatusPattern = /\b(?:draft|proposed)\b|public comments?|public consultation|consultation paper|exposure draft|草案|意見募集|パブリックコメント/i
+  const draftInSources = output.category === "regulation"
+    ? draftStatusPattern.test(sources)
+    : cluster.some((source) => draftStatusPattern.test(source.title))
+  const draftMarker = /案|草案|提案|意見募集|パブリックコメント|協議中|検討中|draft|proposed/i
+
+  if (draftInSources && (!draftMarker.test(output.title) || !draftMarker.test(output.summary))) {
+    issues.push({
+      issue: "参考資料では草案・提案・意見募集段階だが、タイトルまたは本文がその法的状態を明示していない",
+      instruction: "タイトルとsummaryの両方で『草案』『案を公表』『意見募集』など現在の状態を明示し、草案中のshall/mustを確定済みの義務・施行済みルールとして書かないこと。",
+    })
+  }
+
+  const futureEffectiveInSources = /will (?:enter|come) into force|will take effect|scheduled to (?:enter|come) into force|発効予定|施行予定/i.test(sources)
+  const effectiveConfirmedInSources = /(?:has )?(?:entered|came) into force|took effect|is now in force|発効した|発効済み|施行された/i.test(sources)
+  const outputClaimsEffective = /発効(?:した|し(?:、|ている)|済み)|施行(?:された|し(?:、|ている)|済み)|効力を生じた/.test(
+    `${output.title}\n${output.summary}`,
+  )
+  if (futureEffectiveInSources && !effectiveConfirmedInSources && outputClaimsEffective) {
+    issues.push({
+      issue: "参考資料では将来の発効・施行予定だが、生成記事が発効・施行済みとしている",
+      instruction: "参考資料の基準日時点に合わせて『発効予定』『施行予定』と書くこと。発効済みとする場合は、発効を確認できる新しい一次資料を入力ソースに追加すること。",
+    })
+  }
+
+  return issues
 }
 
 function checkEnrichmentFormat(output: SynthesisOutput): DeterministicIssue[] {
@@ -428,6 +470,48 @@ function checkImplicationIntroducesNewNames(output: SynthesisOutput): Determinis
 interface ExtractedNumber {
   raw: string
   normalized: string
+  numeric: number
+  scale: number
+  kind: "generic" | "currency" | "count" | "percent"
+}
+
+function numberUnit(
+  prefix: string,
+  suffix: string,
+): Pick<ExtractedNumber, "scale" | "kind"> {
+  const around = `${prefix}__NUMBER__${suffix}`
+  const isCurrency = /(?:₹|rs\.?|inr|ルピー|円|ドル)/i.test(around)
+  const isCount = /(?:people|persons?|workers?|employees?|jobs?|人|社|件)/i.test(suffix)
+  const isPercent = /^\s*(?:%|％|パーセント|per\s*cent|percent)/i.test(suffix)
+
+  if (/^\s*lakh\s+crores?/i.test(suffix)) {
+    return { scale: 1_000_000_000_000, kind: isCurrency ? "currency" : "generic" }
+  }
+  if (/^\s*(?:crores?|クロール)/i.test(suffix)) {
+    return { scale: 10_000_000, kind: isCurrency ? "currency" : "generic" }
+  }
+  if (/^\s*lakh/i.test(suffix)) {
+    return { scale: 100_000, kind: isCount ? "count" : isCurrency ? "currency" : "generic" }
+  }
+  if (/^\s*billion/i.test(suffix)) {
+    return { scale: 1_000_000_000, kind: isCurrency ? "currency" : "generic" }
+  }
+  if (/^\s*million/i.test(suffix)) {
+    return { scale: 1_000_000, kind: isCurrency ? "currency" : "generic" }
+  }
+  if (/^\s*兆/i.test(suffix)) {
+    return { scale: 1_000_000_000_000, kind: isCurrency ? "currency" : "generic" }
+  }
+  if (/^\s*億/i.test(suffix)) {
+    return { scale: 100_000_000, kind: isCurrency ? "currency" : "generic" }
+  }
+  if (/^\s*万/i.test(suffix)) {
+    return { scale: 10_000, kind: isCount ? "count" : isCurrency ? "currency" : "generic" }
+  }
+  if (isPercent) return { scale: 1, kind: "percent" }
+  if (isCount) return { scale: 1, kind: "count" }
+  if (isCurrency) return { scale: 1, kind: "currency" }
+  return { scale: 1, kind: "generic" }
 }
 
 function extractNumbers(text: string): ExtractedNumber[] {
@@ -441,12 +525,15 @@ function extractNumbers(text: string): ExtractedNumber[] {
     const normalized = raw.replace(/,/g, "")
     const numeric = Number(normalized)
     if (!Number.isFinite(numeric)) continue
-    const suffix = normalizedText.slice(match.index + raw.length, match.index + raw.length + 6)
+    const prefix = normalizedText.slice(Math.max(0, match.index - 8), match.index)
+    const suffix = normalizedText.slice(match.index + raw.length, match.index + raw.length + 18)
     const hasSensitiveUnit = /^[\s　]*(?:%|％|パーセント|クロール|億|兆|万人|社|件|基点|ポイント)/.test(suffix)
     if (numeric > 0 && numeric < SIGNIFICANT_NUMBER_MIN && !hasSensitiveUnit) continue
-    if (seen.has(normalized)) continue
-    seen.add(normalized)
-    result.push({ raw, normalized })
+    const unit = numberUnit(prefix, suffix)
+    const key = `${normalized}|${unit.scale}|${unit.kind}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    result.push({ raw, normalized, numeric, ...unit })
   }
 
   return result
@@ -457,11 +544,32 @@ function isSupportedNumber(
   sourceNumbers: ExtractedNumber[],
 ): boolean {
   return sourceNumbers.some((sourceNumber) => {
-    if (sourceNumber.normalized === number.normalized) return true
-    return (
+    const compatibleKind =
+      sourceNumber.kind === number.kind ||
+      sourceNumber.kind === "generic" ||
+      number.kind === "generic"
+    if (!compatibleKind) return false
+    if (
+      sourceNumber.normalized === number.normalized &&
+      sourceNumber.scale === number.scale
+    ) return true
+    if (
+      number.scale === 1 &&
+      sourceNumber.scale === 1 &&
       !number.normalized.includes(".") &&
       sourceNumber.normalized.startsWith(`${number.normalized}.`)
-    )
+    ) return true
+
+    const generatedCanonical = number.numeric * number.scale
+    const sourceCanonical = sourceNumber.numeric * sourceNumber.scale
+    if (!Number.isFinite(generatedCanonical) || !Number.isFinite(sourceCanonical)) {
+      return false
+    }
+    const denominator = Math.max(Math.abs(generatedCanonical), Math.abs(sourceCanonical), 1)
+    // Converted Japanese notation is often rounded (e.g. 32,641,704 people →
+    // 約3,264万人).  A 0.05% tolerance is narrow enough to reject substantive
+    // discrepancies while allowing that presentation rounding.
+    return Math.abs(generatedCanonical - sourceCanonical) / denominator <= 0.0005
   })
 }
 
