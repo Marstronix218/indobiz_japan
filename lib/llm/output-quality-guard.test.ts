@@ -206,8 +206,46 @@ test("accepts equivalent crore and Japanese oku notation", () => {
     source,
   )
 
-  assert.equal(qc?.issues.some((issue) => issue.includes("6,250")), false)
-  assert.equal(qc?.issues.some((issue) => issue.includes("6万人")), false)
+  assert.equal(qc?.issues.some((issue) => issue.includes("6,250")) ?? false, false)
+  assert.equal(qc?.issues.some((issue) => issue.includes("6万人")) ?? false, false)
+})
+
+test("accepts English per cent values rendered with a Japanese percent sign", () => {
+  const percentCluster: SynthesisSource[] = [{
+    ...cluster[0],
+    bodyText: `${cluster[0].bodyText} The inflation forecast is 5.0-5.2 per cent.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: `${validSummary}インフレ率の見通しは5.0〜5.2%である。`,
+      referenceUrls: [{ title: percentCluster[0].title, url: percentCluster[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["94.63 per dollar", "5.0-5.2 per cent"] }],
+    }),
+    percentCluster,
+  )
+
+  assert.equal(qc?.issues.some((issue) => issue.includes("5.0")) ?? false, false)
+  assert.equal(qc?.issues.some((issue) => issue.includes("5.2")) ?? false, false)
+})
+
+test("matches comma-formatted source usage numbers to article text", () => {
+  const commaCluster: SynthesisSource[] = [{
+    ...cluster[0],
+    bodyText: `${cluster[0].bodyText} The programme covers 1,000 biogas plants.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: `${validSummary}対象には1,000基のバイオガス設備が含まれる。`,
+      referenceUrls: [{ title: commaCluster[0].title, url: commaCluster[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["94.63 per dollar", "1,000 biogas plants"] }],
+    }),
+    commaCluster,
+  )
+
+  assert.equal(
+    qc?.issues.some((issue) => issue.includes("生成本文で実質的に使われていない")) ?? false,
+    false,
+  )
 })
 
 test("flags a draft regulation presented without draft status", () => {
@@ -373,4 +411,14 @@ test("flags industry tags that do not match the article topic", () => {
 
   assert.equal(qc?.verdict, "REVISION")
   assert(qc?.issues.some((issue) => issue.includes("industryTags")))
+})
+
+test("flags industry tags outside the allowed taxonomy", () => {
+  const qc = runDeterministicQualityGuard(
+    output({ industryTags: ["energy"] }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("許可されていないタグ")))
 })

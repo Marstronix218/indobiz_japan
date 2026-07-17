@@ -83,10 +83,16 @@ const QUALITY_FILTER_LABELS: Record<QualityFilter, string> = {
 }
 
 type SortOrder = "newest" | "oldest"
+type SortBasis = "created" | "source"
 
 const SORT_LABELS: Record<SortOrder, string> = {
   newest: "新しい順",
   oldest: "古い順",
+}
+
+const SORT_BASIS_LABELS: Record<SortBasis, string> = {
+  created: "生成日時順",
+  source: "原文日順",
 }
 
 export default function AdminPage() {
@@ -96,6 +102,7 @@ export default function AdminPage() {
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all")
   const [qualityFilter, setQualityFilter] = useState<QualityFilter>("all")
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest")
+  const [sortBasis, setSortBasis] = useState<SortBasis>("created")
   const [statusTab, setStatusTab] = useState<StatusTab>("all")
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -146,11 +153,14 @@ export default function AdminPage() {
         return matchesQuery && matchesCategory && matchesStatus && matchesQuality
       })
       .sort((a, b) => {
-        const diff =
-          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+        const dateFor = (article: NewsArticle) =>
+          sortBasis === "created"
+            ? article.createdAt ?? article.publishedAt
+            : article.publishedAt
+        const diff = new Date(dateFor(b)).getTime() - new Date(dateFor(a)).getTime()
         return sortOrder === "newest" ? diff : -diff
       })
-  }, [articles, categoryFilter, qualityFilter, search, sortOrder, statusTab])
+  }, [articles, categoryFilter, qualityFilter, search, sortBasis, sortOrder, statusTab])
 
   const hasActiveFilters =
     search.trim() !== "" ||
@@ -423,7 +433,7 @@ export default function AdminPage() {
         <GenerationStats />
 
         <div className="rounded-2xl border border-border bg-card p-3 sm:p-4">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(3,_1fr)]">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(4,_1fr)]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -467,6 +477,22 @@ export default function AdminPage() {
                     </SelectItem>
                   ),
                 )}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={sortBasis}
+              onValueChange={(value) => setSortBasis(value as SortBasis)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(SORT_BASIS_LABELS) as SortBasis[]).map((basis) => (
+                  <SelectItem key={basis} value={basis}>
+                    {SORT_BASIS_LABELS[basis]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 

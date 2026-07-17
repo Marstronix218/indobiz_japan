@@ -16,6 +16,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import { AnthropicClient } from "../lib/llm/anthropic-client.ts"
+import { getImageClient, type ImageClient } from "../lib/image-gen/index.ts"
+import { buildSafeImagePrompt } from "../lib/image-gen/safe-prompt.ts"
 import { runDeterministicQualityGuard } from "../lib/llm/output-quality-guard.ts"
 import { normalizeSourceTitle, normalizeSourceUrl } from "../lib/llm/source-policy.ts"
 import type {
@@ -28,7 +30,7 @@ import {
   fetchArticleBody,
 } from "../lib/scrapers/fetch-india-news.ts"
 
-const SINCE = "2026-07-09T00:00:00Z"
+const SINCE = "2026-07-16T15:00:00Z"
 const OUTPUT_DIR = resolve(process.cwd(), "scripts/remediation-backup")
 const MAX_REVISIONS = 2
 const MAX_RESCUE_REVISIONS = 3
@@ -68,122 +70,60 @@ interface PlannedSource {
 // exist. Keeping this explicit also makes this one-off production mutation
 // reviewable and reproducible.
 const SOURCE_PLANS: Record<string, PlannedSource[]> = {
-  "5ceba47f-5e3a-4322-9130-69121488b5fc": [
+  "2b99d260-1071-414b-bc8e-6b0e6d46881e": [
     {
-      source: "近畿経済産業局",
-      title: "インド・関西ビジネスフォーラム（IKBF）設立記念シンポジウム",
-      url: "https://www.kansai.meti.go.jp/2kokuji/glocal_PT/india/IKBF_R8FY_event.html",
-      publishedAt: "2026-07-09",
+      source: "Mint",
+      title: "RBI shoots down lenders' ask to sell immovable collateral back to defaulters",
+      url: "https://www.livemint.com/news/rbi-shoots-down-lenders-ask-to-sell-immovable-collateral-back-to-defaulters-11784210843133.html",
+      publishedAt: "2026-07-16",
     },
     {
-      source: "J-Net21",
-      title: "インド・関西ビジネスフォーラム設立記念シンポジウム開催へ",
-      url: "https://j-net21.smrj.go.jp/news/bt5puv000000nqm9.html",
-      publishedAt: "2026-07-09",
+      source: "ETBFSI",
+      title: "Banks cannot sell back recovered immovable properties to borrowers: RBI",
+      url: "https://bfsi.economictimes.indiatimes.com/amp/news/banking/banks-cannot-sell-back-recovered-immovable-properties-to-borrowers-rbi/132442441",
+      publishedAt: "2026-07-16",
     },
   ],
-  "a457aca0-da73-40ce-ab3d-c5582bda16eb": [
+  "0cd84db4-2de2-43c5-a0ce-7db7688ddf54": [
     {
-      source: "Tata Consultancy Services",
-      title: "TCS Financial Results Q1 FY 2027",
-      url: "https://www.tcs.com/who-we-are/newsroom/press-release/tcs-financial-results-q1-fy-2027",
-      publishedAt: "2026-07-09",
+      source: "Crisil Intelligence",
+      title: "Cost pass-through likely lifted corporate revenue to 11-11.5% in Q1",
+      url: "https://intelligence.crisil.com/en/homepage/newsroom/press-releases/2026/07/cost-pass-through-likely-lifted-corporate-revenue-to-11-11-5-percent-in-q1.html",
+      publishedAt: "2026-07-16",
     },
     {
       source: "Times of India",
-      title: "TCS Q1 FY27 results: Tata Consultancy Services reports 5% y-o-y increase in net profit to Rs 13,349 crore",
-      url: "https://timesofindia.indiatimes.com/business/india-business/tcs-q1-fy27-results-tata-consultancy-services-quarterly-earnings-profit-after-tax-revenue-key-highlights/articleshow/132283960.cms",
-      publishedAt: "2026-07-09",
+      title: "Pricing, not volume, drives India Inc in Q1; revenue estimated to grow 11-11.5% despite supply disruptions: Crisil",
+      url: "https://timesofindia.indiatimes.com/business/india-business/pricing-not-volume-drives-india-inc-in-q1-revenue-estimated-to-grow-11-11-5-despite-supply-disruptions-crisil/articleshow/132447972.cms",
+      publishedAt: "2026-07-16",
     },
   ],
-  "49a47a1e-9de4-44af-a92a-d2c68e270a89": [
+  "81d00b7a-d291-4f58-bddb-7ae27cff8e71": [
     {
-      source: "The Hindu",
-      title: "RBI launches 3 key surveys to get input for monetary policy",
-      url: "https://www.thehindu.com/business/Economy/rbi-launches-3-key-surveys-to-get-input-for-monetary-policy/article71202495.ece",
-      publishedAt: "2026-07-09",
+      source: "JETRO",
+      title: "日印首脳会談が首都ニューデリーで開催、次世代燃料分野などで協力へ",
+      url: "https://www.jetro.go.jp/biznews/2026/07/784e9e7c1709c338.html",
+      publishedAt: "2026-07-14",
     },
     {
-      source: "GK Today",
-      title: "RBI Launches Three Key Surveys for Monetary Policy Inputs",
-      url: "https://www.gktoday.in/rbi-launches-three-key-surveys-for-monetary-policy-inputs/",
-      publishedAt: "2026-07-09",
-    },
-  ],
-  "e81c5616-7f77-4224-a21b-5675e45277eb": [
-    {
-      source: "Nifty Indices",
-      title: "Nifty500 Ahimsa",
-      url: "https://www.niftyindices.com/indices/equity/thematic-indices/nifty500-ahimsa",
-      publishedAt: "2026-07-11",
-    },
-    {
-      source: "ANI News",
-      title: "NSE Indices launches Nifty500 Ahimsa Index to track companies aligned with non-violence principles",
-      url: "https://www.aninews.in/news/business/nse-indices-launches-nifty500-ahimsa-index-to-track-companies-aligned-with-non-violence-principles20260711104203",
-      publishedAt: "2026-07-11",
+      source: "外務省",
+      title: "Japan-India Summit Meeting",
+      url: "https://www.mofa.go.jp/s_sa/sw/in/pageite_000001_01706.html",
+      publishedAt: "2026-07-02",
     },
   ],
-  "e591c312-55f1-4f15-9688-0a400da45c50": [
+  "e8952191-c19b-4622-80b0-ac8b6569cb77": [
     {
-      source: "Times of India",
-      title: "India-UK FTA opens doors, but tariff cuts alone won't lift exports: GTRI",
-      url: "https://timesofindia.indiatimes.com/business/india-business/india-uk-fta-opens-doors-but-tariff-cuts-alone-wont-lift-exports-gtri/articleshow/132346520.cms",
-      publishedAt: "2026-07-15",
-    },
-    {
-      source: "UK Government",
-      title: "The countdown begins: UK-India FTA enters into force on July 15th",
-      url: "https://www.gov.uk/government/news/the-countdown-begins-uk-india-fta-enters-into-force-on-july-15th",
-      publishedAt: "2026-07-15",
-    },
-    {
-      source: "UK Government",
-      title: "UK-India trade deal: agreement and explanatory documents",
-      url: "https://www.gov.uk/government/collections/uk-india-trade-deal",
-      publishedAt: "2026-07-15",
-    },
-  ],
-  "91dce608-8c04-49b4-a468-a282124e8b3f": [
-    {
-      source: "Press Information Bureau",
-      title: "Retail inflation based on Consumer Price Index in June 2026 is 4.38%",
-      url: "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2284125&lang=2&reg=48",
+      source: "ETCFO",
+      title: "RBI likely to keep rates unchanged till October, India's GDP to moderate to 6.6-6.8% in FY27: BoB Outlook",
+      url: "https://cfo.economictimes.indiatimes.com/news/economy/rbi-likely-to-keep-rates-unchanged-till-october-indias-gdp-to-moderate-to-6-6-6-8-in-fy27-bob-outlook/132379314",
       publishedAt: "2026-07-13",
-    },
-    {
-      source: "Rediff",
-      title: "Retail Inflation Rises to 4.38% in June, Exceeds RBI's 4% Median Target",
-      url: "https://www.rediff.com/business/report/india-retail-inflation-jumps-to-438-in-june-above-rbi-target-experts-weigh-in/20260713.htm",
-      publishedAt: "2026-07-13",
-    },
-  ],
-  "ba78609a-87a8-472b-98a0-6c01482df0a7": [
-    {
-      source: "Press Information Bureau",
-      title: "Cabinet approves Mobile Phone Manufacturing Scheme with an outlay of Rs 62,500 crore",
-      url: "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2284789&lang=2&reg=48",
-      publishedAt: "2026-07-15",
-    },
-    {
-      source: "Telangana Today",
-      title: "Cabinet clears Rs 62,500-crore Mobile Phone Manufacturing Scheme to boost domestic R&D",
-      url: "https://telanganatoday.com/cabinet-clears-rs-62500-crore-mobile-phone-manufacturing-scheme-to-boost-domestic-rd",
-      publishedAt: "2026-07-15",
-    },
-  ],
-  "9c32dfe1-fa39-4e90-9592-16d881ffdf1f": [
-    {
-      source: "The Hindu",
-      title: "RBI issues draft data governance guidance framework for banks",
-      url: "https://www.thehindu.com/business/Economy/rbi-issues-data-governance-guidance-framework-for-banks-to-strengthen-data-quality-security-and-accountability/article71226068.ece",
-      publishedAt: "2026-07-15",
     },
     {
       source: "Business Standard",
-      title: "RBI issues draft data governance norms for banks and NBFCs",
-      url: "https://www.business-standard.com/finance/news/rbi-issues-draft-data-governance-norms-for-banks-nbfcs-126071501296_1.html",
-      publishedAt: "2026-07-15",
+      title: "Bank of Baroda raises India's FY27 GDP growth forecast to 6.6-6.8%",
+      url: "https://www.business-standard.com/economy/news/bank-of-baroda-raises-india-s-fy27-gdp-growth-forecast-to-6-6-6-8-126071301300_1.html",
+      publishedAt: "2026-07-13",
     },
   ],
 }
@@ -226,6 +166,14 @@ interface ResultsFile {
 }
 
 const RESCUE_INSTRUCTIONS: Record<string, string> = {
+  "2b99d260-1071-414b-bc8e-6b0e6d46881e":
+    "RBI規制の2026年10月1日の適用開始、原則7年以内の処分、元債務者への売り戻し禁止を入力2資料で照合すること。草案公表時期は年を補わず単に『5月』とするか削除し、『最終化』『最終規則の全容』とは書かず『RBIが方向を示した』『新たな指示』と資料に忠実に表現すること。規制記事なので両資料を本文で実質的に使い、referenceUrlsとsourceUsageに残すこと。",
+  "0cd84db4-2de2-43c5-a0ce-7db7688ddf54":
+    "TCSとWiproを『2社』と数えず実名で書くこと。11〜11.5%はCrisilの第1四半期企業売上高予測で、数量ではなく価格転嫁が寄与したという位置付けを保持すること。backgroundContextとjapanBusinessImpactは入力資料の事実だけで各180〜220字にすること。根拠が足りない方はnull、直接的な日本企業影響が確認できない場合は許可された短い定型文にすること。",
+  "81d00b7a-d291-4f58-bddb-7ae27cff8e71":
+    "JETROと外務省の2資料に共通する首脳会談の合意事項を主軸にし、2兆円の対印民間投資目標とバイオガスプラント1,000基協力はカンマ表記を含め入力資料どおり照合すること。industryTagsからlogisticsとchemicalsを必ず削除すること。backgroundContextは入力資料の事実だけで180〜220字にするか、根拠が足りなければnullにすること。",
+  "e8952191-c19b-4622-80b0-ac8b6569cb77":
+    "Bank of BarodaがFY27成長率予測を6.6〜6.8%へ引き上げた点を主軸にすること。政策金利、インフレ、産業別予測は入力本文にある数値だけを使い、英語per centと日本語%の表記差を事実差とみなさないこと。40字未満になるRBIやFY27のキーワード解説は無理に伸ばさずkeywordsから削除すること。",
   "5ceba47f-5e3a-4322-9130-69121488b5fc":
     "申込期限・満席・募集締切の状態は更新時点が混在するため本文・ポイント・背景からすべて削除すること。IKBFの設立、参画機関、開催内容、企業事例という時点に依存しない確認済み事実で構成すること。",
   "a457aca0-da73-40ce-ab3d-c5582bda16eb":
@@ -252,7 +200,7 @@ async function loadTargets(client: SupabaseClient): Promise<ArticleRow[]> {
   const { data, error } = await client
     .from("articles")
     .select("*, article_sources(*)")
-    .gte("created_at", SINCE)
+    .in("id", Object.keys(SOURCE_PLANS))
     .neq("workflow_status", "published")
     .order("created_at", { ascending: true })
   if (error) throw new Error(error.message)
@@ -324,6 +272,98 @@ function normalizeKnownRemediationOutput(
   output: SynthesisOutput,
   sources: EvaluatedSource[],
 ): SynthesisOutput {
+  const allowedTags = new Set([
+    "automotive", "semiconductor", "machine_tools", "food", "chemicals",
+    "logistics", "agriculture", "steel", "education", "entertainment", "talent",
+  ])
+  output.industryTags = output.industryTags.filter((tag) => allowedTags.has(tag))
+
+  // Optional enrichment fragments do not justify holding the whole article.
+  if (output.backgroundContext && output.backgroundContext.trim().length < 150) {
+    output.backgroundContext = undefined
+  }
+  if (
+    output.japanBusinessImpact &&
+    output.japanBusinessImpact.trim().length < 150 &&
+    !/日本企業への直接的な影響.*確認でき(?:ません|ない)/.test(output.japanBusinessImpact)
+  ) {
+    output.japanBusinessImpact = undefined
+  }
+  if (output.imageCaption && output.imageCaption.trim().length < 40) {
+    output.imageCaption = undefined
+  }
+  output.keywords = output.keywords?.filter(
+    (keyword) => keyword.definition.trim().length >= 40,
+  )
+
+  if (articleId === "0cd84db4-2de2-43c5-a0ce-7db7688ddf54") {
+    output.summary = output.summary.replace(
+      "銀行・金融サービス・石油ガスを除く47業種、400社超を対象にした分析で、",
+      "400社超を対象にした分析で、",
+    )
+    output.summary = output.summary.replace(
+      /IT大手のTCSとWiproも決算発表を控えている。?$/,
+      "",
+    )
+    output.summary = output.summary.replace(
+      /FMCGは値上げにより6〜7%増となる見込みで、?$/,
+      "FMCGは値上げにより6〜7%増となる見込みだ。",
+    )
+    output.sourceUsage = output.sourceUsage?.map((usage) => ({
+      ...usage,
+      factsUsed: usage.factsUsed.filter(
+        (fact) => !/TCS|Wipro|ウィプロ/.test(fact),
+      ),
+    }))
+    output.industryTags = []
+    output.imageCaption =
+      "原材料費や輸送費の上昇を販売価格へ転嫁し、売上増を見込むインド企業活動のイメージ写真。"
+  }
+  if (articleId === "e8952191-c19b-4622-80b0-ac8b6569cb77") {
+    output.industryTags = []
+    output.implications[2] =
+      "製造業は6.5〜7.5%、農業は2.5〜3%の成長が見込まれ、インド事業の需要環境を考える材料となる。"
+  }
+  if (articleId === "81d00b7a-d291-4f58-bddb-7ae27cff8e71") {
+    output.title = output.title.replaceAll("1,000機", "1,000基")
+    output.summary = output.summary.replaceAll("1,000機", "1,000基")
+    output.implications = output.implications.map((item) =>
+      item.replaceAll("1,000機", "1,000基")
+    )
+  }
+  if (articleId === "2b99d260-1071-414b-bc8e-6b0e6d46881e") {
+    if (!/草案/.test(output.title)) {
+      output.title = `${output.title}（5月草案への回答）`
+    }
+    output.summary = output.summary.replace(
+      /動産の対象組み入れ要望も承認されず、金や証券には既存の別枠の規制が適用される。/,
+      "",
+    )
+    if (!output.summary.includes("動産は減価が速く")) {
+      output.summary = output.summary.replace(
+        "関連する指示は2026年10月1日に施行される予定だ。",
+        "金融機関は動産も枠組みに含めるよう求めたが、RBIは承認しなかった。RBIは金と投資資産を除く動産は減価が速く経済寿命も短いため、直ちに自社利用できない限り所有する誘因は乏しいと説明した。関連する指示は2026年10月1日に施行される予定だ。",
+      )
+    }
+    output.japanBusinessImpact =
+      "現時点で公表されている情報からは、日本企業への直接的な影響は確認できない。"
+    output.implications = output.implications.map((item) =>
+      item.replace("SMA段階(延滞1〜90日)", "SMA段階")
+    )
+    output.sourceUsage = output.sourceUsage?.map((usage) => ({
+      ...usage,
+      factsUsed: usage.factsUsed.filter(
+        (fact) => !/動産の対象組み入れ|金や証券/.test(fact),
+      ),
+    }))
+    const primaryUsage = output.sourceUsage?.find((usage) => usage.sourceIndex === 1)
+    if (primaryUsage) {
+      primaryUsage.factsUsed.push(
+        "金融機関は動産も枠組みに含めるよう求めたがRBIは承認しなかった",
+        "金と投資資産を除く動産は減価が速く経済寿命も短い",
+      )
+    }
+  }
   if (articleId === "a457aca0-da73-40ce-ab3d-c5582bda16eb" && sources.length >= 2) {
     // The model repeatedly attributed the INR profit figure to TCS's HTML
     // source, whose fetched 4k excerpt contains the qualitative commentary but
@@ -513,6 +553,18 @@ async function rescueOne(
     RESCUE_INSTRUCTIONS[previous.id] ?? "",
   ].filter(Boolean).join("\n")
 
+  // Apply the article-specific audit findings once even when a second
+  // stochastic editorial check happens to return PASS for the unchanged
+  // draft. This prevents known factual/state issues from being bypassed.
+  if (RESCUE_INSTRUCTIONS[previous.id]) {
+    output = normalizeKnownRemediationOutput(previous.id, await llm.reviseSynthesis({
+      cluster: result.sources,
+      previousOutput: output,
+      revisionInstructions: instructions,
+    }), result.sources)
+    result.revisions += 1
+  }
+
   for (let attempt = 0; attempt <= MAX_RESCUE_REVISIONS; attempt++) {
     const gate = publicationGate(output, result.sources)
     let check: QualityCheckOutput
@@ -575,7 +627,7 @@ async function rescue(resultsPathArg: string) {
       console.log(`[rescue-result] ${item.id.slice(0, 8)} ${item.verdict} (manual hold)`)
       continue
     }
-    const needsCuratedRecheck = item.id === "e591c312-55f1-4f15-9688-0a400da45c50"
+    const needsCuratedRecheck = Boolean(RESCUE_INSTRUCTIONS[item.id])
     if (item.verdict === "PASS" && !needsCuratedRecheck) {
       results.push(item)
       console.log(`[rescue-result] ${item.id.slice(0, 8)} PASS (already passed)`)
@@ -615,6 +667,46 @@ async function rescue(resultsPathArg: string) {
   })), null, 2))
 }
 
+async function recheck(resultsPathArg: string) {
+  const resultsPath = resolve(process.cwd(), resultsPathArg)
+  const previous = JSON.parse(readFileSync(resultsPath, "utf8")) as ResultsFile
+  const llm = new AnthropicClient()
+  const currentRows = await loadTargets(db())
+  const currentById = new Map(currentRows.map((row) => [row.id, row]))
+  const results: EvaluationResult[] = []
+
+  for (const item of previous.results) {
+    if (item.verdict === "PASS" || !item.output) {
+      results.push(item)
+      continue
+    }
+    const output = normalizeKnownRemediationOutput(item.id, item.output, item.sources)
+    const gate = publicationGate(output, item.sources)
+    const quality = gate ?? await llm.checkQuality({ output, cluster: item.sources })
+    const current = currentById.get(item.id)
+    results.push({
+      ...item,
+      originalTitle: current?.title ?? item.originalTitle,
+      originalSummary: current?.summary ?? item.originalSummary,
+      verdict: quality.verdict,
+      issues: quality.issues,
+      output,
+      error: undefined,
+    })
+    console.log(`[recheck-result] ${item.id.slice(0, 8)} ${quality.verdict}: ${quality.issues.join(" / ")}`)
+  }
+
+  const payload: ResultsFile = {
+    generatedAt: new Date().toISOString(),
+    since: previous.since,
+    backupPath: previous.backupPath,
+    results,
+  }
+  const outputPath = resolve(OUTPUT_DIR, `recheck-results-${stamp()}.json`)
+  writeFileSync(outputPath, JSON.stringify(payload, null, 2))
+  console.log(`[recheck-results] ${outputPath}`)
+}
+
 function sourceRows(articleId: string, sources: EvaluatedSource[]) {
   return sources.map((source, index) => ({
     article_id: articleId,
@@ -647,6 +739,29 @@ function restorableSourceRows(articleId: string, rows: Record<string, unknown>[]
   }))
 }
 
+async function generateRequiredImage(
+  imageClient: ImageClient,
+  output: SynthesisOutput,
+  fallbackTitle: string,
+): Promise<string> {
+  const prompt = buildSafeImagePrompt(output.imagePrompt, fallbackTitle)
+  if (!prompt) throw new Error("safe image prompt is empty")
+
+  let lastError = "unknown image error"
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const generated = await imageClient.generate({ prompt })
+      if (!generated.imageUrl) throw new Error("image provider returned an empty URL")
+      console.log(`[image] generated ${attempt}/2 model=${generated.model}`)
+      return generated.imageUrl
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error)
+      console.warn(`[image] attempt ${attempt}/2 failed: ${lastError.replace(/\s+/g, " ").slice(0, 500)}`)
+    }
+  }
+  throw new Error(lastError)
+}
+
 async function replaceSourcesSafely(
   client: SupabaseClient,
   article: ArticleRow,
@@ -675,6 +790,10 @@ async function applyResults(resultsPathArg: string) {
   const resultsPath = resolve(process.cwd(), resultsPathArg)
   const payload = JSON.parse(readFileSync(resultsPath, "utf8")) as ResultsFile
   const client = db()
+  const imageGenerator = getImageClient()
+  if (!imageGenerator) {
+    throw new Error("configured image client is unavailable; refusing to publish without images")
+  }
   const currentRows = await loadTargets(client)
   const currentById = new Map(currentRows.map((row) => [row.id, row]))
 
@@ -757,33 +876,54 @@ async function applyResults(resultsPathArg: string) {
       continue
     }
 
-    const gate = publicationGate(result.output, result.sources)
+    const publishOutput = normalizeKnownRemediationOutput(
+      result.id,
+      result.output,
+      result.sources,
+    )
+    const gate = publicationGate(publishOutput, result.sources)
     if (gate) {
       console.log(`[skip] ${result.id.slice(0, 8)} no longer passes deterministic gate: ${gate.issues.join(" / ")}`)
       skipped += 1
       continue
     }
 
-    const selectedSources = usedSources(result.output, result.sources)
+    let imageUrl: string
+    try {
+      imageUrl = await generateRequiredImage(imageGenerator, publishOutput, result.originalTitle)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      await client.from("articles").update({
+        quality_verdict: "REVISION",
+        quality_notes: `再審査PASS後の画像生成に失敗したため公開保留: ${message.replace(/\s+/g, " ").slice(0, 500)}`,
+        last_quality_check_at: new Date().toISOString(),
+      }).eq("id", article.id)
+      heldForReview += 1
+      console.log(`[image-held] ${result.id.slice(0, 8)} ${message}`)
+      continue
+    }
+
+    const selectedSources = usedSources(publishOutput, result.sources)
     await replaceSourcesSafely(client, article, selectedSources)
     const names = selectedSources.map((source) => source.source)
     const row = {
-      title: result.output.title,
-      summary: result.output.summary,
-      implications: result.output.implications,
-      category: result.output.category,
-      industry_tags: result.output.industryTags,
-      background_context: result.output.backgroundContext?.trim() || null,
-      japan_business_impact: result.output.japanBusinessImpact?.trim() || null,
-      keywords: result.output.keywords?.length ? result.output.keywords : null,
-      image_caption: result.output.imageCaption?.trim() || null,
+      title: publishOutput.title,
+      summary: publishOutput.summary,
+      implications: publishOutput.implications,
+      category: publishOutput.category,
+      industry_tags: publishOutput.industryTags,
+      background_context: publishOutput.backgroundContext?.trim() || null,
+      japan_business_impact: publishOutput.japanBusinessImpact?.trim() || null,
+      keywords: publishOutput.keywords?.length ? publishOutput.keywords : null,
+      image_caption: publishOutput.imageCaption?.trim() || null,
+      image_url: imageUrl,
       source: names.length > 1 ? `${names[0]}、他${names.length - 1}件` : names[0],
       source_url: selectedSources[0].sourceUrl,
       visibility: "public",
       workflow_status: "published",
       is_synthesized: true,
       quality_verdict: "PASS",
-      quality_notes: "2026-07 review remediation: fresh source bodies + deterministic guard + Claude editorial PASS",
+      quality_notes: "2026-07-17 review remediation: fresh source bodies + deterministic guard + Claude editorial PASS + image generation success",
       revision_count: result.revisions,
       last_quality_check_at: new Date().toISOString(),
     }
@@ -800,7 +940,7 @@ async function applyResults(resultsPathArg: string) {
       throw new Error(`article update failed for ${article.id} (sources restored): ${error.message}`)
     }
     published += 1
-    console.log(`[published] ${article.id} ${result.output.title}`)
+    console.log(`[published] ${article.id} ${publishOutput.title}`)
   }
 
   console.log(JSON.stringify({ published, heldForReview, skipped, applyBackup }, null, 2))
@@ -810,9 +950,10 @@ async function main() {
   const [mode, file] = process.argv.slice(2)
   if (mode === "evaluate") return evaluate()
   if (mode === "rescue" && file) return rescue(file)
+  if (mode === "recheck" && file) return recheck(file)
   if (mode === "apply" && file) return applyResults(file)
   throw new Error(
-    "Usage: npx tsx scripts/remediate-review-articles.ts evaluate | rescue <results.json> | apply <results.json>",
+    "Usage: npx tsx scripts/remediate-review-articles.ts evaluate | rescue <results.json> | recheck <results.json> | apply <results.json>",
   )
 }
 

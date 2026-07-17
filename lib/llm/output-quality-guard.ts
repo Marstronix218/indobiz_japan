@@ -305,7 +305,13 @@ function checkIndustryTagAlignment(
 
   for (const tag of output.industryTags) {
     const keywords = INDUSTRY_TAG_KEYWORDS[tag]
-    if (!keywords) continue
+    if (!keywords) {
+      issues.push({
+        issue: `industryTags に許可されていないタグが含まれている: ${tag}`,
+        instruction: `industryTags から「${tag}」を削除し、プロンプトで許可されたタグだけを使うこと。該当する許可タグがない場合は空配列にすること。`,
+      })
+      continue
+    }
     if (keywords.some((keyword) => text.includes(keyword.toLowerCase()))) continue
     issues.push({
       issue: `industryTags に記事内容と整合しないタグが含まれている: ${tag}`,
@@ -426,6 +432,7 @@ function checkSourceUsageEvidence(
 ): DeterministicIssue[] {
   const issues: DeterministicIssue[] = []
   const articleText = outputText(output)
+  const articleNumbers = extractNumbers(articleText)
   const flaggedUnusedSources = new Set<number>()
 
   for (const usage of output.sourceUsage ?? []) {
@@ -450,12 +457,9 @@ function checkSourceUsageEvidence(
         }
       }
 
-      const factEvidenceTokens = [
-        ...factNumbers.map((number) => number.normalized),
-      ]
       if (
-        factEvidenceTokens.length > 0 &&
-        !factEvidenceTokens.some((token) => articleText.toLowerCase().includes(token.toLowerCase())) &&
+        factNumbers.length > 0 &&
+        !factNumbers.some((number) => isSupportedNumber(number, articleNumbers)) &&
         !flaggedUnusedSources.has(usage.sourceIndex)
       ) {
         flaggedUnusedSources.add(usage.sourceIndex)
@@ -544,9 +548,15 @@ function extractNumbers(text: string): ExtractedNumber[] {
     if (!Number.isFinite(numeric)) continue
     const prefix = normalizedText.slice(Math.max(0, match.index - 8), match.index)
     const suffix = normalizedText.slice(match.index + raw.length, match.index + raw.length + 18)
-    const hasSensitiveUnit = /^[\s　]*(?:%|％|パーセント|クロール|億|兆|万人|社|件|基点|ポイント)/.test(suffix)
-    if (numeric > 0 && numeric < SIGNIFICANT_NUMBER_MIN && !hasSensitiveUnit) continue
     const unit = numberUnit(prefix, suffix)
+    // Keep small values when they carry a meaningful unit. Previously the
+    // early filter only recognised Japanese "%" spellings, so an English
+    // source value such as "5.2 per cent" disappeared before unit
+    // normalisation while the generated Japanese "5.2%" remained. That made
+    // supported percentages look fabricated.
+    const hasSensitiveUnit = unit.kind === "percent" || unit.scale !== 1 ||
+      /^[\s　]*(?:%|％|パーセント|per\s*cent|percent|クロール|億|兆|万人|社|件|基点|ポイント)/i.test(suffix)
+    if (numeric > 0 && numeric < SIGNIFICANT_NUMBER_MIN && !hasSensitiveUnit) continue
     const key = `${normalized}|${unit.scale}|${unit.kind}`
     if (seen.has(key)) continue
     seen.add(key)

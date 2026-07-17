@@ -65,10 +65,18 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
     obj.japaneseBusinessRelevance,
   )
   const imagePrompt = asString(obj.imagePrompt) || title
-  const backgroundContext = asBoundedText(obj.backgroundContext, BACKGROUND_MAX_CHARS)
-  const japanBusinessImpact = asBoundedText(obj.japanBusinessImpact, IMPACT_MAX_CHARS)
+  // These fields are optional. A short fragment should be omitted instead of
+  // holding an otherwise publishable article through repeated full rewrites.
+  // Prompts still target the editorial range; the parser is the final safety
+  // net when the model lands just outside it.
+  const backgroundContext = asBoundedText(obj.backgroundContext, BACKGROUND_MAX_CHARS, 150)
+  const rawBusinessImpact = asBoundedText(obj.japanBusinessImpact, IMPACT_MAX_CHARS)
+  const japanBusinessImpact = rawBusinessImpact && (
+    rawBusinessImpact.length >= 150 ||
+    /日本企業への直接的な影響.*確認でき(?:ません|ない)/.test(rawBusinessImpact)
+  ) ? rawBusinessImpact : undefined
   const keywords = asKeywords(obj.keywords)
-  const imageCaption = asBoundedText(obj.imageCaption, CAPTION_MAX_CHARS)
+  const imageCaption = asBoundedText(obj.imageCaption, CAPTION_MAX_CHARS, 40)
 
   if (!title || !summary || implications.length === 0 || !category) {
     throw new LLMError("LLM応答に必須フィールドが欠落しています")
@@ -94,15 +102,21 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
 
 // 任意テキストフィールド用: 文字列以外・空文字・上限超過はすべて undefined に
 // フォールバックし、既存フローを一切止めない。
-function asBoundedText(value: unknown, maxChars: number): string | undefined {
+function asBoundedText(
+  value: unknown,
+  maxChars: number,
+  minChars = 1,
+): string | undefined {
   const text = asString(value)
-  if (!text || text.length > maxChars) return undefined
+  if (!text || text.length < minChars || text.length > maxChars) return undefined
   return text
 }
 
 function asKeywords(value: unknown): SynthesisKeyword[] | undefined {
   // 件数上限(4件)・必須項目・文字数上限の検証は保存側と共通のサニタイザに委ねる。
-  const keywords = sanitizeArticleKeywords(value)
+  const keywords = sanitizeArticleKeywords(value).filter(
+    (keyword) => keyword.definition.trim().length >= 40,
+  )
   return keywords.length > 0 ? keywords : undefined
 }
 

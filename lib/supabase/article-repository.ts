@@ -338,6 +338,11 @@ async function getArticleByIdService(id: string): Promise<NewsArticle | null> {
   return data ? rowToArticle(data as unknown as ArticleRow) : null
 }
 
+/** Service-role lookup used by authenticated admin mutation guards. */
+export async function getArticleByIdForAdmin(id: string): Promise<NewsArticle | null> {
+  return getArticleByIdService(id)
+}
+
 export interface InsertDraftsResult {
   inserted: number
   skipped: number
@@ -576,7 +581,15 @@ export interface DailyGenerationStat {
   date: string
   /** Articles created (DB rows) on that day. */
   articles: number
-  /** Articles created with a generated image (`image_url` set) on that day. */
+  /** Articles which are currently public. */
+  published: number
+  /** Articles held for editorial review, including REJECT. */
+  review: number
+  /** Persisted rows whose pipeline status is failed. */
+  failed: number
+  /** Review rows whose editorial verdict is REJECT. */
+  rejected: number
+  /** Articles created with an image URL set on that day. */
   images: number
 }
 
@@ -603,7 +616,7 @@ export async function getDailyGenerationStats(
   const sinceIso = new Date(Date.now() - days * DAY_MS).toISOString()
   const { data, error } = await getServiceClient()
     .from("articles")
-    .select("created_at, image_url")
+    .select("created_at, image_url, workflow_status, quality_verdict")
     .gte("created_at", sinceIso)
     .order("created_at", { ascending: true })
 
@@ -616,16 +629,30 @@ export async function getDailyGenerationStats(
   const buckets = new Map<string, DailyGenerationStat>()
   for (let i = days - 1; i >= 0; i--) {
     const date = jstDate(new Date(Date.now() - i * DAY_MS).toISOString())
-    buckets.set(date, { date, articles: 0, images: 0 })
+    buckets.set(date, {
+      date,
+      articles: 0,
+      published: 0,
+      review: 0,
+      failed: 0,
+      rejected: 0,
+      images: 0,
+    })
   }
 
   for (const row of (data ?? []) as {
     created_at: string
     image_url: string | null
+    workflow_status: string
+    quality_verdict: string | null
   }[]) {
     const bucket = buckets.get(jstDate(row.created_at))
     if (!bucket) continue // row landed just outside the JST window — skip
     bucket.articles += 1
+    if (row.workflow_status === "published") bucket.published += 1
+    else if (row.workflow_status === "review") bucket.review += 1
+    else if (row.workflow_status === "failed") bucket.failed += 1
+    if (row.quality_verdict === "REJECT") bucket.rejected += 1
     if (row.image_url) bucket.images += 1
   }
 

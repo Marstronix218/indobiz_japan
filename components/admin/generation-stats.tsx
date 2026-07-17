@@ -21,6 +21,10 @@ import {
 interface DailyStat {
   date: string
   articles: number
+  published: number
+  review: number
+  failed: number
+  rejected: number
   images: number
 }
 
@@ -40,8 +44,10 @@ interface StatsResponse {
 }
 
 const chartConfig = {
-  articles: { label: "記事", color: "var(--chart-1)" },
-  images: { label: "画像", color: "var(--chart-2)" },
+  published: { label: "公開", color: "var(--chart-1)" },
+  review: { label: "要確認", color: "var(--chart-3)" },
+  failed: { label: "処理失敗", color: "var(--chart-5)" },
+  images: { label: "画像付き記事", color: "var(--chart-2)" },
 } satisfies ChartConfig
 
 function formatUsd(value: number): string {
@@ -93,6 +99,8 @@ export function GenerationStats() {
     const daily = data?.daily ?? []
     return {
       articles: daily.reduce((sum, d) => sum + d.articles, 0),
+      published: daily.reduce((sum, d) => sum + d.published, 0),
+      review: daily.reduce((sum, d) => sum + d.review, 0),
       images: daily.reduce((sum, d) => sum + d.images, 0),
     }
   }, [data])
@@ -102,21 +110,33 @@ export function GenerationStats() {
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">生成数の推移</h2>
+            <h2 className="text-sm font-semibold text-foreground">保存記事数の推移</h2>
             <p className="text-xs text-muted-foreground">
-              過去30日間に生成された記事・画像の数（日本時間）
+              保存日時（日本時間）で集計。画像は現在画像URLがある記事
             </p>
           </div>
           {data && !error && (
             <div className="flex gap-4 text-right">
               <div>
-                <p className="text-xs text-muted-foreground">記事合計</p>
+                <p className="text-xs text-muted-foreground">保存合計</p>
                 <p className="text-lg font-semibold text-foreground">
                   {totals.articles}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">画像合計</p>
+                <p className="text-xs text-muted-foreground">公開</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {totals.published}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">要確認</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {totals.review}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">画像付き</p>
                 <p className="text-lg font-semibold text-foreground">
                   {totals.images}
                 </p>
@@ -167,8 +187,21 @@ export function GenerationStats() {
               />
               <ChartLegend content={<ChartLegendContent />} />
               <Bar
-                dataKey="articles"
-                fill="var(--color-articles)"
+                dataKey="published"
+                stackId="articles"
+                fill="var(--color-published)"
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="review"
+                stackId="articles"
+                fill="var(--color-review)"
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="failed"
+                stackId="articles"
+                fill="var(--color-failed)"
                 radius={[3, 3, 0, 0]}
               />
               <Bar

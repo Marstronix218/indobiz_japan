@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import {
   deleteArticle,
+  getArticleByIdForAdmin,
   updateArticle,
   type UpdateArticleInput,
 } from "@/lib/supabase/article-repository"
@@ -93,6 +94,25 @@ export async function PATCH(
   }
 
   const update = pickUpdate(body)
+  if (update.workflowStatus === "published") {
+    const current = await getArticleByIdForAdmin(id)
+    if (!current) {
+      return NextResponse.json({ ok: false, error: "article not found" }, { status: 404 })
+    }
+    const imageUrl = update.imageUrl !== undefined ? update.imageUrl : current.imageUrl
+    if (current.isSynthesized && current.qualityCheck?.verdict !== "PASS") {
+      return NextResponse.json(
+        { ok: false, error: "AI生成記事は品質判定PASS後に公開してください" },
+        { status: 409 },
+      )
+    }
+    if (current.isSynthesized && !imageUrl) {
+      return NextResponse.json(
+        { ok: false, error: "AI生成記事は画像生成完了後に公開してください" },
+        { status: 409 },
+      )
+    }
+  }
   const article = await updateArticle(id, update)
   if (!article) {
     return NextResponse.json({ ok: false, error: "update failed" }, { status: 500 })

@@ -658,11 +658,29 @@ async function buildDraft(
     // editorial gate has already held for review.  Remediation can generate an
     // image after the article itself reaches PASS.
     if (!forceReview && (!qualityCheck || qualityCheck.verdict === "PASS")) {
-      primary.imageUrl = await tryGenerateImage(
+      const imageResult = await tryGenerateImage(
         imageClient,
         finalOutput.imagePrompt,
         primary.title,
-      ) ?? undefined
+      )
+      if (imageResult.imageUrl) {
+        primary.imageUrl = imageResult.imageUrl
+      } else if (imageGenerationRequired()) {
+        // A synthesized article is not publication-ready when the configured
+        // image stage failed. Persist the concrete reason in the existing
+        // quality audit fields so API, timeout, response and Storage failures
+        // are distinguishable after the run instead of collapsing to null.
+        forceReview = true
+        qualityCheck = {
+          verdict: "REVISION",
+          notes: joinIssueNotes([
+            qualityCheck?.notes,
+            `画像生成失敗 (${imageResult.attempts}回試行): ${imageResult.error ?? "原因不明"}`,
+          ]),
+          revisionCount: qualityCheck?.revisionCount ?? 0,
+          checkedAt: new Date().toISOString(),
+        }
+      }
     }
 
     return buildSynthesizedDraft(evidenceCluster, primary, finalOutput, { qualityCheck, forceReview })
@@ -675,24 +693,62 @@ async function buildDraft(
   }
 }
 
+interface ImageAttemptResult {
+  imageUrl?: string
+  error?: string
+  attempts: number
+}
+
+function imageGenerationRequired(): boolean {
+  return (process.env.IMAGE_PROVIDER ?? "openai").toLowerCase() !== "none"
+}
+
+function readImageGenerationAttempts(): number {
+  const raw = Number(process.env.IMAGE_GENERATION_ATTEMPTS)
+  if (!Number.isFinite(raw)) return 2
+  return Math.max(1, Math.min(3, Math.round(raw)))
+}
+
+function compactImageError(error: unknown): string {
+  const message = error instanceof ImageGenerationError
+    ? error.message
+    : error instanceof Error ? error.message : String(error)
+  return message.replace(/\s+/g, " ").trim().slice(0, 500) || "原因不明"
+}
+
 async function tryGenerateImage(
   imageClient: ImageClient | null,
   prompt: string,
   fallbackTitle: string,
-): Promise<string | null> {
-  if (!imageClient) return null
-  const positive = buildSafeImagePrompt(prompt, fallbackTitle)
-  if (!positive) return null
-  try {
-    const result = await imageClient.generate({ prompt: positive })
-    return result.imageUrl
-  } catch (error) {
-    const msg = error instanceof ImageGenerationError
-      ? error.message
-      : error instanceof Error ? error.message : String(error)
-    console.error(`[automation] 画像生成失敗 (prompt="${positive.slice(0, 80)}"): ${msg}`)
-    return null
+): Promise<ImageAttemptResult> {
+  if (!imageClient) {
+    return {
+      attempts: 0,
+      error: imageGenerationRequired()
+        ? `画像プロバイダ「${process.env.IMAGE_PROVIDER ?? "openai"}」のクライアントを初期化できませんでした。APIキーとプロバイダ名を確認してください。`
+        : undefined,
+    }
   }
+  const positive = buildSafeImagePrompt(prompt, fallbackTitle)
+  if (!positive) {
+    return { attempts: 0, error: "安全化後の画像プロンプトが空です" }
+  }
+
+  const maxAttempts = readImageGenerationAttempts()
+  let lastError = "原因不明"
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const result = await imageClient.generate({ prompt: positive })
+      if (!result.imageUrl) throw new ImageGenerationError("画像URLが空です")
+      return { imageUrl: result.imageUrl, attempts: attempt }
+    } catch (error) {
+      lastError = compactImageError(error)
+      console.error(
+        `[automation] 画像生成失敗 ${attempt}/${maxAttempts} (prompt="${positive.slice(0, 80)}"): ${lastError}`,
+      )
+    }
+  }
+  return { attempts: maxAttempts, error: lastError }
 }
 
 function urlKey(a: RawSourceArticle): string {
@@ -867,7 +923,7 @@ export async function runAutomationPipeline(
       imageClient = getImageClient()
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error)
-      console.warn(`[automation] 画像生成クライアント初期化失敗、画像なしで動作: ${msg}`)
+      console.warn(`[automation] 画像生成クライアント初期化失敗、対象記事を要確認に保留: ${msg}`)
       imageClient = null
     }
   }
