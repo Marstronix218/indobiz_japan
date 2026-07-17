@@ -9,6 +9,7 @@ import {
   computePopularityScore,
   formatArticleShortDate,
 } from "@/lib/news-data"
+import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
 export function AccessRankingWidget({ rankedIds }: { rankedIds: string[] }) {
   const articles = usePublicArticles()
@@ -40,9 +41,9 @@ export function AccessRankingWidget({ rankedIds }: { rankedIds: string[] }) {
             <div className="min-w-0">
               <Link
                 href={`/article/${article.id}`}
-                className="line-clamp-2 text-xs font-semibold leading-snug hover:text-accent"
+                className="text-auto-phrase line-clamp-2 text-xs font-semibold leading-snug hover:text-accent"
               >
-                {article.title}
+                {addJapanesePhraseBreaks(article.title)}
               </Link>
               <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
                 {formatArticleShortDate(articleDisplayDate(article))}

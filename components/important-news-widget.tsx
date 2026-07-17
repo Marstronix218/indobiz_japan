@@ -10,6 +10,7 @@ import {
   computePopularityScore,
   formatArticleShortDate,
 } from "@/lib/news-data"
+import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
 export function ImportantNewsWidget() {
   const articles = usePublicArticles()
@@ -34,9 +35,9 @@ export function ImportantNewsWidget() {
               </span>
               <Link
                 href={`/article/${article.id}`}
-                className="line-clamp-2 text-xs font-semibold leading-snug hover:text-accent"
+                className="text-auto-phrase line-clamp-2 text-xs font-semibold leading-snug hover:text-accent"
               >
-                {article.title}
+                {addJapanesePhraseBreaks(article.title)}
               </Link>
             </div>
           </li>

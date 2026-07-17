@@ -37,6 +37,7 @@ import { ensureMinimumSummaryLength } from "@/lib/summary-utils"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { resolveArticleAuthor } from "@/lib/authors"
 import { recordArticleViewClient } from "@/lib/view-tracking"
+import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
 const TITLE_SOURCE_SUFFIX =
   /\s+(?:[-–—|])\s+(?:reuters|associated press|ap news|bloomberg|bbc|cnn|cnbc|financial times|the hindu|hindustan times|times of india|the economic times|the new indian express|indian express|mint|moneycontrol|business standard|ndtv|deccan herald|firstpost|the print|pib)$/i
@@ -495,8 +496,8 @@ export function ArticleView({
                   imageSrc ? "mt-3.5 space-y-2.5" : "space-y-2.5 pt-5"
                 }
               >
-                <h1 className="text-balance font-serif text-[23px] font-bold leading-[1.42] tracking-tight text-foreground sm:text-[26px]">
-                  {article.title}
+                <h1 className="text-auto-phrase text-balance font-serif text-[23px] font-bold leading-[1.42] tracking-tight text-foreground sm:text-[26px]">
+                  {addJapanesePhraseBreaks(article.title)}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-muted-foreground">
                   <span>{formatJstDateTime(articleDisplayDate(article))}</span>
@@ -589,6 +590,18 @@ export function ArticleView({
                   </p>
                 ))}
               </div>
+              {sourceCards.length > 0 && (
+                <p className="mt-3 text-xs leading-6 text-muted-foreground">
+                  詳しくは
+                  <a
+                    href="#reference-articles"
+                    className="font-semibold text-primary underline decoration-primary/35 underline-offset-4 transition-colors hover:text-accent"
+                  >
+                    参考記事
+                  </a>
+                  をご確認ください。
+                </p>
+              )}
             </section>
 
             {keywords.length > 0 && (
@@ -667,7 +680,10 @@ export function ArticleView({
             )}
 
             {sourceCards.length > 0 && (
-              <section className="mt-5 border-t border-border pt-4">
+              <section
+                id="reference-articles"
+                className="mt-5 scroll-mt-24 border-t border-border pt-4"
+              >
                 <div className="mb-3 flex items-center gap-2">
                   <ExternalLink className="size-[18px] text-primary" />
                   <h2 className="font-serif text-base font-bold text-foreground">

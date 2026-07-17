@@ -14,6 +14,7 @@ import {
 } from "@/lib/news-data"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { FREE_ARTICLE_LIMIT } from "@/lib/site-config"
+import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
 const TEASER_LENGTH = 150
 
@@ -53,8 +54,8 @@ export function ArticleTeaser({
               </Badge>
             </div>
 
-            <h1 className="text-balance font-serif text-4xl font-bold leading-tight tracking-tight text-foreground">
-              {article.title}
+            <h1 className="text-auto-phrase text-balance font-serif text-4xl font-bold leading-tight tracking-tight text-foreground">
+              {addJapanesePhraseBreaks(article.title)}
             </h1>
             <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground">
               <span>{formatArticleDate(articleDisplayDate(article))}</span>

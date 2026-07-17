@@ -88,6 +88,9 @@ export function MarketIndicatorPanel() {
       <p className="mt-2 text-right font-mono text-[10px] text-muted-foreground">
         {asOf}
       </p>
+      <p className="mt-1 text-right text-[10px] text-muted-foreground">
+        出典：Yahoo Finance
+      </p>
       <Link
         href="/?category=market"
         className="mt-2 flex items-center justify-end gap-0.5 text-[11px] font-semibold text-primary hover:underline"

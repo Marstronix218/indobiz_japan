@@ -12,6 +12,7 @@ import {
 } from "@/lib/news-data"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { cn } from "@/lib/utils"
+import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
 const TONE_TO_STRIPE: Record<ImagePlaceholderTone, string> = {
   warm: "ph-stripe-warm",
@@ -109,8 +110,8 @@ export function NewsCardHero({
         <p className="font-mono text-xs text-white/80">
           {formatArticleDate(articleDisplayDate(article))}
         </p>
-        <h2 className="mt-2 text-balance font-serif text-2xl font-bold leading-[1.25] text-white md:text-[28px]">
-          {article.title}
+        <h2 className="text-auto-phrase mt-2 text-balance font-serif text-2xl font-bold leading-[1.25] text-white md:text-[28px]">
+          {addJapanesePhraseBreaks(article.title)}
         </h2>
         <p className="mt-2 line-clamp-2 max-w-prose text-base leading-7 text-white/85">
           {article.summary}
@@ -164,8 +165,8 @@ export function NewsCardMosaic({
         <p className="font-mono text-[10px] text-white/80">
           {formatArticleShortDate(articleDisplayDate(article))}
         </p>
-        <h3 className="mt-1 line-clamp-3 text-[15px] font-semibold leading-snug text-white md:text-base">
-          {article.title}
+        <h3 className="text-auto-phrase mt-1 line-clamp-3 text-[15px] font-semibold leading-snug text-white md:text-base">
+          {addJapanesePhraseBreaks(article.title)}
         </h3>
       </div>
     </article>
@@ -202,8 +203,8 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
         <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
           {formatArticleDate(articleDisplayDate(article))}
         </p>
-        <h3 className="mt-1.5 line-clamp-3 font-serif text-[17px] font-bold leading-snug text-foreground transition-colors group-hover:text-accent">
-          {article.title}
+        <h3 className="text-auto-phrase mt-1.5 line-clamp-3 font-serif text-[17px] font-bold leading-snug text-foreground transition-colors group-hover:text-accent">
+          {addJapanesePhraseBreaks(article.title)}
         </h3>
         <p className="mt-1.5 line-clamp-2 text-[13px] leading-6 text-muted-foreground">
           {article.summary}
@@ -262,8 +263,8 @@ export function NewsCardFeature({ article }: { article: NewsArticle }) {
         <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
           {formatArticleDate(articleDisplayDate(article))}
         </p>
-        <h3 className="mt-2 text-balance font-serif text-2xl font-bold leading-snug transition-colors group-hover:text-accent">
-          {article.title}
+        <h3 className="text-auto-phrase mt-2 text-balance font-serif text-2xl font-bold leading-snug transition-colors group-hover:text-accent">
+          {addJapanesePhraseBreaks(article.title)}
         </h3>
         <p className="mt-2 line-clamp-3 text-base leading-7 text-muted-foreground">
           {article.summary}

@@ -15,6 +15,7 @@
     "test:clustering": "node --experimental-strip-types --test lib/clustering.test.ts",
     "test:source-policy": "node --experimental-strip-types --test lib/llm/source-policy.test.ts",
     "test:quality-guard": "node --experimental-strip-types --test lib/llm/output-quality-guard.test.ts",
+    "test:japanese-line-breaks": "node --experimental-strip-types --test lib/japanese-line-breaks.test.ts",
     "test:llm-provider": "node --experimental-strip-types --test lib/llm/index.test.ts",
     "test:authors": "node --experimental-strip-types --test lib/authors.test.ts",
     "test:cities": "node --experimental-strip-types --test lib/cities/data.test.ts"

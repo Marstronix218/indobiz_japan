@@ -897,7 +897,7 @@ export function ArticleFormDialog({
                       backgroundContext: event.target.value,
                     }))
                   }
-                  placeholder="これまでの制度・何が問題だったか・今回何が変わったかを200〜300字程度で"
+                  placeholder="これまでの制度・何が問題だったか・今回何が変わったかを180〜220字程度で"
                   className="min-h-40 bg-background"
                 />
                 <p className="text-xs text-muted-foreground">
@@ -918,7 +918,7 @@ export function ArticleFormDialog({
                       japanBusinessImpact: event.target.value,
                     }))
                   }
-                  placeholder="対象企業・直接/間接の別・確認事項を100〜180字程度で"
+                  placeholder="対象企業・直接/間接の別・確認事項を180〜220字程度で（背景との文字数差は40字以内）"
                   className="min-h-40 bg-background"
                 />
                 <p className="text-xs text-muted-foreground">

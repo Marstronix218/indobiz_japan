@@ -5,6 +5,7 @@ import {
   type CategorySection,
   type NewsArticle,
 } from "@/lib/news-data"
+import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
 export function CategoryLinkBlock({
   section,
@@ -35,8 +36,8 @@ export function CategoryLinkBlock({
               <span className="shrink-0 font-mono text-[10px] font-semibold text-accent">
                 {formatArticleShortDate(articleDisplayDate(article))}
               </span>
-              <span className="line-clamp-2 text-[13px] leading-snug group-hover:text-accent">
-                {article.title}
+              <span className="text-auto-phrase line-clamp-2 text-[13px] leading-snug group-hover:text-accent">
+                {addJapanesePhraseBreaks(article.title)}
               </span>
             </Link>
           </li>

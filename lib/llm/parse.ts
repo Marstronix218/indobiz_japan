@@ -10,7 +10,7 @@ import type { SynthesisInput, SynthesisKeyword } from "./types"
 import { sanitizeReferenceUrls } from "./source-policy"
 import { sanitizeArticleKeywords } from "@/lib/news-data"
 
-// 理解補助セクションの許容上限。目安(背景200〜300字/影響100〜180字/キャプション
+// 理解補助セクションの許容上限。目安(背景・影響ともに180〜220字/キャプション
 // 40〜90字)から大きく外れた異常出力は、切り詰めではなく undefined に落とす
 // (中途半端に切ると文が壊れるため。本文の保存は新フィールドの失敗で止めない)。
 const BACKGROUND_MAX_CHARS = 600

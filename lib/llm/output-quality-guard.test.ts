@@ -118,7 +118,7 @@ test("accepts enrichment fields inside their requested ranges", () => {
   const qc = runDeterministicQualityGuard(
     output({
       backgroundContext: "背".repeat(200),
-      japanBusinessImpact: "影".repeat(100),
+      japanBusinessImpact: "影".repeat(200),
       imageCaption: "写".repeat(40),
       keywords: [
         { term: "EPFO", definition: "定".repeat(50) },
@@ -147,7 +147,7 @@ test("flags generated enrichment fields outside their requested ranges", () => {
   const qc = runDeterministicQualityGuard(
     output({
       backgroundContext: "背".repeat(140),
-      japanBusinessImpact: "影".repeat(181),
+      japanBusinessImpact: "影".repeat(251),
       imageCaption: "写".repeat(20),
       keywords: [{ term: "EPFO", definition: "定".repeat(32) }],
     }),
@@ -159,6 +159,19 @@ test("flags generated enrichment fields outside their requested ranges", () => {
   assert(qc?.issues.some((issue) => issue.includes("日本企業への影響")))
   assert(qc?.issues.some((issue) => issue.includes("画像キャプション")))
   assert(qc?.issues.some((issue) => issue.includes("キーワード解説")))
+})
+
+test("flags a large length gap between background and business impact", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      backgroundContext: "背".repeat(240),
+      japanBusinessImpact: "影".repeat(170),
+    }),
+    cluster,
+  )
+
+  assert.equal(qc?.verdict, "REVISION")
+  assert(qc?.issues.some((issue) => issue.includes("文字数差")))
 })
 
 test("flags unsupported numbers introduced from outside the provided sources", () => {

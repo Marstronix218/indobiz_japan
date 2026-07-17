@@ -17,14 +17,46 @@ interface CompanyRow {
 const rows: CompanyRow[] = [
   {
     role: "運営会社",
-    companies: "グローバルランチャーズ株式会社",
+    companies: (
+      <div>
+        <div className="font-semibold">グローバルランチャーズ株式会社</div>
+        <div className="mt-1">
+          <a
+            href="https://global.launchers-g.com"
+            className="text-accent underline-offset-2 hover:underline"
+          >
+            https://global.launchers-g.com
+          </a>
+        </div>
+      </div>
+    ),
   },
   {
     role: "共同運営（サポート）",
     companies: (
       <ul className="space-y-1">
-        <li>キャピタルランチャーズ</li>
-        <li>Indobox株式会社</li>
+        <li>
+          <div className="font-semibold">キャピタルランチャーズ株式会社</div>
+          <div className="mt-1">
+            <a
+              href="https://capital.launchers-g.com"
+              className="text-accent underline-offset-2 hover:underline"
+            >
+              https://capital.launchers-g.com
+            </a>
+          </div>
+        </li>
+        <li>
+          <div className="font-semibold">Indobox株式会社</div>
+          <div className="mt-1">
+            <a
+              href="https://indobox.co.jp"
+              className="text-accent underline-offset-2 hover:underline"
+            >
+              https://indobox.co.jp
+            </a>
+          </div>
+        </li>
       </ul>
     ),
   },

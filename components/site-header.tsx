@@ -25,7 +25,7 @@ function BrandWordmark({ compact = false }: { compact?: boolean }) {
       className={
         compact
           ? "font-serif text-sm font-bold tracking-normal"
-          : "font-serif text-2xl font-bold tracking-normal sm:text-[26px]"
+          : "font-serif text-3xl font-bold tracking-normal sm:text-[34px]"
       }
     >
       <span className="text-primary">IndoBiz</span>{" "}
@@ -78,9 +78,6 @@ export function SiteHeader() {
             </span>
             <span className="min-w-0 leading-tight">
               <BrandWordmark />
-              <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
-                日本企業向けインド市場インテリジェンス · 編集部監修
-              </span>
             </span>
           </Link>
 

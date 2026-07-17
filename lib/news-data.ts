@@ -130,9 +130,9 @@ export interface NewsArticle {
   imageUrl?: string
   /** メイン画像の説明文。写っている対象と記事との関係のみ(存在するときだけ表示)。 */
   imageCaption?: string
-  /** ニュースの背景(200〜300字目安)。既存記事では未設定。 */
+  /** ニュースの背景(180〜220字目安)。既存記事では未設定。 */
   backgroundContext?: string
-  /** 日本企業への影響(100〜180字目安)。既存記事では未設定。 */
+  /** 日本企業への影響(180〜220字目安)。既存記事では未設定。 */
   japanBusinessImpact?: string
   /** キーワード解説(最大4語)。該当語がない記事では未設定または空配列。 */
   keywords?: ArticleKeyword[]

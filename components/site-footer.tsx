@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
 import { CATEGORY_OPTIONS, CATEGORY_LABELS } from "@/lib/news-data"
 
@@ -8,9 +9,16 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-3">
           <div className="space-y-3">
-            <h4 className="font-serif text-xl font-bold">
-              IndoBiz Japan
-            </h4>
+            <div className="flex items-center gap-3">
+              <Image
+                src="/goindia.png"
+                alt="Go India"
+                width={56}
+                height={56}
+                className="size-14 shrink-0 object-contain"
+              />
+              <h4 className="font-serif text-xl font-bold">IndoBiz Japan</h4>
+            </div>
             <p className="max-w-sm text-base leading-8 text-primary-foreground/75">
               日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける β版プロダクトです。
             </p>

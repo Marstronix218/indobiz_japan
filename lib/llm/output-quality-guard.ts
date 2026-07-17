@@ -16,13 +16,12 @@ const TAKEAWAY_COUNT = 3
 // 極端な短文と長文は機械判定し、内容の具体性は LLM 品質チェックに委ねる。
 const TAKEAWAY_MIN_CHARS = 40
 const TAKEAWAY_MAX_CHARS = 90
-// These are editorial guidance, not a proxy for factual quality. A concise,
-// sourced 150-character background is publishable; the former hard 200 floor
-// caused otherwise complete articles to churn through every revision.
-const BACKGROUND_CONTEXT_MIN_CHARS = 150
-const BACKGROUND_CONTEXT_MAX_CHARS = 320
-const JAPAN_BUSINESS_IMPACT_MIN_CHARS = 100
-const JAPAN_BUSINESS_IMPACT_MAX_CHARS = 180
+// Both explanatory cards target 180–220 characters. The guard keeps a slightly
+// wider acceptance band to prevent needless revision churn, then checks their
+// relative length separately so the two cards carry comparable detail.
+const ENRICHMENT_SECTION_MIN_CHARS = 150
+const ENRICHMENT_SECTION_MAX_CHARS = 250
+const ENRICHMENT_SECTION_MAX_LENGTH_DIFFERENCE = 50
 const KEYWORD_DEFINITION_MIN_CHARS = 40
 const KEYWORD_DEFINITION_MAX_CHARS = 130
 const IMAGE_CAPTION_MIN_CHARS = 40
@@ -160,6 +159,13 @@ function checkEventStatusFidelity(
 
 function checkEnrichmentFormat(output: SynthesisOutput): DeterministicIssue[] {
   const issues: DeterministicIssue[] = []
+  const hasConciseNoDirectImpact = Boolean(
+    output.japanBusinessImpact &&
+      /日本企業への直接的な影響.*確認でき(?:ません|ない)/.test(
+        output.japanBusinessImpact,
+      ) &&
+      output.japanBusinessImpact.length <= ENRICHMENT_SECTION_MAX_CHARS,
+  )
 
   const checkOptionalLength = (
     label: string,
@@ -181,22 +187,33 @@ function checkEnrichmentFormat(output: SynthesisOutput): DeterministicIssue[] {
     "ニュースの背景",
     "backgroundContext",
     output.backgroundContext,
-    BACKGROUND_CONTEXT_MIN_CHARS,
-    BACKGROUND_CONTEXT_MAX_CHARS,
+    ENRICHMENT_SECTION_MIN_CHARS,
+    ENRICHMENT_SECTION_MAX_CHARS,
   )
   checkOptionalLength(
     "日本企業への影響",
     "japanBusinessImpact",
-    output.japanBusinessImpact &&
-      /日本企業への直接的な影響.*確認でき(?:ません|ない)/.test(
-        output.japanBusinessImpact,
-      ) &&
-      output.japanBusinessImpact.length <= JAPAN_BUSINESS_IMPACT_MAX_CHARS
-      ? undefined
-      : output.japanBusinessImpact,
-    JAPAN_BUSINESS_IMPACT_MIN_CHARS,
-    JAPAN_BUSINESS_IMPACT_MAX_CHARS,
+    hasConciseNoDirectImpact ? undefined : output.japanBusinessImpact,
+    ENRICHMENT_SECTION_MIN_CHARS,
+    ENRICHMENT_SECTION_MAX_CHARS,
   )
+
+  if (
+    output.backgroundContext &&
+    output.japanBusinessImpact &&
+    !hasConciseNoDirectImpact
+  ) {
+    const difference = Math.abs(
+      output.backgroundContext.trim().length -
+        output.japanBusinessImpact.trim().length,
+    )
+    if (difference > ENRICHMENT_SECTION_MAX_LENGTH_DIFFERENCE) {
+      issues.push({
+        issue: `ニュースの背景と日本企業への影響の文字数差が大きい: ${difference}字差`,
+        instruction: `backgroundContext と japanBusinessImpact の文字数差を${ENRICHMENT_SECTION_MAX_LENGTH_DIFFERENCE}字以内にし、両セクションの情報量をおおむね揃えること。`,
+      })
+    }
+  }
   checkOptionalLength(
     "画像キャプション",
     "imageCaption",

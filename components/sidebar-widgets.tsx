@@ -24,6 +24,7 @@ import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { CITIES } from "@/lib/cities"
 import { describeWeatherCode } from "@/lib/cities/weather-codes"
 import type { CityWeatherMap } from "@/lib/cities/weather"
+import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
 const TONE_TO_STRIPE: Record<ImagePlaceholderTone, string> = {
   warm: "ph-stripe-warm",
@@ -81,9 +82,9 @@ export function TrendingWidget() {
             <div className="min-w-0">
               <Link
                 href={`/article/${article.id}`}
-                className="line-clamp-2 text-sm font-semibold leading-snug hover:text-accent"
+                className="text-auto-phrase line-clamp-2 text-sm font-semibold leading-snug hover:text-accent"
               >
-                {article.title}
+                {addJapanesePhraseBreaks(article.title)}
               </Link>
               <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
                 {formatArticleShortDate(articleDisplayDate(article))}
@@ -589,8 +590,8 @@ export function CollabHighlightWidget({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="line-clamp-3 text-xs font-semibold leading-snug group-hover:text-accent">
-                    {article.title}
+                  <p className="text-auto-phrase line-clamp-3 text-xs font-semibold leading-snug group-hover:text-accent">
+                    {addJapanesePhraseBreaks(article.title)}
                   </p>
                   <p className="mt-1 font-mono text-[10px] text-muted-foreground">
                     {formatArticleShortDate(articleDisplayDate(article))}
@@ -645,8 +646,8 @@ export function EditorialColumnWidget() {
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="line-clamp-2 text-xs font-semibold leading-snug group-hover:text-accent">
-                    {article.title}
+                  <p className="text-auto-phrase line-clamp-2 text-xs font-semibold leading-snug group-hover:text-accent">
+                    {addJapanesePhraseBreaks(article.title)}
                   </p>
                   <p className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-muted-foreground">
                     {article.summary}

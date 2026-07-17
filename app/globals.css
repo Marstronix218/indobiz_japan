@@ -132,6 +132,14 @@
 }
 
 @layer utilities {
+  /* Keep Japanese article-title phrases together at automatic line breaks. */
+  .text-auto-phrase {
+    line-break: strict;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+    word-break: auto-phrase;
+  }
+
   .ph-stripe {
     background-image: repeating-linear-gradient(
       135deg,
