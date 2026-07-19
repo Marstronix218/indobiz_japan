@@ -110,12 +110,9 @@ export function NewsCardHero({
         <p className="font-mono text-xs text-white/80">
           {formatArticleDate(articleDisplayDate(article))}
         </p>
-        <h2 className="text-auto-phrase mt-2 text-balance font-serif text-2xl font-bold leading-[1.25] text-white md:text-[28px]">
+        <h2 className="text-auto-phrase mt-2 text-balance font-serif text-2xl font-bold leading-[1.3] text-white md:text-[28px]">
           {addJapanesePhraseBreaks(article.title)}
         </h2>
-        <p className="mt-2 line-clamp-2 max-w-prose text-base leading-7 text-white/85">
-          {article.summary}
-        </p>
       </div>
     </article>
   )
@@ -200,15 +197,12 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
         )}
       </div>
       <div className="pointer-events-none pt-3">
-        <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
+        <p className="font-mono text-[11px] tracking-wider text-muted-foreground">
           {formatArticleDate(articleDisplayDate(article))}
         </p>
-        <h3 className="text-auto-phrase mt-1.5 line-clamp-3 font-serif text-[17px] font-bold leading-snug text-foreground transition-colors group-hover:text-accent">
+        <h3 className="text-auto-phrase mt-1.5 line-clamp-3 font-serif text-[17px] font-bold leading-normal text-foreground transition-colors group-hover:text-accent">
           {addJapanesePhraseBreaks(article.title)}
         </h3>
-        <p className="mt-1.5 line-clamp-2 text-[13px] leading-6 text-muted-foreground">
-          {article.summary}
-        </p>
       </div>
     </article>
   )
@@ -260,15 +254,12 @@ export function NewsCardFeature({ article }: { article: NewsArticle }) {
         </div>
       </div>
       <div className="pointer-events-none pt-4">
-        <p className="font-mono text-[10px] tracking-wider text-muted-foreground">
+        <p className="font-mono text-[11px] tracking-wider text-muted-foreground">
           {formatArticleDate(articleDisplayDate(article))}
         </p>
-        <h3 className="text-auto-phrase mt-2 text-balance font-serif text-2xl font-bold leading-snug transition-colors group-hover:text-accent">
+        <h3 className="text-auto-phrase mt-2 text-balance font-serif text-2xl font-bold leading-normal transition-colors group-hover:text-accent">
           {addJapanesePhraseBreaks(article.title)}
         </h3>
-        <p className="mt-2 line-clamp-3 text-base leading-7 text-muted-foreground">
-          {article.summary}
-        </p>
       </div>
     </article>
   )

@@ -483,7 +483,7 @@ export function ArticleView({
                   />
                 </div>
                 {article.imageCaption && (
-                  <figcaption className="border-t border-border/70 px-4 py-1.5 text-[10px] leading-4 text-muted-foreground sm:px-5">
+                  <figcaption className="border-t border-border/70 px-4 py-1.5 text-[11px] leading-5 text-muted-foreground sm:px-5">
                     {article.imageCaption}
                   </figcaption>
                 )}
@@ -496,10 +496,10 @@ export function ArticleView({
                   imageSrc ? "mt-3.5 space-y-2.5" : "space-y-2.5 pt-5"
                 }
               >
-                <h1 className="text-auto-phrase text-balance font-serif text-[23px] font-bold leading-[1.42] tracking-tight text-foreground sm:text-[26px]">
+                <h1 className="text-auto-phrase text-balance font-serif text-[25px] font-bold leading-[1.45] tracking-tight text-foreground sm:text-[28px]">
                   {addJapanesePhraseBreaks(article.title)}
                 </h1>
-                <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
                   <span>{formatJstDateTime(articleDisplayDate(article))}</span>
                   <span aria-hidden>｜</span>
                   <span>IndoBiz Japan編集部</span>
@@ -532,11 +532,11 @@ export function ArticleView({
                   <ListChecks className="size-4" />
                   本記事のポイント
                 </h2>
-                <ol className="mt-2.5 space-y-2">
+                <ol className="mt-3 space-y-2.5">
                   {takeawayBullets.map((item, index) => (
                     <li
                       key={`${index}-${item}`}
-                      className="flex items-start gap-2.5 text-sm leading-7 text-foreground"
+                      className="flex items-start gap-2.5 text-[15px] leading-7 text-foreground"
                     >
                       <span className="mt-0.5 grid size-[22px] shrink-0 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
                         {index + 1}
@@ -556,7 +556,7 @@ export function ArticleView({
                       <BookOpen className="size-[18px] shrink-0 text-primary" />
                       ニュースの背景
                     </h2>
-                    <p className="mt-2.5 whitespace-pre-line text-[13px] leading-6 text-foreground">
+                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
                       {backgroundContext}
                     </p>
                   </section>
@@ -567,7 +567,7 @@ export function ArticleView({
                       <Building2 className="size-[18px] shrink-0 text-primary" />
                       日本企業への影響
                     </h2>
-                    <p className="mt-2.5 whitespace-pre-line text-[13px] leading-6 text-foreground">
+                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
                       {japanBusinessImpact}
                     </p>
                   </section>
@@ -580,11 +580,11 @@ export function ArticleView({
                 <ClipboardList className="size-[18px] text-primary" />
                 この記事の概要
               </h2>
-              <div className="mt-2.5 space-y-3">
+              <div className="mt-3 space-y-4">
                 {summaryParagraphs.map((paragraph, idx) => (
                   <p
                     key={idx}
-                    className="whitespace-pre-line text-[15px] leading-8 text-foreground sm:text-sm sm:leading-7"
+                    className="whitespace-pre-line text-base leading-8 text-foreground"
                   >
                     {paragraph}
                   </p>
@@ -616,7 +616,7 @@ export function ArticleView({
                       key={`${index}-${keyword.term}`}
                       className="rounded-md border border-border bg-secondary/15 p-3"
                     >
-                      <p className="text-[13px] font-bold leading-5 text-primary">
+                      <p className="text-sm font-bold leading-6 text-primary">
                         {keyword.term}
                         {keyword.fullName && (
                           <span className="ml-1 font-semibold">
@@ -624,13 +624,13 @@ export function ArticleView({
                           </span>
                         )}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-foreground">
+                      <p className="mt-1 text-[13px] leading-6 text-foreground">
                         {keyword.definition}
                       </p>
                     </li>
                   ))}
                 </ul>
-                <p className="mt-2 text-[10px] leading-5 text-muted-foreground">
+                <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
                   ※用語解説は記事の理解を補助するための一般的な説明であり、法務・税務・投資その他の専門的助言を目的とするものではありません。
                 </p>
               </section>
