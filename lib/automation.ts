@@ -34,7 +34,11 @@ import {
   resolveGoogleNewsUrl,
 } from "@/lib/scrapers/fetch-india-news"
 import { isCoreFirstSynthesisEnabled } from "@/lib/llm/prompt"
-import { normalizeSourceTitle, normalizeSourceUrl } from "@/lib/llm/source-policy"
+import {
+  bodySimilarity,
+  normalizeSourceTitle,
+  normalizeSourceUrl,
+} from "@/lib/llm/source-policy"
 import { runDeterministicQualityGuard } from "@/lib/llm/output-quality-guard"
 
 export type ConnectorMode = "rss" | "api"
@@ -894,6 +898,41 @@ async function enrichClusterBodies(clusters: RawSourceArticle[][]): Promise<numb
   return enriched
 }
 
+// Google News の別トークンURLや検索補強(augmentSingletonClusters)経由で、同一記事が
+// 1つのクラスタに複数回入ることがある。パイプライン冒頭の重複排除はGoogle News URL
+// 解決「前」に走るため捕捉できず、解決後に同一URLの参考記事が2件LLMへ渡る。
+// 品質チェッカーは入力資料側の重複を指摘するが、修正再生成では入力資料を変えられない
+// ため同じ指摘が繰り返され、REVISION上限到達→要確認行きになる。解決後にクラスタ内で
+// 統合し、本文が最も充実した1件だけを残す。
+function dedupeResolvedClusterSources(clusters: RawSourceArticle[][]): number {
+  let removed = 0
+  for (let i = 0; i < clusters.length; i++) {
+    const cluster = clusters[i]
+    if (cluster.length < 2) continue
+    const ordered = [...cluster].sort(
+      (a, b) => (b.bodyText?.length ?? 0) - (a.bodyText?.length ?? 0),
+    )
+    const kept: RawSourceArticle[] = []
+    for (const article of ordered) {
+      const url = normalizeSourceUrl(article.canonicalUrl ?? article.url)
+      const titleKey = normalizeSourceTitle(article.originalTitle ?? article.title)
+      const isDuplicate = kept.some((existing) =>
+        normalizeSourceUrl(existing.canonicalUrl ?? existing.url) === url ||
+        (titleKey !== "" &&
+          normalizeSourceTitle(existing.originalTitle ?? existing.title) === titleKey) ||
+        bodySimilarity(existing.bodyText ?? "", article.bodyText ?? "") >= 0.9,
+      )
+      if (isDuplicate) {
+        removed += 1
+        continue
+      }
+      kept.push(article)
+    }
+    if (kept.length !== cluster.length) clusters[i] = kept
+  }
+  return removed
+}
+
 export async function runAutomationPipeline(
   rawArticles: RawSourceArticle[],
   deps?: {
@@ -983,6 +1022,14 @@ export async function runAutomationPipeline(
   } catch (error) {
     console.warn(
       `[automation] 本文実取得フェーズで例外、薄い本文のまま継続: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+
+  // Google News URL解決の後でないと同一記事の重複を検出できないため、ここで統合する。
+  const duplicateSources = dedupeResolvedClusterSources(clusters)
+  if (duplicateSources > 0) {
+    console.info(
+      `[automation] URL解決後に同一記事と判明したソース ${duplicateSources} 件をクラスタ内で統合`,
     )
   }
 

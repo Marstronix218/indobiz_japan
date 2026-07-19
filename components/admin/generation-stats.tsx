@@ -44,8 +44,22 @@ interface StatsResponse {
 }
 
 const chartConfig = {
-  published: { label: "公開", color: "var(--chart-1)" },
-  review: { label: "要確認", color: "var(--chart-3)" },
+  // 公開=濃い緑 / 要確認=明るい緑。--chart-1/-3 は明度・色相が近く積み上げ棒で
+  // 見分けられないため、このグラフだけ明度差の大きい専用色を持つ。
+  published: {
+    label: "公開",
+    theme: {
+      light: "oklch(0.44 0.11 150)",
+      dark: "oklch(0.55 0.13 150)",
+    },
+  },
+  review: {
+    label: "要確認",
+    theme: {
+      light: "oklch(0.76 0.16 145)",
+      dark: "oklch(0.8 0.16 145)",
+    },
+  },
   failed: { label: "処理失敗", color: "var(--chart-5)" },
   images: { label: "画像付き記事", color: "var(--chart-2)" },
 } satisfies ChartConfig

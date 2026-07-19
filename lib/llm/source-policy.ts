@@ -107,7 +107,7 @@ function isGoogleNewsUrl(url: string): boolean {
   }
 }
 
-function bodySimilarity(a: string, b: string): number {
+export function bodySimilarity(a: string, b: string): number {
   const left = tokenSet(a)
   const right = tokenSet(b)
   if (left.size === 0 || right.size === 0) return 0

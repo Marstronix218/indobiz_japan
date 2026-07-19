@@ -381,6 +381,20 @@ const ARTICLE_BODY_BOILERPLATE_PATTERNS = [
   /sign in to read the full article/i,
 ]
 
+// ペイウォールで冒頭しか読めないページの定型文。会員限定記事の抜粋を本文根拠に
+// 使うと、LLMが一般知識で欠けた部分を補って事実を創作し、品質チェックで
+// REVISION/REJECT になる(2026-07-18 の中日BIZナビ会員限定記事が実例)。
+// 検出したらタイトル一致に関係なく本文全体を不採用にする(fail-open で薄い本文の
+// まま残り、根拠不足のクラスタは合成前の証拠ゲートで除外される)。
+const ARTICLE_BODY_PAYWALL_PATTERNS = [
+  /この記事は(?:有料)?会員限定/,
+  /(?:登録|ログイン)すると続きをお読みいただけます/,
+  /続きを読むには(?:有料)?(?:会員|プラン|購読)/,
+  /残り[:：]?\s*[0-9,，]+\s*文字/,
+  /(?:this|the full) (?:article|story) is (?:available )?(?:exclusively|only) (?:to|for) (?:subscribers|members|premium)/i,
+  /already a subscriber\?/i,
+]
+
 const TITLE_TOKEN_STOPWORDS = new Set([
   "about", "after", "amid", "from", "into", "over", "that", "their", "this",
   "with", "will", "says", "said", "news", "india", "indian", "business",
@@ -493,6 +507,12 @@ function titleEvidenceTokens(title: string): string[] {
 export function isUsableArticleBody(body: string, expectedTitle = ""): boolean {
   const normalizedBody = body.replace(/\s+/g, " ").trim()
   if (normalizedBody.length < ARTICLE_BODY_MIN_USABLE_CHARS) return false
+
+  if (
+    ARTICLE_BODY_PAYWALL_PATTERNS.some((pattern) => pattern.test(normalizedBody))
+  ) {
+    return false
+  }
 
   const boilerplateHits = ARTICLE_BODY_BOILERPLATE_PATTERNS.filter((pattern) =>
     pattern.test(normalizedBody)
