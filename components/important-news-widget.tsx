@@ -35,7 +35,7 @@ export function ImportantNewsWidget() {
               </span>
               <Link
                 href={`/article/${article.id}`}
-                className="text-auto-phrase line-clamp-2 text-xs font-semibold leading-snug hover:text-accent"
+                className="text-auto-phrase line-clamp-2 text-xs font-semibold leading-relaxed hover:text-accent"
               >
                 {addJapanesePhraseBreaks(article.title)}
               </Link>

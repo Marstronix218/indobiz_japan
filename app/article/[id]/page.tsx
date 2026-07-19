@@ -1,9 +1,7 @@
-import { cookies } from "next/headers"
 import { ArticleView } from "@/components/article-view"
 import { ArticleStoreProvider } from "@/components/article-store-provider"
 import { ArticleTeaser } from "@/components/article-teaser"
 import { DataUnavailable } from "@/components/data-unavailable"
-import { FREE_VIEW_COOKIE, parseViewedIds } from "@/lib/free-view"
 import {
   getArticleById,
   getTopViewedArticleIds,
@@ -11,6 +9,25 @@ import {
 } from "@/lib/supabase/article-repository"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { getSessionUser } from "@/lib/supabase/server-auth"
+import type { NewsArticle } from "@/lib/news-data"
+
+// Store payload for the logged-out teaser page. The sidebar widgets and
+// related-article cards only need title/category/dates/image, so strip the
+// gated content (full summary, 示唆, 背景/影響, keywords, sources) before it
+// gets serialized into the RSC stream for an unauthenticated visitor.
+function toTeaserStoreArticle(article: NewsArticle): NewsArticle {
+  return {
+    ...article,
+    summary: article.summary.slice(0, 160),
+    implications: [],
+    backgroundContext: undefined,
+    japanBusinessImpact: undefined,
+    keywords: undefined,
+    provenance: undefined,
+    sources: undefined,
+    qualityCheck: undefined,
+  }
+}
 
 export const revalidate = 0
 
@@ -45,20 +62,31 @@ export default async function ArticlePage({
 
   const user = await getSessionUser()
 
+  // No free-read allowance: unauthenticated visitors always get the teaser.
   if (!user) {
     const article = await getArticleById(id)
     if (!article || article.workflowStatus !== "published") {
       return <DataUnavailable showHomeLink />
     }
-    // `proxy.ts` records each anonymous read in this cookie up to
-    // FREE_ARTICLE_LIMIT. If this article isn't in the list, the visitor has
-    // already used up their free reads — show the login teaser instead.
-    const cookieStore = await cookies()
-    const viewed = parseViewedIds(cookieStore.get(FREE_VIEW_COOKIE)?.value)
-    if (!viewed.includes(id)) {
-      return <ArticleTeaser article={article} atLimit />
-    }
-    // Within the free allowance: fall through to the full article view.
+    // Hydrate the article store so the teaser can render the shared
+    // sidebar + related articles (both public info: titles/images only).
+    const [articles, rankedViewIds] = await Promise.all([
+      listPublishedArticles(),
+      getTopViewedArticleIds(24, 5),
+    ])
+    const storeArticles = (
+      articles.some((item) => item.id === article.id)
+        ? articles
+        : [article, ...articles]
+    ).map(toTeaserStoreArticle)
+    return (
+      <ArticleStoreProvider initial={storeArticles}>
+        <ArticleTeaser
+          article={toTeaserStoreArticle(article)}
+          rankedViewIds={rankedViewIds}
+        />
+      </ArticleStoreProvider>
+    )
   }
 
   const [articles, rankedViewIds] = await Promise.all([

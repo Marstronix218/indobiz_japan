@@ -649,7 +649,7 @@ export function EditorialColumnWidget() {
                   <p className="mb-1 font-mono text-[10px] text-muted-foreground">
                     {formatArticleShortDate(articleDisplayDate(article))}
                   </p>
-                  <p className="text-auto-phrase line-clamp-2 text-[13px] font-semibold leading-normal group-hover:text-accent">
+                  <p className="text-auto-phrase line-clamp-2 text-[13px] font-semibold leading-relaxed group-hover:text-accent">
                     {addJapanesePhraseBreaks(article.title)}
                   </p>
                 </div>

@@ -1,4 +1,4 @@
-import type { NewsArticle } from "./news-data"
+import { articleDisplayDate, type NewsArticle } from "./news-data"
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -31,6 +31,38 @@ export function selectImportantNews(
     else older.push(a)
   }
   return [...within, ...older].slice(0, limit)
+}
+
+/**
+ * Related articles for the article page (and its logged-out teaser): same
+ * category first, then top up with the most recent articles from other
+ * categories so sparse categories (e.g. コラム with only one published
+ * article) still show a related section. The two sets are disjoint by
+ * construction (same-category vs. other-category), so no dupes.
+ */
+export function selectRelatedArticles(
+  articles: NewsArticle[],
+  article: NewsArticle,
+  limit: number,
+): NewsArticle[] {
+  const sameCategory = articles.filter(
+    (item) => item.category === article.category && item.id !== article.id,
+  )
+  const fillers =
+    sameCategory.length >= limit
+      ? []
+      : articles
+          .filter(
+            (item) =>
+              item.id !== article.id && item.category !== article.category,
+          )
+          .sort(
+            (a, b) =>
+              Date.parse(articleDisplayDate(b)) -
+              Date.parse(articleDisplayDate(a)),
+          )
+          .slice(0, limit - sameCategory.length)
+  return [...sameCategory, ...fillers].slice(0, limit)
 }
 
 /**

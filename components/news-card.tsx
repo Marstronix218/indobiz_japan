@@ -182,7 +182,9 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
         className="absolute inset-0 z-[1]"
         aria-label={article.title}
       />
-      <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-muted">
+      {/* Fixed height (not aspect-ratio) so every tile in a row starts its
+          title at exactly the same y-position regardless of column width. */}
+      <div className="relative h-[200px] w-full overflow-hidden rounded-md bg-muted">
         <CardBadges article={article} position="top-left-tight" />
         {imageSrc ? (
           <Image

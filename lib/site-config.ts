@@ -1,13 +1,6 @@
 export type DigestFrequency = "daily" | "weekly"
 
 /**
- * Number of full articles an unauthenticated visitor may read before the
- * login/registration gate kicks in. Tracked per-browser via a cookie in
- * `proxy.ts`; see `components/article-teaser.tsx` for the gate UI.
- */
-export const FREE_ARTICLE_LIMIT = 5
-
-/**
  * 公式LINEアカウントの友だち追加URL。トップページの LINE CTA ボックス
  * (`components/line-cta-box.tsx`) から外部リンクで開く。
  */

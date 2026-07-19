@@ -77,15 +77,16 @@ export function CategoryLinkBlock({
         <p className="mt-2 font-mono text-[10px] font-semibold text-accent">
           {formatArticleShortDate(articleDisplayDate(lead))}
         </p>
-        <p className="text-auto-phrase mt-1 line-clamp-2 text-sm font-bold leading-normal group-hover:text-accent">
+        <p className="text-auto-phrase mt-1 line-clamp-2 text-sm font-bold leading-relaxed group-hover:text-accent">
           {addJapanesePhraseBreaks(lead.title)}
         </p>
       </Link>
 
+      {/* 記事間はボーダーではなく余白だけで区切る(J-STORIES 風の風通し) */}
       {rest.length > 0 && (
-        <ul className="mt-3 divide-y divide-border border-t border-border">
+        <ul className="mt-4 space-y-4">
           {rest.map((article) => (
-            <li key={article.id} className="py-2.5">
+            <li key={article.id}>
               <Link
                 href={`/article/${article.id}`}
                 className="group flex items-center gap-3"
@@ -99,7 +100,7 @@ export function CategoryLinkBlock({
                   <p className="font-mono text-[10px] font-semibold text-accent">
                     {formatArticleShortDate(articleDisplayDate(article))}
                   </p>
-                  <p className="text-auto-phrase mt-0.5 line-clamp-2 text-[13px] leading-normal group-hover:text-accent">
+                  <p className="text-auto-phrase mt-0.5 line-clamp-2 text-[13px] leading-relaxed group-hover:text-accent">
                     {addJapanesePhraseBreaks(article.title)}
                   </p>
                 </div>

@@ -21,6 +21,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Badge } from "@/components/ui/badge"
 import { usePublicArticles } from "@/lib/article-store"
+import { selectRelatedArticles } from "@/lib/home-selection"
 import {
   CATEGORY_COLORS,
   CATEGORY_LABELS,
@@ -366,28 +367,7 @@ export function ArticleView({
     )
   }
 
-  // Related articles: same category first, then top up with the most recent
-  // articles from other categories so sparse categories (e.g. コラム with only
-  // one published article) still show a related section. The two sets are
-  // disjoint by construction (same-category vs. other-category), so no dupes.
-  const sameCategoryRelated = articles.filter(
-    (item) => item.category === article.category && item.id !== article.id,
-  )
-  const relatedFillers =
-    sameCategoryRelated.length >= 3
-      ? []
-      : articles
-          .filter(
-            (item) =>
-              item.id !== article.id && item.category !== article.category,
-          )
-          .sort(
-            (a, b) =>
-              Date.parse(articleDisplayDate(b)) -
-              Date.parse(articleDisplayDate(a)),
-          )
-          .slice(0, 3 - sameCategoryRelated.length)
-  const relatedArticles = [...sameCategoryRelated, ...relatedFillers].slice(0, 3)
+  const relatedArticles = selectRelatedArticles(articles, article, 3)
   const isEditorial =
     article.contentType !== "news" || article.category === "column"
   const columnAuthor = isEditorial ? resolveArticleAuthor(article) : null
@@ -551,23 +531,23 @@ export function ArticleView({
             {contextCardCount > 0 && (
               <div className={`mt-4 grid gap-3 ${contextGridClass}`}>
                 {backgroundContext && (
-                  <section className="rounded-md border border-border bg-secondary/20 p-4">
+                  <section className="rounded-md bg-secondary/30 p-4 sm:p-5">
                     <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
                       <BookOpen className="size-[18px] shrink-0 text-primary" />
                       ニュースの背景
                     </h2>
-                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
+                    <p className="mt-2.5 whitespace-pre-line text-[15px] leading-[1.9] text-foreground">
                       {backgroundContext}
                     </p>
                   </section>
                 )}
                 {japanBusinessImpact && (
-                  <section className="rounded-md border border-border bg-secondary/20 p-4">
+                  <section className="rounded-md bg-secondary/30 p-4 sm:p-5">
                     <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
                       <Building2 className="size-[18px] shrink-0 text-primary" />
                       日本企業への影響
                     </h2>
-                    <p className="mt-2.5 whitespace-pre-line text-sm leading-7 text-foreground">
+                    <p className="mt-2.5 whitespace-pre-line text-[15px] leading-[1.9] text-foreground">
                       {japanBusinessImpact}
                     </p>
                   </section>
@@ -584,7 +564,7 @@ export function ArticleView({
                 {summaryParagraphs.map((paragraph, idx) => (
                   <p
                     key={idx}
-                    className="whitespace-pre-line text-base leading-8 text-foreground"
+                    className="whitespace-pre-line text-[17px] leading-[1.9] text-foreground"
                   >
                     {paragraph}
                   </p>
@@ -614,7 +594,7 @@ export function ArticleView({
                   {keywords.map((keyword, index) => (
                     <li
                       key={`${index}-${keyword.term}`}
-                      className="rounded-md border border-border bg-secondary/15 p-3"
+                      className="rounded-md border border-border bg-secondary/15 p-[18px]"
                     >
                       <p className="text-sm font-bold leading-6 text-primary">
                         {keyword.term}
