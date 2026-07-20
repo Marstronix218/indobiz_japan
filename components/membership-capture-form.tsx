@@ -43,10 +43,10 @@ export function MembershipCaptureForm() {
       const companyName = form.companyName.trim() || "未入力"
 
       await submitWeb3Form({
-        subject: `【IndoBiz Japan】後援会入会フォーム - ${companyName}`,
+        subject: `【IndoBiz Japan】無料会員登録フォーム - ${companyName}`,
         from_name: form.contactName,
         replyto: form.email,
-        フォーム種別: "後援会入会フォーム",
+        フォーム種別: "無料会員登録フォーム",
         会社名: companyName,
         担当者名: form.contactName,
         メールアドレス: form.email,

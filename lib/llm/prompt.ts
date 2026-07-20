@@ -68,7 +68,7 @@ export const SYNTHESIS_SYSTEM_PROMPT = `あなたはインド市場を取材す�
   ],
   "imageCaption": "画像キャプション(50〜80字程度を狙った1文。書けなければnull)",
   "industryTags": ["automotive|semiconductor|machine_tools|food|chemicals|logistics|agriculture|steel|education|entertainment|talentのうち該当するもの0〜3個"],
-  "category": "economy|regulation|social|culture|marketのいずれか",
+  "category": "economy|regulation|social|marketのいずれか(社会・文化系の話題はsocial)",
   "referenceUrls": [
     {"title": "参考にした原文記事のタイトル(原文ママ)", "url": "原文URL"}
   ],

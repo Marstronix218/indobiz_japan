@@ -4,7 +4,6 @@ export type Category =
   | "economy"
   | "regulation"
   | "social"
-  | "culture"
   | "market"
   | "column"
 
@@ -155,8 +154,7 @@ export function getAllSources(article: NewsArticle): SourceProvenance[] {
 export const CATEGORY_LABELS: Record<Category, string> = {
   economy: "経済",
   regulation: "規制・政策",
-  social: "社会",
-  culture: "文化",
+  social: "社会・文化",
   market: "市況",
   column: "コラム",
 }
@@ -164,8 +162,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 export const CATEGORY_DESCRIPTIONS: Record<Category, string> = {
   economy: "市場拡大、企業投資、産業トレンドを一覧で把握",
   regulation: "進出・調達・採用に影響する制度変更を整理",
-  social: "消費者行動、教育、人材動向など現場の変化を観測",
-  culture: "商習慣やローカル文脈を日本企業の実務に接続",
+  social: "消費者行動、教育、人材動向から商習慣・ローカル文脈まで現場の変化を観測",
   market: "為替・株式・金利・原油の4指標を日次で確認",
   column: "編集部・寄稿・インタビューによる一次知見",
 }
@@ -174,7 +171,6 @@ export const CATEGORY_COLORS: Record<Category, string> = {
   economy: "bg-primary text-primary-foreground",
   regulation: "bg-slate-600 text-white",
   social: "bg-emerald-700 text-white",
-  culture: "bg-orange-500 text-white",
   market: "bg-zinc-800 text-white",
   column: "bg-secondary text-secondary-foreground",
 }
@@ -267,17 +263,10 @@ export const CATEGORY_SECTIONS: CategorySection[] = [
   },
   {
     key: "social",
-    label: "社会",
-    enLabel: "Social",
-    kicker: "消費者行動、教育、人材動向など現場の変化を観測。",
+    label: "社会・文化",
+    enLabel: "Society & Culture",
+    kicker: "消費者行動、教育、人材動向から商習慣・ローカル文脈まで現場の変化を観測。",
     accent: "oklch(0.55 0.18 30)",
-  },
-  {
-    key: "culture",
-    label: "文化",
-    enLabel: "Culture",
-    kicker: "商習慣やローカル文脈を日本企業の実務に接続。",
-    accent: "oklch(0.68 0.21 42)",
   },
   {
     key: "market",
@@ -305,8 +294,6 @@ export function deriveImageTone(article: NewsArticle): ImagePlaceholderTone {
       return "cool"
     case "social":
       return "warm"
-    case "culture":
-      return "warm"
     case "market":
       return "cool"
     case "column":
@@ -320,7 +307,6 @@ export const CATEGORY_OPTIONS: Category[] = [
   "economy",
   "regulation",
   "social",
-  "culture",
   "market",
   "column",
 ]
@@ -383,7 +369,7 @@ const LEGACY_CATEGORY_MAP: Record<string, Category> = {
   corporate: "economy",
   startup: "economy",
   social: "social",
-  culture: "culture",
+  culture: "social",
   market: "market",
   column: "column",
 }
@@ -615,7 +601,7 @@ export const NEWS_ARTICLES: NewsArticle[] = [
     source: "Hindustan Media Ventures",
     sourceUrl: "https://www.hindustantimes.com/",
     publishedAt: "2026-04-11",
-    category: "culture",
+    category: "social",
     industryTags: ["entertainment"],
     topics: ["startup"],
     japanIndiaCollaboration: true,

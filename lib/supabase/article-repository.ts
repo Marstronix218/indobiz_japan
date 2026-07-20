@@ -10,6 +10,7 @@ import {
   type SourceProvenance,
   type Visibility,
   type WorkflowStatus,
+  normalizeLegacyCategory,
   sanitizeArticleKeywords,
 } from "@/lib/news-data"
 import type { AuthorProfile } from "@/lib/authors"
@@ -139,7 +140,7 @@ function rowToArticle(row: ArticleRow): NewsArticle {
     sourceUrl: row.source_url ?? undefined,
     publishedAt: row.published_at,
     createdAt: row.created_at ?? undefined,
-    category: row.category as Category,
+    category: normalizeLegacyCategory(row.category),
     industryTags: (row.industry_tags ?? []) as IndustryTag[],
     implications: row.implications ?? [],
     contentType: row.content_type as ContentType,
