@@ -33,9 +33,18 @@ const TEASER_LENGTH = 150
 export function ArticleTeaser({
   article,
   rankedViewIds = [],
+  betaGate,
 }: {
   article: NewsArticle
   rankedViewIds?: string[]
+  betaGate?: {
+    readsCount: number
+    requiredReads: number
+    surveyEligible: boolean
+    previewArticles: NewsArticle[]
+    lineFriendRequired?: boolean
+    lineError?: boolean
+  }
 }) {
   const articles = usePublicArticles()
   const relatedArticles = selectRelatedArticles(articles, article, 3)
@@ -118,19 +127,79 @@ export function ArticleTeaser({
               <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
                 <Lock className="mx-auto size-6 text-accent" />
                 <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
-                  続きを読むには登録が必要です
+                  {betaGate ? "フルアクセスを開放する" : "続きを読むには登録が必要です"}
                 </h2>
-                <p className="mt-2 text-base leading-8 text-muted-foreground">
-                  無料アカウントでフルテキスト・示唆・関連記事をお読みいただけます。
-                </p>
-                <div className="mt-5 flex flex-wrap justify-center gap-2">
-                  <Button asChild>
-                    <Link href={`/signup?next=${next}`}>新規登録（無料）</Link>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link href={`/login?next=${next}`}>ログイン</Link>
-                  </Button>
-                </div>
+                {betaGate ? (
+                  <>
+                    <p className="mt-2 text-base leading-8 text-muted-foreground">
+                      {betaGate.surveyEligible
+                        ? "体験記事の閲覧が完了しました。短いアンケートへの回答で、すべての記事をお読みいただけます。"
+                        : `体験記事をあと${Math.max(0, betaGate.requiredReads - betaGate.readsCount)}本読むと、アンケートに進めます。`}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-primary">
+                      {Math.min(betaGate.readsCount, betaGate.requiredReads)} / {betaGate.requiredReads} 記事を閲覧済み
+                    </p>
+                    {betaGate.lineFriendRequired && (
+                      <p className="mt-3 text-sm text-destructive">
+                        Go Indiaの友だち追加を確認できませんでした。追加後にもう一度お試しください。
+                      </p>
+                    )}
+                    {betaGate.lineError && (
+                      <p className="mt-3 text-sm text-destructive">
+                        LINEの確認に失敗しました。時間をおいてもう一度お試しください。
+                      </p>
+                    )}
+                    <div className="mt-5 flex flex-wrap justify-center gap-2">
+                      {betaGate.surveyEligible ? (
+                        <Button asChild>
+                          <Link href={`/beta/survey?next=${next}`}>90秒アンケートに回答</Link>
+                        </Button>
+                      ) : (
+                        <Button asChild>
+                          <Link href="/#beta-preview">体験記事を読む</Link>
+                        </Button>
+                      )}
+                      <Button asChild className="bg-[#06c755] text-white hover:bg-[#05b64e]">
+                        <Link
+                          href={`/api/auth/line/login?mode=unlock&next=${next}&error_path=${next}`}
+                        >
+                          Go Indiaを友だち追加して開放
+                        </Link>
+                      </Button>
+                    </div>
+                    {betaGate.previewArticles.length > 0 && !betaGate.surveyEligible && (
+                      <div id="beta-preview" className="mt-6 border-t border-border pt-5 text-left">
+                        <p className="mb-3 text-center text-sm font-semibold">体験版で読める記事</p>
+                        <ul className="space-y-2 text-sm">
+                          {betaGate.previewArticles.slice(0, 10).map((preview) => (
+                            <li key={preview.id}>
+                              <Link
+                                href={`/article/${preview.id}`}
+                                className="text-primary hover:underline"
+                              >
+                                {preview.title}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p className="mt-2 text-base leading-8 text-muted-foreground">
+                      無料アカウントでβ体験記事をお読みいただけます。5記事閲覧後のアンケート回答で全記事を開放できます。
+                    </p>
+                    <div className="mt-5 flex flex-wrap justify-center gap-2">
+                      <Button asChild>
+                        <Link href={`/signup?next=${next}`}>新規登録（無料）</Link>
+                      </Button>
+                      <Button asChild variant="outline">
+                        <Link href={`/login?next=${next}`}>ログイン</Link>
+                      </Button>
+                    </div>
+                  </>
+                )}
               </section>
 
               {relatedArticles.length > 0 && (

@@ -16,7 +16,7 @@ import {
 import type { AuthorProfile } from "@/lib/authors"
 import type { PipelineDraft } from "@/lib/automation"
 import { extractKeywords } from "@/lib/clustering"
-import { getAnonClient, getServiceClient, hasSupabaseConfig } from "./client"
+import { getServiceClient, hasSupabaseConfig } from "./client"
 
 interface ArticleRow {
   id: string
@@ -161,7 +161,7 @@ function rowToArticle(row: ArticleRow): NewsArticle {
 }
 
 export async function listPublishedArticles(
-  client: SupabaseClient = getAnonClient(),
+  client: SupabaseClient = getServiceClient(),
 ): Promise<NewsArticle[]> {
   if (!hasSupabaseConfig()) return []
 
@@ -206,7 +206,7 @@ export async function listAllArticles(): Promise<NewsArticle[]> {
 export async function getArticleById(id: string): Promise<NewsArticle | null> {
   if (!hasSupabaseConfig()) return null
 
-  const { data, error } = await getAnonClient()
+  const { data, error } = await getServiceClient()
     .from("articles")
     .select(ARTICLE_SELECT)
     .eq("id", id)
@@ -667,12 +667,15 @@ export async function getDailyGenerationStats(
  * Record a single article view for the beta access-ranking widget.
  * Fail-open: never throws, so a logging failure can't break the reader page.
  */
-export async function recordArticleView(articleId: string): Promise<void> {
+export async function recordArticleView(articleId: string, userId: string): Promise<void> {
   if (!hasSupabaseConfig()) return
   try {
     const { error } = await getServiceClient()
       .from("article_view_events")
-      .insert({ article_id: articleId })
+      .upsert(
+        { article_id: articleId, user_id: userId },
+        { onConflict: "user_id,article_id,view_date", ignoreDuplicates: true },
+      )
     if (error) {
       console.error("[supabase] recordArticleView failed:", error.message)
     }

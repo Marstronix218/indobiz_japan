@@ -1,9 +1,11 @@
-import { createHmac } from "node:crypto"
+import { createHash, createHmac } from "node:crypto"
 
 // LINE Login OAuth 2.1 endpoints
 export const LINE_AUTHORIZE_URL = "https://access.line.me/oauth2/v2.1/authorize"
 export const LINE_TOKEN_URL = "https://api.line.me/oauth2/v2.1/token"
 export const LINE_PROFILE_URL = "https://api.line.me/v2/profile"
+export const LINE_FRIENDSHIP_STATUS_URL =
+  "https://api.line.me/friendship/v1/status"
 
 // We deliberately request only `profile` — NOT `openid`. Requesting `openid`
 // makes LINE return an HS256-signed ID token, which Supabase's OIDC verifier
@@ -14,12 +16,19 @@ export const LINE_SCOPES = "profile"
 export const LINE_STATE_COOKIE = "line_oauth_state"
 export const LINE_NEXT_COOKIE = "line_oauth_next"
 export const LINE_ERROR_PATH_COOKIE = "line_oauth_error_path"
+export const LINE_MODE_COOKIE = "line_oauth_mode"
+
+export type LineAuthMode = "login" | "unlock"
 
 export interface LineProfile {
   userId: string
   displayName: string
   pictureUrl?: string
   statusMessage?: string
+}
+
+export interface LineFriendshipStatus {
+  friendFlag: boolean
 }
 
 export function getLineCallbackUrl(origin: string): string {
@@ -54,6 +63,9 @@ export function buildLineAuthorizeUrl(params: {
   url.searchParams.set("redirect_uri", getLineCallbackUrl(params.origin))
   url.searchParams.set("state", params.state)
   url.searchParams.set("scope", LINE_SCOPES)
+  // If the Login channel is linked to an Official Account, ask users who have
+  // not added it yet to do so as part of the authorization flow.
+  url.searchParams.set("bot_prompt", "aggressive")
   return url.toString()
 }
 
@@ -107,6 +119,41 @@ export async function fetchLineProfile(accessToken: string): Promise<LineProfile
     pictureUrl: data.pictureUrl,
     statusMessage: data.statusMessage,
   }
+}
+
+/**
+ * Check the current friendship status directly with LINE. This callback-time
+ * check, rather than a friendship_status_changed webhook alone, is the proof
+ * used to grant access.
+ */
+export async function fetchLineFriendshipStatus(
+  accessToken: string,
+): Promise<LineFriendshipStatus> {
+  const res = await fetch(LINE_FRIENDSHIP_STATUS_URL, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  })
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "")
+    throw new Error(
+      `LINE friendship status fetch failed (${res.status}): ${detail}`,
+    )
+  }
+
+  const data = (await res.json()) as { friendFlag?: unknown }
+  if (typeof data.friendFlag !== "boolean") {
+    throw new Error("LINE friendship status response missing friendFlag")
+  }
+  return { friendFlag: data.friendFlag }
+}
+
+/**
+ * Store only a one-way reference to the channel-scoped LINE user ID in the
+ * entitlement proof. This is stable for idempotency without retaining the raw
+ * external identifier in the access table.
+ */
+export function lineFriendProofRef(userId: string): string {
+  return `line:${createHash("sha256").update(userId).digest("hex")}`
 }
 
 /**

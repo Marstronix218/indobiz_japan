@@ -13,12 +13,16 @@ interface ProfileFormProps {
   email: string
   fullName: string
   isLineAccount?: boolean
+  hasFullAccess?: boolean
+  accessSource?: string | null
 }
 
 export function ProfileForm({
   email,
   fullName: initialFullName,
   isLineAccount = false,
+  hasFullAccess = false,
+  accessSource = null,
 }: ProfileFormProps) {
   const [fullName, setFullName] = useState(initialFullName)
   const [savingName, setSavingName] = useState(false)
@@ -181,9 +185,13 @@ export function ProfileForm({
         <h2 className="font-serif text-xl font-bold tracking-tight">プラン</h2>
         <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4">
           <div>
-            <p className="font-semibold">Free（無料）</p>
+            <p className="font-semibold">
+              {hasFullAccess ? "β Full Access（無料）" : "β Preview（無料）"}
+            </p>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              全記事の閲覧、カテゴリフィルター、市況ウィジェット
+              {hasFullAccess
+                ? `全記事の閲覧が有効です${accessSource === "survey" ? "（アンケート回答特典）" : accessSource === "line_friend" ? "（Go India連携特典）" : ""}`
+                : "体験記事5本の閲覧後、アンケート回答またはGo India連携で全記事を開放できます"}
             </p>
           </div>
           <Button asChild variant="outline" size="sm">

@@ -14,6 +14,7 @@ import {
   Search,
 } from "lucide-react"
 import { MarketTicker } from "@/components/market-ticker"
+import { BetaReadProgress } from "@/components/beta-read-progress"
 import { ColumnAuthorCard } from "@/components/column-author-card"
 import { NewsCardTile } from "@/components/news-card"
 import { PortalSidebar } from "@/components/portal-sidebar"
@@ -340,9 +341,15 @@ function SourceArticleCarousel({
 export function ArticleView({
   id,
   rankedViewIds = [],
+  betaProgress,
 }: {
   id: string
   rankedViewIds?: string[]
+  betaProgress?: {
+    initialReadsCount: number
+    requiredReads: number
+    readToken: string
+  }
 }) {
   const articles = usePublicArticles()
   const article = articles.find((item) => item.id === id)
@@ -449,6 +456,14 @@ export function ArticleView({
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_252px] xl:grid-cols-[minmax(0,1fr)_300px]">
           <article className="min-w-0 overflow-hidden rounded-md border border-border bg-card">
+            {betaProgress && (
+              <BetaReadProgress
+                articleId={article.id}
+                initialReadsCount={betaProgress.initialReadsCount}
+                requiredReads={betaProgress.requiredReads}
+                readToken={betaProgress.readToken}
+              />
+            )}
             {imageSrc && (
               <figure>
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted md:aspect-[16/6] lg:aspect-[16/5]">

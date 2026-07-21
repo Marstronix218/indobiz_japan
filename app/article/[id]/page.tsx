@@ -9,25 +9,14 @@ import {
 } from "@/lib/supabase/article-repository"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { getSessionUser } from "@/lib/supabase/server-auth"
-import type { NewsArticle } from "@/lib/news-data"
-
-// Store payload for the logged-out teaser page. The sidebar widgets and
-// related-article cards only need title/category/dates/image, so strip the
-// gated content (full summary, 示唆, 背景/影響, keywords, sources) before it
-// gets serialized into the RSC stream for an unauthenticated visitor.
-function toTeaserStoreArticle(article: NewsArticle): NewsArticle {
-  return {
-    ...article,
-    summary: article.summary.slice(0, 160),
-    implications: [],
-    backgroundContext: undefined,
-    japanBusinessImpact: undefined,
-    keywords: undefined,
-    provenance: undefined,
-    sources: undefined,
-    qualityCheck: undefined,
-  }
-}
+import {
+  getBetaAccessStatus,
+  listBetaPreviewArticleIds,
+  recordBetaAccessEvent,
+  toPublicTeaserArticle,
+} from "@/lib/beta-access"
+import { createBetaReadToken } from "@/lib/beta-read-token"
+import { isBetaAccessEnabled } from "@/lib/beta-feature"
 
 export const revalidate = 0
 
@@ -45,31 +34,30 @@ export async function generateMetadata({
 
   return {
     title: `${article.title} | IndoBiz Japan`,
-    description: article.summary,
+    description: article.summary.slice(0, 160),
   }
 }
 
 export default async function ArticlePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { id } = await params
+  const query = await searchParams
 
   if (!hasSupabaseConfig()) {
     return <DataUnavailable showHomeLink />
   }
 
-  const user = await getSessionUser()
+  const [user, article] = await Promise.all([getSessionUser(), getArticleById(id)])
+  if (!article || article.workflowStatus !== "published") {
+    return <DataUnavailable showHomeLink />
+  }
 
-  // No free-read allowance: unauthenticated visitors always get the teaser.
   if (!user) {
-    const article = await getArticleById(id)
-    if (!article || article.workflowStatus !== "published") {
-      return <DataUnavailable showHomeLink />
-    }
-    // Hydrate the article store so the teaser can render the shared
-    // sidebar + related articles (both public info: titles/images only).
     const [articles, rankedViewIds] = await Promise.all([
       listPublishedArticles(),
       getTopViewedArticleIds(24, 5),
@@ -78,33 +66,41 @@ export default async function ArticlePage({
       articles.some((item) => item.id === article.id)
         ? articles
         : [article, ...articles]
-    ).map(toTeaserStoreArticle)
+    ).map(toPublicTeaserArticle)
     return (
       <ArticleStoreProvider initial={storeArticles}>
         <ArticleTeaser
-          article={toTeaserStoreArticle(article)}
+          article={toPublicTeaserArticle(article)}
           rankedViewIds={rankedViewIds}
         />
       </ArticleStoreProvider>
     )
   }
 
-  const [articles, rankedViewIds] = await Promise.all([
+  if (!isBetaAccessEnabled()) {
+    const [articles, rankedViewIds] = await Promise.all([
+      listPublishedArticles(),
+      getTopViewedArticleIds(24, 5),
+    ])
+    const storeArticles = articles.some((item) => item.id === id)
+      ? articles
+      : [article, ...articles]
+    return (
+      <ArticleStoreProvider initial={storeArticles}>
+        <ArticleView id={id} rankedViewIds={rankedViewIds} />
+      </ArticleStoreProvider>
+    )
+  }
+
+  const [articles, rankedViewIds, previewIds, access] = await Promise.all([
     listPublishedArticles(),
     getTopViewedArticleIds(24, 5),
+    listBetaPreviewArticleIds(),
+    getBetaAccessStatus(user.id),
   ])
 
-  // `listPublishedArticles()` only returns the newest 100 published articles,
-  // so any older published article (e.g. once the site has >100 articles)
-  // would be missing from the store and `ArticleView` would render
-  // "記事が見つかりません". Fetch the requested article directly and merge it
-  // in if the feed list doesn't already contain it.
   let storeArticles = articles
   if (!articles.some((item) => item.id === id)) {
-    const article = await getArticleById(id)
-    if (!article || article.workflowStatus !== "published") {
-      return <DataUnavailable showHomeLink />
-    }
     storeArticles = [article, ...articles]
   }
 
@@ -112,9 +108,50 @@ export default async function ArticlePage({
     return <DataUnavailable showHomeLink />
   }
 
+  const isPreviewArticle = previewIds.includes(id)
+  if (!access.hasFullAccess && !isPreviewArticle) {
+    await recordBetaAccessEvent(user.id, "gate_view", article.id)
+    const teaserArticles = storeArticles.map(toPublicTeaserArticle)
+    const previewArticles = teaserArticles.filter((item) => previewIds.includes(item.id))
+    return (
+      <ArticleStoreProvider initial={teaserArticles}>
+        <ArticleTeaser
+          article={toPublicTeaserArticle(article)}
+          rankedViewIds={rankedViewIds}
+          betaGate={{
+            readsCount: access.readsCount,
+            requiredReads: access.requiredReads,
+            surveyEligible: access.surveyEligible,
+            previewArticles,
+            lineFriendRequired: query.line_friend_required === "1",
+            lineError: query.auth_error === "line_friend_check",
+          }}
+        />
+      </ArticleStoreProvider>
+    )
+  }
+
+  const safeStoreArticles = access.hasFullAccess
+    ? storeArticles
+    : storeArticles.map((item) =>
+        item.id === id ? item : toPublicTeaserArticle(item),
+      )
+
   return (
-    <ArticleStoreProvider initial={storeArticles}>
-      <ArticleView id={id} rankedViewIds={rankedViewIds} />
+    <ArticleStoreProvider initial={safeStoreArticles}>
+      <ArticleView
+        id={id}
+        rankedViewIds={rankedViewIds}
+        betaProgress={
+          access.hasFullAccess
+            ? undefined
+            : {
+                initialReadsCount: access.readsCount,
+                requiredReads: access.requiredReads,
+                readToken: createBetaReadToken(user.id, id),
+              }
+        }
+      />
     </ArticleStoreProvider>
   )
 }

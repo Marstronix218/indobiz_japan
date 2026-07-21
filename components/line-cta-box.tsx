@@ -36,7 +36,7 @@ export function LineCtaBox() {
         Go India 公式LINE 会員特典
       </p>
       <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
-        IndoBiz Japan の記事を無料で読めます。最新ニュースをLINEでお届け。
+        友だち追加とLINE連携で、IndoBiz Japan の全記事を無料で読めます。
       </p>
       <a
         href={LINE_ADD_FRIEND_URL}

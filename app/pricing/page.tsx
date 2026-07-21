@@ -31,7 +31,7 @@ export default function PricingPage() {
             現在、すべての機能を無料でご利用いただけます
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-8 text-muted-foreground">
-            ベータ期間中は、会員登録のみで全記事・本記事のポイント・市況情報をお読みいただけます。料金プランは正式版の公開に合わせてご案内します。
+            ベータ期間中は、体験記事5本の閲覧後にアンケートへ回答するか、Go India公式LINEを連携すると、全記事・本記事のポイント・市況情報をお読みいただけます。料金プランは正式版の公開に合わせてご案内します。
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button asChild>

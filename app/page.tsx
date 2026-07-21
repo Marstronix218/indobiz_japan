@@ -6,6 +6,8 @@ import {
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
+import { listBetaPreviewArticleIds, toPublicTeaserArticle } from "@/lib/beta-access"
+import { isBetaAccessEnabled } from "@/lib/beta-feature"
 
 export const revalidate = 0
 
@@ -14,17 +16,19 @@ export default async function HomePage() {
     return <DataUnavailable />
   }
 
-  const [articles, rankedViewIds] = await Promise.all([
+  const betaEnabled = isBetaAccessEnabled()
+  const [articles, rankedViewIds, betaPreviewIds] = await Promise.all([
     listPublishedArticles(),
     getTopViewedArticleIds(24, 5),
+    betaEnabled ? listBetaPreviewArticleIds() : Promise.resolve([]),
   ])
   if (articles.length === 0) {
     return <DataUnavailable />
   }
 
   return (
-    <ArticleStoreProvider initial={articles}>
-      <NewsList rankedViewIds={rankedViewIds} />
+    <ArticleStoreProvider initial={articles.map(toPublicTeaserArticle)}>
+      <NewsList rankedViewIds={rankedViewIds} betaPreviewIds={betaPreviewIds} />
     </ArticleStoreProvider>
   )
 }

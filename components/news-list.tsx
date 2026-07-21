@@ -24,7 +24,13 @@ import {
   type NewsArticle,
 } from "@/lib/news-data"
 
-export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
+export function NewsList({
+  rankedViewIds,
+  betaPreviewIds = [],
+}: {
+  rankedViewIds: string[]
+  betaPreviewIds?: string[]
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
@@ -148,6 +154,12 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
         .slice(0, 6),
     [sortedArticles],
   )
+  const betaPreviewArticles = useMemo(() => {
+    const byId = new Map(publicArticles.map((article) => [article.id, article]))
+    return betaPreviewIds
+      .map((id) => byId.get(id))
+      .filter((article): article is NewsArticle => Boolean(article))
+  }, [betaPreviewIds, publicArticles])
 
   function toggleIndustry(tag: IndustryTag) {
     setSelectedIndustries((current) =>
@@ -225,6 +237,20 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                   />
                 ) : (
                   <>
+                    {betaPreviewArticles.length > 0 && (
+                      <section id="beta-preview" className="scroll-mt-20">
+                        <SectionHeading title="β体験記事" en="BETA PREVIEW" />
+                        <p className="mb-5 text-sm leading-7 text-muted-foreground">
+                          5記事を読むと、アンケート回答によるフルアクセス開放に進めます。
+                        </p>
+                        <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+                          {betaPreviewArticles.map((article) => (
+                            <NewsCardTile key={article.id} article={article} />
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
                     {/* Category blocks: 3-col x 2-row */}
                     <section>
                       <SectionHeading title="カテゴリ別ニュース" en="BY CATEGORY" />

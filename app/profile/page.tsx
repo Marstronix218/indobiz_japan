@@ -3,6 +3,8 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { ProfileForm } from "@/components/profile-form"
 import { getSessionUser } from "@/lib/supabase/server-auth"
+import { getBetaAccessStatus } from "@/lib/beta-access"
+import { isBetaAccessEnabled } from "@/lib/beta-feature"
 
 export const metadata = {
   title: "マイページ | IndoBiz Japan",
@@ -22,6 +24,9 @@ export default async function ProfilePage() {
     (user.user_metadata?.full_name as string | undefined) ??
     (user.user_metadata?.name as string | undefined) ??
     ""
+  const access = isBetaAccessEnabled()
+    ? await getBetaAccessStatus(user.id)
+    : { hasFullAccess: true, source: "legacy_beta" as const }
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,7 +41,13 @@ export default async function ProfilePage() {
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm md:p-8">
-          <ProfileForm email={email} fullName={fullName} isLineAccount={isLineAccount} />
+          <ProfileForm
+            email={email}
+            fullName={fullName}
+            isLineAccount={isLineAccount}
+            hasFullAccess={access.hasFullAccess}
+            accessSource={access.source}
+          />
         </div>
       </main>
 

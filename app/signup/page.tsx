@@ -67,7 +67,7 @@ function SignupForm() {
             新規登録
           </h1>
           <p className="text-[13px] leading-6 text-muted-foreground">
-            無料アカウントで全記事をお読みいただけます。
+            まずβ体験記事をお読みいただけます。アンケート回答またはGo India連携で全記事を開放できます。
           </p>
         </div>
         <div className="space-y-4">

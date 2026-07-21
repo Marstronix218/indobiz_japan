@@ -1,0 +1,4 @@
+export const BETA_PREVIEW_POOL_SIZE = 10
+export const BETA_REQUIRED_READS = 5
+export const BETA_READ_QUALIFY_MS = 15_000
+export const BETA_SURVEY_POLICY_VERSION = "2026-07-21"

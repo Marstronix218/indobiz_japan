@@ -59,13 +59,26 @@ npm run build
 
 ## LINEログイン
 
-ログイン画面と新規登録画面は、Supabase Auth のカスタム OIDC provider 経由で LINE ログインに対応しています。ボタンを試す前に、外部 provider 側を設定してください。
+ログイン画面と新規登録画面は、アプリ内の LINE Authorization Code Flow と Supabase Auth のセッションを連携しています。Supabase のカスタム OIDC provider は使用しません。
 
 1. LINE Developers Console で LINE Login チャネルを作成し、Web app を有効にします。
-2. Supabase Dashboard → Auth → Providers でカスタム OIDC provider を作成します。identifier は `custom:line`、issuer は `https://access.line.me`、scopes は `openid profile email`、client ID/secret は LINE のチャネルID/チャネルシークレットを設定します。
-3. Supabase が表示する callback URL を、LINE Login チャネルの callback URL に追加します。
-4. Supabase Auth の redirect allow list に `http://localhost:3000/auth/callback` と本番 URL の `/auth/callback` を追加します。
-5. `email` scope を使うため、LINE Developers Console でメールアドレス取得権限を申請します。
+2. Go India の Messaging API チャネルと LINE Login チャネルを同じ Provider に置き、LINE Login チャネルの `Linked LINE Official Account` に Go India を設定します。
+3. Callback URL に `http://localhost:3000/api/auth/line/callback` と本番URLの `/api/auth/line/callback` を登録します。
+4. `.env` に `LINE_CHANNEL_ID`、`LINE_CHANNEL_SECRET`、固定の `LINE_SESSION_SECRET` を設定します。
+
+ログイン時は `bot_prompt=aggressive` で友だち追加を案内し、コールバック時に LINE の friendship status API で `friendFlag=true` を確認できた場合だけ、Go India 経由のフルアクセスを付与します。
+
+## β版アンケートとアクセス開放
+
+安全な適用順は、アプリを `BETA_ACCESS_ENABLED=0` のままデプロイし、`supabase/migrations/0009_beta_access.sql` を適用してから、`BETA_ACCESS_ENABLED=1` にして再デプロイする流れです。有効化すると次の導線が動きます。
+
+1. 既存ユーザーは移行時にフルアクセスを維持します。
+2. 新規ユーザーは `beta_preview_articles` に登録された最大10記事を全文閲覧できます。
+3. 異なる5記事を各15秒以上読むと `/beta/survey` のアンケートに回答できます。
+4. 回答送信とフルアクセス付与は1つのDBトランザクションで行われます。
+5. Go India の友だち状態をLINE APIで確認できたユーザーもフルアクセスになります。
+
+本番では `.env` に独立した固定値の `BETA_READ_SECRET` を設定してください。体験記事を入れ替える場合は `beta_preview_articles` の `active` と `display_order` を更新します。記事本文・出典情報は匿名Supabase APIから取得できず、公開一覧には明示的に絞ったティーザー情報だけを渡します。
 
 ## Scraping Execution
 

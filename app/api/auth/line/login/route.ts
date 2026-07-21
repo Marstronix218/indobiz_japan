@@ -5,6 +5,7 @@ import {
   buildLineAuthorizeUrl,
   getRequestOrigin,
   LINE_ERROR_PATH_COOKIE,
+  LINE_MODE_COOKIE,
   LINE_NEXT_COOKIE,
   LINE_STATE_COOKIE,
 } from "@/lib/line-auth"
@@ -17,6 +18,7 @@ export async function GET(request: Request) {
   const next = getSafeAuthRedirectPath(requestUrl.searchParams.get("next"))
   const errorPath =
     getSafeAuthRedirectPath(requestUrl.searchParams.get("error_path")) || "/login"
+  const mode = requestUrl.searchParams.get("mode") === "unlock" ? "unlock" : "login"
 
   const state = randomUUID()
 
@@ -41,5 +43,6 @@ export async function GET(request: Request) {
   response.cookies.set(LINE_STATE_COOKIE, state, cookieOptions)
   response.cookies.set(LINE_NEXT_COOKIE, next, cookieOptions)
   response.cookies.set(LINE_ERROR_PATH_COOKIE, errorPath, cookieOptions)
+  response.cookies.set(LINE_MODE_COOKIE, mode, cookieOptions)
   return response
 }
