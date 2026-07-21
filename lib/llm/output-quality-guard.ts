@@ -9,7 +9,7 @@ import { normalizeSourceTitle, normalizeSourceUrl } from "./source-policy.ts"
 const MAX_ISSUES = 8
 // 本文長の許容幅。狙いは約500〜620字だが、情報量の多い規制・通商記事は自然に長くなる。
 // 厳密な560字上限だと公開水準の記事まで review に落ちていたため、ゲートの許容幅を広げる。
-const ARTICLE_BODY_MIN_CHARS = 450
+const ARTICLE_BODY_MIN_CHARS = 430
 const ARTICLE_BODY_MAX_CHARS = 750
 const TAKEAWAY_COUNT = 3
 // 本記事のポイントは「読者が何が起きたか理解できる具体的な一文」(40〜90字目安)。
@@ -73,6 +73,18 @@ const INDUSTRY_TAG_KEYWORDS: Record<string, string[]> = {
   machine_tools: ["工作機械", "機械加工", "マシニング", "machine tool"],
   food: ["食品", "食料", "飲料", "農産", "food"],
   chemicals: ["化学", "化学品", "樹脂", "chemical"],
+  energy: [
+    "原油",
+    "石油",
+    "エネルギー",
+    "電力",
+    "天然ガス",
+    "lng",
+    "crude",
+    "petroleum",
+    "energy",
+    "electricity",
+  ],
   logistics: ["物流", "配送", "倉庫", "サプライチェーン", "logistics", "delivery"],
   agriculture: ["農業", "農地", "農産", "agriculture", "farm"],
   steel: ["鉄鋼", "鋼材", "steel"],
@@ -496,38 +508,64 @@ interface ExtractedNumber {
   kind: "generic" | "currency" | "count" | "percent"
 }
 
+const JAPANESE_SCALE_UNITS: Record<string, number> = {
+  "兆": 1_000_000_000_000,
+  "億": 100_000_000,
+  "万": 10_000,
+  "千": 1_000,
+}
+
+// 日本語の複合数詞(例: 892億4000万)は1つの数値として読む。桁ごとに「892」「4000」と
+// 切り出すと、原文の "Rs 8,924 crore" と突き合わせられず、正しい換算値が捏造として
+// 弾かれる。これが数値チェック誤検知の最大の原因だった。
+const COMPOUND_JAPANESE_NUMBER = String.raw`(?:\d[\d,]*(?:\.\d+)?\s*[兆億万千]\s*)+(?:\d[\d,]*(?:\.\d+)?)?`
+const PLAIN_NUMBER = String.raw`\d[\d,]*(?:\.\d+)?`
+const NUMBER_TOKEN_PATTERN = new RegExp(
+  `${COMPOUND_JAPANESE_NUMBER}|${PLAIN_NUMBER}`,
+  "g",
+)
+// 「60-80 billion」「$60 to $80 billion」「6.6〜6.8%」のような範囲表記の
+// 左側の数値。2つ目の値の直前に通貨記号・通貨コードが繰り返される表記も許容する。
+const RANGE_SEPARATOR = /^\s*(?:[-–—〜~]|to|and)\s*(?:[$₹]|(?:rs\.?|inr|usd)\s*)?$/i
+
 function numberUnit(
   prefix: string,
   suffix: string,
 ): Pick<ExtractedNumber, "scale" | "kind"> {
   const around = `${prefix}__NUMBER__${suffix}`
-  const isCurrency = /(?:₹|rs\.?|inr|ルピー|円|ドル)/i.test(around)
-  const isCount = /(?:people|persons?|workers?|employees?|jobs?|人|社|件)/i.test(suffix)
-  const isPercent = /^\s*(?:%|％|パーセント|per\s*cent|percent)/i.test(suffix)
+  const isCurrency = /(?:₹|\$|rs\.?|inr|usd|dollars?|ルピー|円|ドル)/i.test(around)
+  // 助数詞は数値の直後になければならない。18字の先読み窓のどこかに「社」があれば
+  // 件数、という判定だと「41億ドル)だった。小売子会社…」の 41億 が通貨ではなく件数に
+  // 分類され、原文の "$4.1 billion" と kind 不一致で捏造扱いになっていた。
+  const isCount =
+    /^[\s　]*(?:人|社|件|台|基)/.test(suffix) ||
+    /^[\s　]*(?:(?:lakh|crore|million|billion|thousand)s?\s+)?(?:people|persons?|workers?|employees?|jobs?|units?)\b/i
+      .test(suffix)
+  const isPercent = /^[\s\-–—]*(?:%|％|パーセント|per\s*cent|percent|ppt|percentage points?)/i.test(suffix)
+  // 「Rs 8,924-crore package」のようにハイフンで単位が続く表記も拾う。
+  const unitPrefix = String.raw`^[\s\-–—]*`
+  const has = (pattern: string) => new RegExp(`${unitPrefix}${pattern}`, "i").test(suffix)
 
-  if (/^\s*lakh\s+crores?/i.test(suffix)) {
+  if (has(String.raw`lakh\s+crores?`)) {
     return { scale: 1_000_000_000_000, kind: isCurrency ? "currency" : "generic" }
   }
-  if (/^\s*(?:crores?|クロール)/i.test(suffix)) {
+  if (has(String.raw`(?:crores?|crs?\b|クロール)`)) {
     return { scale: 10_000_000, kind: isCurrency ? "currency" : "generic" }
   }
-  if (/^\s*lakh/i.test(suffix)) {
+  if (has(String.raw`lakhs?`)) {
     return { scale: 100_000, kind: isCount ? "count" : isCurrency ? "currency" : "generic" }
   }
-  if (/^\s*billion/i.test(suffix)) {
-    return { scale: 1_000_000_000, kind: isCurrency ? "currency" : "generic" }
-  }
-  if (/^\s*million/i.test(suffix)) {
-    return { scale: 1_000_000, kind: isCurrency ? "currency" : "generic" }
-  }
-  if (/^\s*兆/i.test(suffix)) {
+  if (has(String.raw`(?:trillions?|tn\b)`)) {
     return { scale: 1_000_000_000_000, kind: isCurrency ? "currency" : "generic" }
   }
-  if (/^\s*億/i.test(suffix)) {
-    return { scale: 100_000_000, kind: isCurrency ? "currency" : "generic" }
+  if (has(String.raw`(?:billions?|bn\b)`)) {
+    return { scale: 1_000_000_000, kind: isCurrency ? "currency" : "generic" }
   }
-  if (/^\s*万/i.test(suffix)) {
-    return { scale: 10_000, kind: isCount ? "count" : isCurrency ? "currency" : "generic" }
+  if (has(String.raw`(?:millions?|mn\b)`)) {
+    return { scale: 1_000_000, kind: isCurrency ? "currency" : "generic" }
+  }
+  if (has(String.raw`(?:thousands?|k\b)`)) {
+    return { scale: 1_000, kind: isCount ? "count" : isCurrency ? "currency" : "generic" }
   }
   if (isPercent) return { scale: 1, kind: "percent" }
   if (isCount) return { scale: 1, kind: "count" }
@@ -535,32 +573,95 @@ function numberUnit(
   return { scale: 1, kind: "generic" }
 }
 
-function extractNumbers(text: string): ExtractedNumber[] {
-  const result: ExtractedNumber[] = []
-  const seen = new Set<string>()
-  const normalizedText = text.normalize("NFKC")
-  const matches = normalizedText.matchAll(/\d[\d,]*(?:\.\d+)?/g)
+// 「892億4000万」→ 89,240,000,000。単位語のない末尾の桁はそのまま加算する。
+function parseCompoundJapaneseNumber(token: string): number | null {
+  let total = 0
+  let matched = false
+  for (const part of token.matchAll(/(\d[\d,]*(?:\.\d+)?)\s*([兆億万千])?/g)) {
+    const value = Number(part[1].replace(/,/g, ""))
+    if (!Number.isFinite(value)) return null
+    total += part[2] ? value * JAPANESE_SCALE_UNITS[part[2]] : value
+    matched = true
+  }
+  return matched ? total : null
+}
 
-  for (const match of matches) {
+interface PositionedNumber extends ExtractedNumber {
+  index: number
+  end: number
+}
+
+function extractNumbers(text: string): ExtractedNumber[] {
+  const normalizedText = text.normalize("NFKC")
+  const candidates: PositionedNumber[] = []
+
+  for (const match of normalizedText.matchAll(NUMBER_TOKEN_PATTERN)) {
     const raw = match[0]
+    const index = match.index
+    const end = index + raw.length
+    const prefix = normalizedText.slice(Math.max(0, index - 8), index)
+    const suffix = normalizedText.slice(end, end + 18)
+    const unit = numberUnit(prefix, suffix)
+
+    if (/[兆億万千]/.test(raw)) {
+      // 複合数詞はトークン内で絶対値まで解決済みなので、後続の単位語で再スケールしない。
+      const numeric = parseCompoundJapaneseNumber(raw)
+      if (numeric === null) continue
+      candidates.push({
+        raw,
+        normalized: String(numeric),
+        numeric,
+        scale: 1,
+        kind: unit.kind,
+        index,
+        end,
+      })
+      continue
+    }
+
     const normalized = raw.replace(/,/g, "")
     const numeric = Number(normalized)
     if (!Number.isFinite(numeric)) continue
-    const prefix = normalizedText.slice(Math.max(0, match.index - 8), match.index)
-    const suffix = normalizedText.slice(match.index + raw.length, match.index + raw.length + 18)
-    const unit = numberUnit(prefix, suffix)
+    candidates.push({ raw, normalized, numeric, ...unit, index, end })
+  }
+
+  // 範囲表記の左側は単位語が右側にしか付かない(例: "$60-80 billion" の 60)。
+  // 単位を引き継がないと 60 が裸の 60 として残り、生成側の「600億ドル」と
+  // 突き合わせられずに捏造扱いになる。
+  for (let i = candidates.length - 2; i >= 0; i--) {
+    const current = candidates[i]
+    const next = candidates[i + 1]
+    if (current.scale !== 1 || next.scale === 1) continue
+    if (!RANGE_SEPARATOR.test(normalizedText.slice(current.end, next.index))) continue
+    current.scale = next.scale
+    if (current.kind === "generic") current.kind = next.kind
+  }
+
+  const result: ExtractedNumber[] = []
+  const seen = new Set<string>()
+  for (const candidate of candidates) {
+    const suffix = normalizedText.slice(candidate.end, candidate.end + 18)
     // Keep small values when they carry a meaningful unit. Previously the
     // early filter only recognised Japanese "%" spellings, so an English
     // source value such as "5.2 per cent" disappeared before unit
     // normalisation while the generated Japanese "5.2%" remained. That made
     // supported percentages look fabricated.
-    const hasSensitiveUnit = unit.kind === "percent" || unit.scale !== 1 ||
-      /^[\s　]*(?:%|％|パーセント|per\s*cent|percent|クロール|億|兆|万人|社|件|基点|ポイント)/i.test(suffix)
-    if (numeric > 0 && numeric < SIGNIFICANT_NUMBER_MIN && !hasSensitiveUnit) continue
-    const key = `${normalized}|${unit.scale}|${unit.kind}`
+    const hasSensitiveUnit = candidate.kind === "percent" || candidate.scale !== 1 ||
+      /[兆億万千]/.test(candidate.raw) ||
+      /^[\s　\-–—]*(?:%|％|パーセント|per\s*cent|percent|クロール|crores?|lakhs?|億|兆|万人|社|件|基点|ポイント)/i.test(suffix)
+    if (candidate.numeric > 0 && candidate.numeric < SIGNIFICANT_NUMBER_MIN && !hasSensitiveUnit) {
+      continue
+    }
+    const key = `${candidate.normalized}|${candidate.scale}|${candidate.kind}`
     if (seen.has(key)) continue
     seen.add(key)
-    result.push({ raw, normalized, numeric, ...unit })
+    result.push({
+      raw: candidate.raw,
+      normalized: candidate.normalized,
+      numeric: candidate.numeric,
+      scale: candidate.scale,
+      kind: candidate.kind,
+    })
   }
 
   return result
@@ -593,10 +694,15 @@ function isSupportedNumber(
       return false
     }
     const denominator = Math.max(Math.abs(generatedCanonical), Math.abs(sourceCanonical), 1)
-    // Converted Japanese notation is often rounded (e.g. 32,641,704 people →
-    // 約3,264万人).  A 0.05% tolerance is narrow enough to reject substantive
-    // discrepancies while allowing that presentation rounding.
-    return Math.abs(generatedCanonical - sourceCanonical) / denominator <= 0.0005
+    // Converted Japanese notation is sometimes rounded at a Japanese scale
+    // boundary (e.g. Rs 8,924 crore → 約892億ルピー, 32,641,704 people →
+    // 約3,264万人). Apply the wider tolerance only when either side actually
+    // uses 兆/億/万/千. Exact counts and percentages must not drift merely
+    // because currency display rounding is allowed (e.g. 200人 → 201人).
+    const usesJapaneseDisplayScale = /[兆億万千]/.test(number.raw) ||
+      /[兆億万千]/.test(sourceNumber.raw)
+    const tolerance = usesJapaneseDisplayScale ? 0.005 : 0.0005
+    return Math.abs(generatedCanonical - sourceCanonical) / denominator <= tolerance
   })
 }
 

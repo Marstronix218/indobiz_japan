@@ -207,16 +207,55 @@ export default function AdminPage() {
   async function handlePublish(article: NewsArticle) {
     setIsPublishing(article.id)
     try {
-      const response = await fetch(`/api/admin/articles/${article.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          workflowStatus: "published",
-          visibility: "public",
-        }),
-      })
-      const data = (await response.json()) as { ok?: boolean; error?: string }
+      const requestPublish = async (qualityOverride?: {
+        verdict: QualityVerdict
+        checkedAt: string
+      }) => {
+        const response = await fetch(`/api/admin/articles/${article.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            workflowStatus: "published",
+            visibility: "public",
+            qualityOverrideConfirmed: Boolean(qualityOverride),
+            qualityOverrideVerdict: qualityOverride?.verdict,
+            qualityOverrideCheckedAt: qualityOverride?.checkedAt,
+          }),
+        })
+        const data = (await response.json()) as {
+          ok?: boolean
+          error?: string
+          code?: string
+          qualityVerdict?: QualityVerdict
+          qualityNotes?: string
+          qualityCheckedAt?: string
+        }
+        return { response, data }
+      }
+
+      let { response, data } = await requestPublish()
+      if (
+        response.status === 409 &&
+        data.code === "QUALITY_OVERRIDE_REQUIRED"
+      ) {
+        const notes = data.qualityNotes?.trim()
+        const confirmed = window.confirm(
+          [
+            "AI品質チェックの指摘があります。本当に公開しますか？",
+            data.qualityVerdict ? `判定: ${QUALITY_VERDICT_LABELS[data.qualityVerdict]}` : "",
+            notes ? `\n${notes}` : "",
+          ].filter(Boolean).join("\n"),
+        )
+        if (!confirmed) return
+        if (!data.qualityVerdict || !data.qualityCheckedAt) {
+          throw new Error("品質判定の版情報を取得できませんでした。再読み込みしてください")
+        }
+        ;({ response, data } = await requestPublish({
+          verdict: data.qualityVerdict,
+          checkedAt: data.qualityCheckedAt,
+        }))
+      }
       if (!response.ok || !data.ok) {
         throw new Error(data.error ?? `HTTP ${response.status}`)
       }

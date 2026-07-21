@@ -6,6 +6,7 @@ import {
   type UpdateArticleInput,
 } from "@/lib/supabase/article-repository"
 import { isAdminRequest } from "@/lib/admin-auth"
+import { getAdminPublicationBlock } from "@/lib/admin-publication-policy"
 import { coerceAuthorInput } from "@/lib/authors"
 import {
   type Category,
@@ -94,21 +95,70 @@ export async function PATCH(
   }
 
   const update = pickUpdate(body)
-  if (update.workflowStatus === "published") {
-    const current = await getArticleByIdForAdmin(id)
-    if (!current) {
-      return NextResponse.json({ ok: false, error: "article not found" }, { status: 404 })
+  const qualityRelevantFields = [
+    "title",
+    "summary",
+    "source",
+    "sourceUrl",
+    "publishedAt",
+    "category",
+    "industryTags",
+    "implications",
+    "backgroundContext",
+    "japanBusinessImpact",
+    "keywords",
+    "imageCaption",
+  ]
+  const changesArticleContent = qualityRelevantFields.some((field) => field in body)
+  const current = update.workflowStatus === "published" || changesArticleContent
+    ? await getArticleByIdForAdmin(id)
+    : null
+  if ((update.workflowStatus === "published" || changesArticleContent) && !current) {
+    return NextResponse.json({ ok: false, error: "article not found" }, { status: 404 })
+  }
+
+  if (changesArticleContent && current?.isSynthesized) {
+    update.qualityCheck = {
+      verdict: "REVISION",
+      notes: "管理画面で記事内容が更新されたため、公開前に内容と出典を再確認してください",
+      revisionCount: current.qualityCheck?.revisionCount ?? 0,
+      checkedAt: new Date().toISOString(),
     }
-    const imageUrl = update.imageUrl !== undefined ? update.imageUrl : current.imageUrl
-    if (current.isSynthesized && current.qualityCheck?.verdict !== "PASS") {
+  }
+
+  if (update.workflowStatus === "published") {
+    // `current` is guaranteed above for publication requests.
+    if (!current) throw new Error("unreachable: publication target was not loaded")
+    if (current.isSynthesized && changesArticleContent) {
       return NextResponse.json(
-        { ok: false, error: "AI生成記事は品質判定PASS後に公開してください" },
+        {
+          ok: false,
+          code: "CONTENT_UPDATE_REQUIRES_SAVE",
+          error: "記事内容を先に保存してから、公開ボタンで公開してください",
+        },
         { status: 409 },
       )
     }
-    if (current.isSynthesized && !imageUrl) {
+    const imageUrl = update.imageUrl !== undefined ? update.imageUrl : current.imageUrl
+    const qualityOverrideConfirmed =
+      body.qualityOverrideConfirmed === true &&
+      body.qualityOverrideVerdict === current.qualityCheck?.verdict &&
+      body.qualityOverrideCheckedAt === current.qualityCheck?.checkedAt
+    const block = getAdminPublicationBlock({
+      isSynthesized: current.isSynthesized !== false,
+      qualityVerdict: current.qualityCheck?.verdict,
+      imageUrl,
+      qualityOverrideConfirmed,
+    })
+    if (block) {
       return NextResponse.json(
-        { ok: false, error: "AI生成記事は画像生成完了後に公開してください" },
+        {
+          ok: false,
+          ...block,
+          qualityVerdict: current.qualityCheck?.verdict,
+          qualityNotes: current.qualityCheck?.notes,
+          qualityCheckedAt: current.qualityCheck?.checkedAt,
+        },
         { status: 409 },
       )
     }

@@ -57,6 +57,17 @@ test("passes a well-supported article", () => {
   assert.equal(runDeterministicQualityGuard(output({}), cluster), null)
 })
 
+test("accepts a summary at the new 430-character lower bound", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: "要".repeat(430),
+    }),
+    cluster,
+  )
+
+  assert.equal(qc, null)
+})
+
 test("flags generated body text outside the target length", () => {
   const qc = runDeterministicQualityGuard(
     output({
@@ -415,10 +426,164 @@ test("flags industry tags that do not match the article topic", () => {
 
 test("flags industry tags outside the allowed taxonomy", () => {
   const qc = runDeterministicQualityGuard(
-    output({ industryTags: ["energy"] }),
+    output({ industryTags: ["finance"] }),
     cluster,
   )
 
   assert.equal(qc?.verdict, "REVISION")
   assert(qc?.issues.some((issue) => issue.includes("許可されていないタグ")))
+})
+
+test("accepts the energy tag on a crude oil article", () => {
+  const oilCluster: SynthesisSource[] = [{
+    source: "Times of India",
+    sourceUrl: "https://example.com/crude",
+    publishedAt: "2026-07-20",
+    title: "India's crude oil imports from Russia remain near all-time high",
+    bodyText: "India's crude oil imports from Russia stayed near a record high in July despite no sanctions waiver from the United States.",
+  }]
+
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "インドのロシア原油輸入は高水準",
+      summary: validSummary.replaceAll("ルピー", "原油"),
+      industryTags: ["energy"],
+      referenceUrls: [{ title: oilCluster[0].title, url: oilCluster[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["crude oil imports from Russia"] }],
+    }),
+    oilCluster,
+  )
+
+  assert.equal(qc?.issues.some((issue) => issue.includes("industryTags")) ?? false, false)
+})
+
+// --- 数値照合: 単位換算の誤検知 ---------------------------------------------
+// 生成記事はインド式表記(crore / lakh crore / billion)を日本式(億 / 兆 / 万)へ
+// 換算する。桁ごとに数値を切り出していた頃は「892億4000万」の 4000 が原文に
+// 存在しない数値として弾かれ、正しい記事が review に落ちていた。
+
+const numericCluster: SynthesisSource[] = [
+  {
+    source: "Times of India",
+    sourceUrl: "https://example.com/ril",
+    publishedAt: "2026-07-17",
+    title: "RIL Q1 results",
+    bodyText: [
+      "Excluding the one-time gain of Rs 8,924 crore from the sale of listed investments,",
+      "recurring EBITDA rose 10.1% to a record Rs 54,067 crore.",
+      "Capital expenditure stood at Rs 38,682 crore ($4.1 billion).",
+      "The O2C business reported revenue of Rs 2.01 lakh crore ($21.3 billion).",
+      "Potential inflows were estimated at $60-80 billion.",
+      "The fund is worth $3bn and the economy reached $4 trillion.",
+    ].join(" "),
+  },
+]
+
+// summary の文字数ゲートに引っかからない長さまで埋めるためのサンプル長。
+const ARTICLE_BODY_MIN_SAMPLE = 440
+
+function numericIssues(summary: string): string[] {
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "リライアンス決算",
+      summary: summary.padEnd(ARTICLE_BODY_MIN_SAMPLE, "。"),
+      referenceUrls: [{ title: numericCluster[0].title, url: numericCluster[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["Rs 8,924 crore one-time gain"] }],
+      indiaRelevance: { score: 3, reason: "インド企業の決算" },
+      japaneseBusinessRelevance: { score: 2, reason: "取引先の業績" },
+    }),
+    numericCluster,
+  )
+  return (qc?.issues ?? []).filter((issue) =>
+    issue.includes("参考記事本文にない数値")
+  )
+}
+
+test("accepts a compound Japanese numeral converted from crore", () => {
+  assert.deepEqual(numericIssues("一時益は892億4000万ルピーだった"), [])
+  assert.deepEqual(numericIssues("EBITDAは5406億7000万ルピーとなった"), [])
+})
+
+test("accepts crore and billion converted with rounding", () => {
+  assert.deepEqual(numericIssues("設備投資は3868億2000万ルピー(約41億ドル)だった"), [])
+})
+
+test("accepts trillion, bn abbreviation and range notation", () => {
+  assert.deepEqual(numericIssues("経済規模は4兆ドル、基金は30億ドルに達した"), [])
+  assert.deepEqual(numericIssues("当初想定は600億〜800億ドルだった"), [])
+})
+
+test("accepts a repeated currency marker in an English range", () => {
+  const rangeCluster: SynthesisSource[] = [{
+    ...numericCluster[0],
+    bodyText: `${numericCluster[0].bodyText} Revised inflows are expected at $50 to $55 billion.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "資金流入は当初予想を下回る見込み",
+      summary: "資金流入は500億〜550億ドルになる見通しだ".padEnd(
+        ARTICLE_BODY_MIN_SAMPLE,
+        "。",
+      ),
+      referenceUrls: [{ title: rangeCluster[0].title, url: rangeCluster[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["500億〜550億ドル"] }],
+    }),
+    rangeCluster,
+  )
+
+  assert.equal(
+    qc?.issues.some((issue) => issue.includes("参考記事本文にない数値")) ?? false,
+    false,
+  )
+})
+
+test("still rejects a mis-scaled unit conversion", () => {
+  // Rs 38,682 crore は3868億2000万ルピー。386億8200万は10分の1で誤り。
+  const issues = numericIssues("設備投資は386億8200万ルピーだった")
+  assert.equal(issues.length, 1)
+  assert(issues[0].includes("386億8200万"))
+})
+
+test("still rejects a mis-scaled dollar conversion", () => {
+  // $21.3 billion は213億ドル。21.3億ドルは10分の1で誤り。
+  const issues = numericIssues("O2C売上高は21.3億ドルとなった")
+  assert.equal(issues.length, 1)
+  assert(issues[0].includes("21.3億"))
+})
+
+test("still rejects the other mis-scaled crore conversions from the RIL article", () => {
+  const issues = numericIssues(
+    "設備投資は386億8200万ルピー、小売売上高は900億9000万ルピー、純利益は28億500万ルピーだった",
+  )
+  assert.equal(issues.length, 3)
+  assert(issues.some((issue) => issue.includes("386億8200万")))
+  assert(issues.some((issue) => issue.includes("900億9000万")))
+  assert(issues.some((issue) => issue.includes("28億500万")))
+})
+
+test("does not treat four-digit calendar years as fabricated figures", () => {
+  assert.deepEqual(numericIssues("2026年の計画は2030年まで続く"), [])
+})
+
+test("still checks abbreviated fiscal years against the source", () => {
+  const issues = numericIssues("FY26の計画である")
+  assert.equal(issues.length, 1)
+  assert(issues[0].includes("26"))
+})
+
+test("does not apply currency rounding tolerance to exact counts", () => {
+  const countCluster: SynthesisSource[] = [{
+    ...numericCluster[0],
+    bodyText: `${numericCluster[0].bodyText} The company employs exactly 200 people.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "従業員数を公表",
+      summary: "従業員は201人である".padEnd(ARTICLE_BODY_MIN_SAMPLE, "。"),
+      referenceUrls: [{ title: countCluster[0].title, url: countCluster[0].sourceUrl }],
+      sourceUsage: [{ sourceIndex: 1, factsUsed: ["従業員201人"] }],
+    }),
+    countCluster,
+  )
+  assert(qc?.issues.some((issue) => issue.includes("201")))
 })

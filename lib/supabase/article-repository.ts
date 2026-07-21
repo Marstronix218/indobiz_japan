@@ -365,7 +365,10 @@ const DEDUPE_KEYWORDS_PER_ARTICLE = 20
 
 function dedupeLookbackHours(): number {
   const n = Number(process.env.DEDUPE_LOOKBACK_HOURS)
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 72
+  // Syndicated stories frequently reappear through another outlet just over
+  // three days later. Keep a full week by default so cross-publisher semantic
+  // dedupe can catch those delayed copies (the env var remains configurable).
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 168
 }
 
 function dedupeMinSharedKeywords(): number {

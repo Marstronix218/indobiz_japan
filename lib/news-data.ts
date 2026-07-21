@@ -13,6 +13,7 @@ export type IndustryTag =
   | "machine_tools"
   | "food"
   | "chemicals"
+  | "energy"
   | "logistics"
   | "agriculture"
   | "steel"
@@ -198,6 +199,7 @@ export const INDUSTRY_LABELS: Record<IndustryTag, string> = {
   machine_tools: "工作機械",
   food: "食品",
   chemicals: "化学品",
+  energy: "エネルギー",
   logistics: "物流",
   agriculture: "農業",
   steel: "鉄鋼",
@@ -212,6 +214,7 @@ export const INDUSTRY_OPTIONS: IndustryTag[] = [
   "machine_tools",
   "food",
   "chemicals",
+  "energy",
   "logistics",
   "agriculture",
   "steel",

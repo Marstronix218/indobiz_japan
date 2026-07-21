@@ -31,8 +31,8 @@ C. ニュース価値
   - 本文に「原文を直接参照」「確認できないため言及を控える」「参考記事では」など、制作過程・根拠不足を説明するメタ注釈が含まれていないか(含まれていればREJECT)
 D. 文章品質
   - 同一・類似の段落や言い回しが繰り返されていないか
-  - industryTags と category が記事内容と整合しているか。ただし industryTags は許可された11種(automotive, semiconductor, machine_tools, food, chemicals, logistics, agriculture, steel, education, entertainment, talent)だけを使う。金融、エネルギー、IT、銀行など許可外タグを要求せず、該当する許可タグがなければ空配列を許容する
-  - summary が概ね450〜750字に収まっているか。450字未満は情報不足、750字超は冗長としてREVISION(生成時は500字前後を狙うが、品質チェックではこの範囲内なら文字数だけで厳しく落とさない)
+  - industryTags と category が記事内容と整合しているか。ただし industryTags は許可された12種(automotive, semiconductor, machine_tools, food, chemicals, energy, logistics, agriculture, steel, education, entertainment, talent)だけを使う。金融、IT、銀行、不動産など許可外タグを要求せず、該当する許可タグがなければ空配列を許容する。原油・石油・電力・天然ガスなどのエネルギー関連は energy を使い、chemicals(化学品)で代用しない
+  - summary が概ね430〜750字に収まっているか。430字未満は情報不足、750字超は冗長としてREVISION(生成時は500字前後を狙うが、品質チェックではこの範囲内なら文字数だけで厳しく落とさない)
   - summary・implications 全体を通じて「だ・である調」に統一されているか。「です・ます調」が1文でも混在していればREVISION
   - 為替・株価・指数・金利・各種指標などの数値に算術的な矛盾がないか。終値・前日比・前営業日終値などが計算上整合しているか(例:終値と前営業日終値の差が前日比と一致するか)。別の日付・別ソースの数値を「前営業日値」「前日比」として接続して矛盾していればREVISION
   - 数値・比率・日付・歴史的経緯が参考記事本文に明記されているか。提供本文にない事実を一般知識で補っていればREVISION

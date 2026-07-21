@@ -114,7 +114,8 @@ export const SOURCE_CONNECTORS: SourceConnector[] = [
 
 const KNOWN_INDUSTRY_TAGS: IndustryTag[] = [
   "automotive", "semiconductor", "machine_tools", "food", "chemicals",
-  "logistics", "agriculture", "steel", "education", "entertainment", "talent",
+  "energy", "logistics", "agriculture", "steel", "education", "entertainment",
+  "talent",
 ]
 const KNOWN_TAG_SET = new Set<string>(KNOWN_INDUSTRY_TAGS)
 const MIN_EVIDENCE_BODY_CHARS = 220

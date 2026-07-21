@@ -274,7 +274,8 @@ function normalizeKnownRemediationOutput(
 ): SynthesisOutput {
   const allowedTags = new Set([
     "automotive", "semiconductor", "machine_tools", "food", "chemicals",
-    "logistics", "agriculture", "steel", "education", "entertainment", "talent",
+    "energy", "logistics", "agriculture", "steel", "education", "entertainment",
+    "talent",
   ])
   output.industryTags = output.industryTags.filter((tag) => allowedTags.has(tag))
 

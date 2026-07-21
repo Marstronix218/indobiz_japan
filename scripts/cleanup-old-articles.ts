@@ -71,7 +71,7 @@ const REWRITE_SYSTEM = `あなたはインド市場を取材する日本語ビ�
 - 「本記事のポイント」(implications)は、何がどう変わり誰に関係するかが分かる具体的な要約を3点。
 - summary は日本語で約450〜600字の自然な記事本文。
 - category は次のいずれか1つ: economy / regulation / social / market / column(社会・文化系の話題は social)
-- industryTags は次から該当するもののみを0個以上: automotive, semiconductor, machine_tools, food, chemicals, logistics, agriculture, steel, education, entertainment, talent
+- industryTags は次から該当するもののみを0個以上: automotive, semiconductor, machine_tools, food, chemicals, energy, logistics, agriculture, steel, education, entertainment, talent
 
 【出力形式】JSONオブジェクトのみ。前後に説明やコードフェンスを付けない。
 { "title": "...", "summary": "...", "implications": ["...","...","..."], "category": "...", "industryTags": ["..."] }`
@@ -141,7 +141,7 @@ async function callLLM(system: string, user: string): Promise<string> {
 }
 
 const VALID_CATEGORIES = ["economy", "regulation", "social", "market", "column"]
-const VALID_TAGS = ["automotive", "semiconductor", "machine_tools", "food", "chemicals", "logistics", "agriculture", "steel", "education", "entertainment", "talent"]
+const VALID_TAGS = ["automotive", "semiconductor", "machine_tools", "food", "chemicals", "energy", "logistics", "agriculture", "steel", "education", "entertainment", "talent"]
 
 async function mapPool<T, R>(items: T[], n: number, fn: (item: T, i: number) => Promise<R>): Promise<R[]> {
   const out: R[] = new Array(items.length)
