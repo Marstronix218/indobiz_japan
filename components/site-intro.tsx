@@ -1,41 +1,11 @@
-"use client"
-
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
-
-type AuthState = "loading" | "in" | "out"
 
 /**
  * トップページ最上部に表示する「存在意義」イントロ帯。
  * 初見ユーザーに「何のサイトか・誰向けか」を一目で伝える。
- * 未ログイン時のみ登録/相談CTAを出す(ログイン済みには冗長なため非表示)。
  */
 export function SiteIntro() {
-  const [authState, setAuthState] = useState<AuthState>("loading")
-
-  useEffect(() => {
-    const supabase = getSupabaseBrowserClient()
-    let active = true
-
-    supabase.auth.getUser().then(({ data }) => {
-      if (!active) return
-      setAuthState(data.user ? "in" : "out")
-    })
-
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setAuthState(session?.user ? "in" : "out")
-      },
-    )
-
-    return () => {
-      active = false
-      subscription.subscription.unsubscribe()
-    }
-  }, [])
-
   return (
     <section className="border-b border-border bg-secondary/30">
       <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
@@ -52,16 +22,14 @@ export function SiteIntro() {
             </p>
           </div>
 
-          {authState === "out" && (
-            <div className="flex shrink-0 flex-wrap items-center gap-2">
-              <Button asChild size="sm">
-                <Link href="/signup">無料で全文を読む</Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href="/contact?leadType=expansion">法人導入を相談する</Link>
-              </Button>
-            </div>
-          )}
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Button asChild size="sm">
+              <Link href="/login">ログインして記事を読む</Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/contact?leadType=expansion">法人導入を相談する</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>

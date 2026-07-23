@@ -8,17 +8,22 @@ import { Separator } from "@/components/ui/separator"
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
 import { toast } from "sonner"
 import Link from "next/link"
+import type { BetaAccessPhase } from "@/lib/beta-access"
 
 interface ProfileFormProps {
   email: string
   fullName: string
   isLineAccount?: boolean
+  betaPhase: BetaAccessPhase
+  betaAccessUntil: string | null
 }
 
 export function ProfileForm({
   email,
   fullName: initialFullName,
   isLineAccount = false,
+  betaPhase,
+  betaAccessUntil,
 }: ProfileFormProps) {
   const [fullName, setFullName] = useState(initialFullName)
   const [savingName, setSavingName] = useState(false)
@@ -181,9 +186,9 @@ export function ProfileForm({
         <h2 className="font-serif text-xl font-bold tracking-tight">プラン</h2>
         <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4">
           <div>
-            <p className="font-semibold">Free（無料）</p>
+            <p className="font-semibold">{betaPlanLabel(betaPhase)}</p>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              全記事の閲覧、カテゴリフィルター、市況ウィジェット
+              {betaPlanDescription(betaPhase, betaAccessUntil)}
             </p>
           </div>
           <Button asChild variant="outline" size="sm">
@@ -193,4 +198,36 @@ export function ProfileForm({
       </section>
     </div>
   )
+}
+
+function formatAccessDate(value: string) {
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "Asia/Tokyo",
+  }).format(new Date(value))
+}
+
+function betaPlanLabel(phase: BetaAccessPhase) {
+  if (phase === "initial_access") return "ベータ版・初回無料期間"
+  if (phase === "extension_access") return "ベータ版・延長期間"
+  if (phase === "survey_required") return "アンケート回答待ち"
+  return "ベータ版の無料期間終了"
+}
+
+function betaPlanDescription(
+  phase: BetaAccessPhase,
+  accessUntil: string | null,
+) {
+  if (
+    (phase === "initial_access" || phase === "extension_access") &&
+    accessUntil
+  ) {
+    return `${formatAccessDate(accessUntil)}まで全記事をお読みいただけます。`
+  }
+  if (phase === "survey_required") {
+    return "アンケート回答後、延長コードを入力するとさらに14日間ご利用いただけます。"
+  }
+  return "無料期間は終了しています。"
 }

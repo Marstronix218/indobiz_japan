@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { ProfileForm } from "@/components/profile-form"
+import { ensureUserBetaAccess } from "@/lib/supabase/beta-access"
 import { getSessionUser } from "@/lib/supabase/server-auth"
 
 export const metadata = {
@@ -22,6 +23,7 @@ export default async function ProfilePage() {
     (user.user_metadata?.full_name as string | undefined) ??
     (user.user_metadata?.name as string | undefined) ??
     ""
+  const betaAccess = await ensureUserBetaAccess(user.id)
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,7 +38,13 @@ export default async function ProfilePage() {
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm md:p-8">
-          <ProfileForm email={email} fullName={fullName} isLineAccount={isLineAccount} />
+          <ProfileForm
+            email={email}
+            fullName={fullName}
+            isLineAccount={isLineAccount}
+            betaPhase={betaAccess?.evaluation.phase ?? "expired"}
+            betaAccessUntil={betaAccess?.evaluation.accessUntil ?? null}
+          />
         </div>
       </main>
 

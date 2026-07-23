@@ -19,7 +19,11 @@
 - `app/page.tsx`
   ホームの一覧ページ。
 - `app/pricing/page.tsx`
-  価格表ページ。無料会員登録フォームもここに置いています。
+  ベータ版と本リリース後の料金案内ページ。
+- `app/extend-code/page.tsx`
+  アンケート回答者向けの延長コード入力ページ。
+- `lib/supabase/beta-access.ts`
+  ログインユーザーごとの無料期間をDBで開始・確認・延長するサーバー処理。
 - `app/contact/page.tsx`
   問い合わせ専用ページ。
 - `components/news-list.tsx`
@@ -56,6 +60,21 @@ npm run dev
 ./node_modules/.bin/tsc --noEmit
 npm run build
 ```
+
+## ベータ版アクセス設定
+
+記事の閲覧にはログインが必要です。ログイン済みユーザーが初めてサイトへアクセスした日時を `beta_access` テーブルへ保存し、その時点から14日間は全記事を閲覧できます。期間終了後、アンケート回答者が共通コードを `/extend-code` へ入力すると、同じアカウントを1回だけ14日間延長します。
+
+`supabase/migrations/0009_beta_access.sql` を適用してから公開してください。残り日数を毎日保存するのではなく、開始日時・延長開始日時をDBへ保存し、サーバー時刻から期限を判定します。以前の匿名 `localStorage` 値は使用せず、移行後の初回表示時に削除します。
+
+Googleフォームの公開URLを環境変数へ設定してください。
+
+```bash
+NEXT_PUBLIC_BETA_SURVEY_URL=https://docs.google.com/forms/d/e/FORM_ID/viewform
+BETA_EXTENSION_CODE=IBDJ-EXTEND-2026
+```
+
+Googleフォームの回答完了メッセージには、延長コード `IBDJ-EXTEND-2026` と `https://indobiz-japan.launchers-g.com/extend-code` への戻りリンクを記載します。
 
 ## LINEログイン
 

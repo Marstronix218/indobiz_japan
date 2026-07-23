@@ -1,35 +1,45 @@
 import { ArticleView } from "@/components/article-view"
 import { ArticleStoreProvider } from "@/components/article-store-provider"
-import { ArticleTeaser } from "@/components/article-teaser"
+import {
+  ArticleTeaser,
+  type ArticleTeaserReason,
+} from "@/components/article-teaser"
 import { DataUnavailable } from "@/components/data-unavailable"
 import {
   getArticleById,
   getTopViewedArticleIds,
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
+import { ensureUserBetaAccess } from "@/lib/supabase/beta-access"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { getSessionUser } from "@/lib/supabase/server-auth"
+import { toArticlePreview } from "@/lib/article-preview"
 import type { NewsArticle } from "@/lib/news-data"
 
-// Store payload for the logged-out teaser page. The sidebar widgets and
-// related-article cards only need title/category/dates/image, so strip the
-// gated content (full summary, 示唆, 背景/影響, keywords, sources) before it
-// gets serialized into the RSC stream for an unauthenticated visitor.
-function toTeaserStoreArticle(article: NewsArticle): NewsArticle {
-  return {
-    ...article,
-    summary: article.summary.slice(0, 160),
-    implications: [],
-    backgroundContext: undefined,
-    japanBusinessImpact: undefined,
-    keywords: undefined,
-    provenance: undefined,
-    sources: undefined,
-    qualityCheck: undefined,
-  }
-}
-
 export const revalidate = 0
+
+async function renderArticleTeaser(
+  article: NewsArticle,
+  rankedViewIds: string[],
+  reason: ArticleTeaserReason,
+) {
+  const articles = await listPublishedArticles()
+  const storeArticles = (
+    articles.some((item) => item.id === article.id)
+      ? articles
+      : [article, ...articles]
+  ).map(toArticlePreview)
+
+  return (
+    <ArticleStoreProvider initial={storeArticles}>
+      <ArticleTeaser
+        article={toArticlePreview(article)}
+        rankedViewIds={rankedViewIds}
+        reason={reason}
+      />
+    </ArticleStoreProvider>
+  )
+}
 
 export async function generateMetadata({
   params,
@@ -45,7 +55,7 @@ export async function generateMetadata({
 
   return {
     title: `${article.title} | IndoBiz Japan`,
-    description: article.summary,
+    description: article.summary.slice(0, 160),
   }
 }
 
@@ -60,53 +70,44 @@ export default async function ArticlePage({
     return <DataUnavailable showHomeLink />
   }
 
-  const user = await getSessionUser()
-
-  // No free-read allowance: unauthenticated visitors always get the teaser.
-  if (!user) {
-    const article = await getArticleById(id)
-    if (!article || article.workflowStatus !== "published") {
-      return <DataUnavailable showHomeLink />
-    }
-    // Hydrate the article store so the teaser can render the shared
-    // sidebar + related articles (both public info: titles/images only).
-    const [articles, rankedViewIds] = await Promise.all([
-      listPublishedArticles(),
-      getTopViewedArticleIds(24, 5),
-    ])
-    const storeArticles = (
-      articles.some((item) => item.id === article.id)
-        ? articles
-        : [article, ...articles]
-    ).map(toTeaserStoreArticle)
-    return (
-      <ArticleStoreProvider initial={storeArticles}>
-        <ArticleTeaser
-          article={toTeaserStoreArticle(article)}
-          rankedViewIds={rankedViewIds}
-        />
-      </ArticleStoreProvider>
-    )
-  }
-
-  const [articles, rankedViewIds] = await Promise.all([
-    listPublishedArticles(),
+  const [user, article, rankedViewIds] = await Promise.all([
+    getSessionUser(),
+    getArticleById(id),
     getTopViewedArticleIds(24, 5),
   ])
 
-  // `listPublishedArticles()` only returns the newest 100 published articles,
-  // so any older published article (e.g. once the site has >100 articles)
-  // would be missing from the store and `ArticleView` would render
-  // "記事が見つかりません". Fetch the requested article directly and merge it
-  // in if the feed list doesn't already contain it.
-  let storeArticles = articles
-  if (!articles.some((item) => item.id === id)) {
-    const article = await getArticleById(id)
-    if (!article || article.workflowStatus !== "published") {
-      return <DataUnavailable showHomeLink />
-    }
-    storeArticles = [article, ...articles]
+  if (!article || article.workflowStatus !== "published") {
+    return <DataUnavailable showHomeLink />
   }
+
+  if (!user) {
+    return renderArticleTeaser(article, rankedViewIds, "login_required")
+  }
+
+  const betaAccess = await ensureUserBetaAccess(user.id)
+  if (!betaAccess) {
+    return (
+      <DataUnavailable
+        title="ご利用期間を確認できません"
+        description="現在アクセス状況を確認できません。しばらくしてから再度お試しください。"
+        showHomeLink
+      />
+    )
+  }
+
+  if (!betaAccess.evaluation.hasFullAccess) {
+    const reason: ArticleTeaserReason =
+      betaAccess.evaluation.phase === "survey_required"
+        ? "survey_required"
+        : "expired"
+    return renderArticleTeaser(article, rankedViewIds, reason)
+  }
+
+  const articles = await listPublishedArticles()
+  // The feed is capped, so merge an older directly requested article back in.
+  const storeArticles = articles.some((item) => item.id === id)
+    ? articles
+    : [article, ...articles]
 
   if (storeArticles.length === 0) {
     return <DataUnavailable showHomeLink />

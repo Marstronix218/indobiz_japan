@@ -6,6 +6,11 @@ export type DigestFrequency = "daily" | "weekly"
  */
 export const LINE_ADD_FRIEND_URL = "https://qr.paps.jp/KRwFx"
 
+/** Public destinations used by the beta access experience. */
+export const GO_INDIA_URL = "https://capital.launchers-g.com/"
+export const BETA_SURVEY_URL =
+  process.env.NEXT_PUBLIC_BETA_SURVEY_URL?.trim() ?? ""
+
 export interface LeadInquiry {
   companyName: string
   contactName: string

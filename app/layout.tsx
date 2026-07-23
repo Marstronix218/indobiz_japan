@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Noto_Sans_JP } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
+import { LegacyBetaStorageCleanup } from '@/components/legacy-beta-storage-cleanup'
 import './globals.css'
 
 const notoSansJP = Noto_Sans_JP({
@@ -39,6 +40,7 @@ export default function RootLayout({
         className={`${notoSansJP.variable} font-sans antialiased`}
       >
         {children}
+        <LegacyBetaStorageCleanup />
         <Toaster richColors position="top-right" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

@@ -3,6 +3,8 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { IndiaMap } from "@/components/city/india-map"
+import { SiteFooter } from "@/components/site-footer"
+import { SiteHeader } from "@/components/site-header"
 import { listCities } from "@/lib/cities"
 import { fetchCityWeather } from "@/lib/cities/weather"
 import { weatherCodeEmoji } from "@/lib/cities/weather-codes"
@@ -42,7 +44,9 @@ async function CardWeather({ slug }: { slug: string }) {
 export default function CityIndexPage() {
   const cities = listCities()
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="font-serif text-3xl font-bold">都市データ</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         インド主要9都市の気候・名物・生活情報。出張・駐在の準備に。
@@ -91,6 +95,8 @@ export default function CityIndexPage() {
           </li>
         ))}
       </ul>
-    </main>
+      </main>
+      <SiteFooter />
+    </div>
   )
 }

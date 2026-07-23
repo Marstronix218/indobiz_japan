@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
 import { CATEGORY_OPTIONS, CATEGORY_LABELS } from "@/lib/news-data"
+import { GO_INDIA_URL } from "@/lib/site-config"
 
 export function SiteFooter() {
   return (
@@ -48,19 +49,24 @@ export function SiteFooter() {
             </h5>
             <ul className="space-y-2 text-[13px] leading-6 text-primary-foreground/75">
               <li>
-                <Link href="/pricing" className="transition-opacity hover:opacity-100">
-                  無料会員登録
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="transition-opacity hover:opacity-100">
-                  料金プラン
-                </Link>
-              </li>
-              <li>
                 <Link href="/contact" className="transition-opacity hover:opacity-100">
                   お問い合わせ
                 </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="transition-opacity hover:opacity-100">
+                  料金について
+                </Link>
+              </li>
+              <li>
+                <a
+                  href={GO_INDIA_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-opacity hover:opacity-100"
+                >
+                  Go India について
+                </a>
               </li>
               <li>
                 <Link href="/company" className="transition-opacity hover:opacity-100">

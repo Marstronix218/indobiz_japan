@@ -16,7 +16,7 @@ import {
 import type { AuthorProfile } from "@/lib/authors"
 import type { PipelineDraft } from "@/lib/automation"
 import { extractKeywords } from "@/lib/clustering"
-import { getAnonClient, getServiceClient, hasSupabaseConfig } from "./client"
+import { getServiceClient, hasSupabaseConfig } from "./client"
 
 interface ArticleRow {
   id: string
@@ -161,7 +161,7 @@ function rowToArticle(row: ArticleRow): NewsArticle {
 }
 
 export async function listPublishedArticles(
-  client: SupabaseClient = getAnonClient(),
+  client: SupabaseClient = getServiceClient(),
 ): Promise<NewsArticle[]> {
   if (!hasSupabaseConfig()) return []
 
@@ -203,10 +203,13 @@ export async function listAllArticles(): Promise<NewsArticle[]> {
   return (data as unknown as ArticleRow[] ?? []).map(rowToArticle)
 }
 
-export async function getArticleById(id: string): Promise<NewsArticle | null> {
+export async function getArticleById(
+  id: string,
+  client: SupabaseClient = getServiceClient(),
+): Promise<NewsArticle | null> {
   if (!hasSupabaseConfig()) return null
 
-  const { data, error } = await getAnonClient()
+  const { data, error } = await client
     .from("articles")
     .select(ARTICLE_SELECT)
     .eq("id", id)

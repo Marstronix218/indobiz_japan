@@ -240,7 +240,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                     </section>
 
                     {/* Latest news: thumbnail 2-col grid */}
-                    <section>
+                    <section id="latest-news" className="scroll-mt-6">
                       <SectionHeading title="最新ニュース" en="LATEST" />
                       <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
                         {latest.map((article) => (

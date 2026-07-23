@@ -19,7 +19,9 @@
     "test:japanese-line-breaks": "node --experimental-strip-types --test lib/japanese-line-breaks.test.ts",
     "test:llm-provider": "node --experimental-strip-types --test lib/llm/index.test.ts",
     "test:authors": "node --experimental-strip-types --test lib/authors.test.ts",
-    "test:cities": "node --experimental-strip-types --test lib/cities/data.test.ts"
+    "test:cities": "node --experimental-strip-types --test lib/cities/data.test.ts",
+    "test:beta-access": "node --experimental-strip-types --test lib/beta-access.test.ts",
+    "test:article-preview": "node --experimental-strip-types --test lib/article-preview.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",

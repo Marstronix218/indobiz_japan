@@ -5,6 +5,8 @@ import { notFound } from "next/navigation"
 
 import { ClimateCalendar } from "@/components/city/climate-calendar"
 import { LivingSections } from "@/components/city/living-sections"
+import { SiteFooter } from "@/components/site-footer"
+import { SiteHeader } from "@/components/site-header"
 import { getCity, listCities } from "@/lib/cities"
 import { getClimate } from "@/lib/cities/climate"
 import { describeWeatherCode } from "@/lib/cities/weather-codes"
@@ -44,7 +46,9 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   const climate = getClimate(city.slug)
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main className="mx-auto max-w-3xl px-4 py-10">
       <Link href="/city" className="font-mono text-xs text-muted-foreground hover:text-accent">
         ← 都市一覧
       </Link>
@@ -153,6 +157,8 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           生活情報は{city.living.verifiedAt.replace("-", "年")}月時点で確認したものです。渡航前に最新情報をご確認ください。
         </p>
       )}
-    </main>
+      </main>
+      <SiteFooter />
+    </div>
   )
 }

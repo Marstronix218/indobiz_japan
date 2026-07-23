@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { MembershipCaptureForm } from "@/components/membership-capture-form"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
@@ -28,30 +27,30 @@ export default function PricingPage() {
             BETA
           </span>
           <h2 className="mt-4 font-serif text-2xl font-bold tracking-tight text-foreground">
-            現在、すべての機能を無料でご利用いただけます
+            ログイン後、最初の14日間は無料です
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-8 text-muted-foreground">
-            ベータ期間中は、会員登録のみで全記事・本記事のポイント・市況情報をお読みいただけます。料金プランは正式版の公開に合わせてご案内します。
+            記事の閲覧にはアカウント登録とログインが必要です。最初の14日間が終了した後、アンケートにご回答いただいた方はさらに14日間ご利用いただけます。
+          </p>
+          <p className="mx-auto mt-3 max-w-xl text-base leading-8 text-muted-foreground">
+            本サービスは9月以降に有料化予定です。料金は未定ですが、Go India 公式メンバーの皆様には特別な特典をご用意することを検討しています。
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button asChild>
               <Link href="/signup">新規登録（無料）</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/contact?leadType=expansion">
-                法人導入を相談する
+              <Link href="/contact">
+                お問い合わせ
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
           </div>
         </section>
 
-        <section
-          id="free-member"
-          className="mx-auto max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8"
-        >
-          <MembershipCaptureForm />
-        </section>
+        <p className="text-center text-sm leading-7 text-muted-foreground">
+          料金・申込方法の詳細は、決定後にこのページでご案内いたします。
+        </p>
       </main>
 
       <SiteFooter />

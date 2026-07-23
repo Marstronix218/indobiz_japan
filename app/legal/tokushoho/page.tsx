@@ -58,13 +58,13 @@ const rows: DisclosureRow[] = [
     label: "販売価格",
     content: (
       <>
-        個人向け有料会員プラン：月額 1,000円（税込）
+        ベータ版：無料
         <br />
         <span className="text-xs leading-6 text-muted-foreground">
-          価格は申込画面および Stripe Checkout 画面に明示されます。
+          本リリース後（9月以降）は有料化を予定しています。料金は未定です。
         </span>
         <br />
-        法人パイロットプラン：個別お見積もり（
+        本サービスの料金は決定後、申込前に当サイトで明示します（
         <a
           href="/contact?leadType=expansion"
           className="text-accent underline-offset-2 hover:underline"
@@ -89,46 +89,26 @@ const rows: DisclosureRow[] = [
   },
   {
     label: "支払方法",
-    content: (
-      <>
-        クレジットカード決済（Stripe, Inc. を通じた処理）
-        <br />
-        <span className="text-xs leading-6 text-muted-foreground">
-          対応ブランド：Visa / Mastercard / American Express / JCB / Diners Club / Discover
-        </span>
-      </>
-    ),
+    content: "ベータ版ではお支払いは発生しません。本サービス開始時にご案内します。",
   },
   {
     label: "支払時期",
-    content: (
-      <ul className="list-disc space-y-1 pl-5">
-        <li>初回：お申し込み完了時に課金されます（無料トライアル期間中は課金されません）。</li>
-        <li>2回目以降：毎月、契約更新日に自動課金されます。</li>
-        <li>無料トライアル：お申し込みから7日間。期間内に解約された場合は課金されません。</li>
-      </ul>
-    ),
+    content: "ベータ版ではお支払いは発生しません。本サービス開始時にご案内します。",
   },
   {
     label: "サービス提供時期",
     content:
-      "決済完了後、ただちにご利用いただけます。無料トライアルの場合はお申し込み完了後ただちに開始されます。",
+      "ベータ版は、ログイン後の初回アクセスから14日間ご利用いただけます。アンケート回答後、延長コードを入力するとさらに14日間ご利用いただけます。",
   },
   {
     label: "返品・キャンセル（解約）について",
     content: (
       <div className="space-y-3">
         <p>
-          本サービスはデジタルコンテンツ・情報配信サービスの性質上、ご購入後の返金・返品は原則として承っておりません。
+          ベータ版は無料のため、返品・返金・解約に関するお手続きはありません。
         </p>
         <p>
-          解約はマイページの請求管理画面（Stripe カスタマーポータル）からいつでも手続きいただけます。解約手続き後も、当月のお支払い済み期間の末日までは引き続きサービスをご利用いただけます。
-        </p>
-        <p>
-          無料トライアル期間内に解約された場合、料金は一切発生しません。
-        </p>
-        <p>
-          当社の責めに帰すべき事由によりサービスを提供できなかった場合は、別途ご相談の上、未利用期間に応じた返金対応を行います。
+          本サービス開始後の条件は、料金・申込方法の決定時に当サイトでご案内します。
         </p>
       </div>
     ),
@@ -140,7 +120,7 @@ const rows: DisclosureRow[] = [
         <li>
           対応ブラウザ：最新版の Google Chrome / Safari / Microsoft Edge / Firefox
         </li>
-        <li>JavaScript および Cookie が有効である必要があります。</li>
+        <li>JavaScript およびログイン状態を保持する Cookie が有効である必要があります。</li>
         <li>
           スマートフォン・タブレットからもご利用いただけます（iOS / Android 最新版を推奨）。
         </li>
@@ -150,7 +130,7 @@ const rows: DisclosureRow[] = [
   {
     label: "特別な販売条件",
     content:
-      "本サービスは日本国内の事業者および居住者を主な対象としています。法人プランは最低契約期間6か月、初月無料で提供します。",
+      "本サービスは日本国内の事業者および居住者を主な対象としています。Go India 公式メンバー向けの特別な特典を検討しています。詳細は決定後にご案内します。",
   },
 ]
 
@@ -168,7 +148,7 @@ export default function TokushohoPage() {
             特定商取引法に基づく表記
           </h1>
           <p className="text-xs text-muted-foreground">
-            最終更新日：2026年5月17日
+            最終更新日：2026年7月22日
           </p>
         </div>
 

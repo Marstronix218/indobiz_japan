@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight, Lock } from "lucide-react"
+import { ChevronRight, ExternalLink, Lock } from "lucide-react"
 import { MarketTicker } from "@/components/market-ticker"
 import { NewsCardTile } from "@/components/news-card"
 import { PortalSidebar } from "@/components/portal-sidebar"
@@ -21,8 +21,14 @@ import {
 } from "@/lib/news-data"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
+import { BETA_SURVEY_URL, GO_INDIA_URL } from "@/lib/site-config"
 
 const TEASER_LENGTH = 150
+
+export type ArticleTeaserReason =
+  | "login_required"
+  | "survey_required"
+  | "expired"
 
 /**
  * Logged-out article page. Mirrors `ArticleView`'s layout (breadcrumb, header
@@ -33,9 +39,11 @@ const TEASER_LENGTH = 150
 export function ArticleTeaser({
   article,
   rankedViewIds = [],
+  reason = "login_required",
 }: {
   article: NewsArticle
   rankedViewIds?: string[]
+  reason?: ArticleTeaserReason
 }) {
   const articles = usePublicArticles()
   const relatedArticles = selectRelatedArticles(articles, article, 3)
@@ -115,23 +123,7 @@ export function ArticleTeaser({
                 {truncated ? "…" : ""}
               </p>
 
-              <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
-                <Lock className="mx-auto size-6 text-accent" />
-                <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
-                  続きを読むには登録が必要です
-                </h2>
-                <p className="mt-2 text-base leading-8 text-muted-foreground">
-                  無料アカウントでフルテキスト・示唆・関連記事をお読みいただけます。
-                </p>
-                <div className="mt-5 flex flex-wrap justify-center gap-2">
-                  <Button asChild>
-                    <Link href={`/signup?next=${next}`}>新規登録（無料）</Link>
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link href={`/login?next=${next}`}>ログイン</Link>
-                  </Button>
-                </div>
-              </section>
+              <AccessPanel reason={reason} next={next} />
 
               {relatedArticles.length > 0 && (
                 <section className="mt-7 border-t border-border pt-5">
@@ -163,5 +155,91 @@ export function ArticleTeaser({
 
       <SiteFooter />
     </div>
+  )
+}
+
+function AccessPanel({
+  reason,
+  next,
+}: {
+  reason: ArticleTeaserReason
+  next: string
+}) {
+  if (reason === "survey_required") {
+    return (
+      <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
+        <Lock className="mx-auto size-6 text-accent" />
+        <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
+          最初の14日間の無料期間が終了しました
+        </h2>
+        <p className="mt-2 text-base leading-8 text-muted-foreground">
+          アンケートにご回答いただくと、さらに14日間無料でお読みいただけます。
+        </p>
+        <div className="mt-5 flex flex-wrap justify-center gap-2">
+          {BETA_SURVEY_URL ? (
+            <Button asChild>
+              <a
+                href={BETA_SURVEY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                アンケートに回答する
+                <ExternalLink aria-hidden className="size-4" />
+              </a>
+            </Button>
+          ) : (
+            <Button disabled>アンケートフォーム準備中</Button>
+          )}
+          <Button asChild variant="outline">
+            <Link href="/extend-code">回答済みの方はこちら</Link>
+          </Button>
+        </div>
+      </section>
+    )
+  }
+
+  if (reason === "expired") {
+    return (
+      <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
+        <Lock className="mx-auto size-6 text-accent" />
+        <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
+          ベータ版の無料期間が終了しました
+        </h2>
+        <p className="mt-2 text-base leading-8 text-muted-foreground">
+          本サービスの料金・申込方法は、決定後にご案内します。
+        </p>
+        <div className="mt-5 flex flex-wrap justify-center gap-2">
+          <Button asChild>
+            <Link href="/pricing">料金・申込について</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <a href={GO_INDIA_URL} target="_blank" rel="noopener noreferrer">
+              Go India について
+              <ExternalLink aria-hidden className="size-4" />
+            </a>
+          </Button>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
+      <Lock className="mx-auto size-6 text-accent" />
+      <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
+        続きを読むにはログインが必要です
+      </h2>
+      <p className="mt-2 text-base leading-8 text-muted-foreground">
+        ログイン後、最初の14日間は無料で全記事をお読みいただけます。
+      </p>
+      <div className="mt-5 flex flex-wrap justify-center gap-2">
+        <Button asChild>
+          <Link href={`/signup?next=${next}`}>新規登録（無料）</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href={`/login?next=${next}`}>ログイン</Link>
+        </Button>
+      </div>
+    </section>
   )
 }
