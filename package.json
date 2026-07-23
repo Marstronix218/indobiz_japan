@@ -16,6 +16,7 @@
     "test:source-policy": "node --experimental-strip-types --test lib/llm/source-policy.test.ts",
     "test:quality-guard": "node --experimental-strip-types --test lib/llm/output-quality-guard.test.ts",
     "test:admin-publication": "node --experimental-strip-types --test lib/admin-publication-policy.test.ts",
+    "test:dedupe-source-url": "node --experimental-strip-types --test lib/dedupe-source-url.test.ts",
     "test:japanese-line-breaks": "node --experimental-strip-types --test lib/japanese-line-breaks.test.ts",
     "test:llm-provider": "node --experimental-strip-types --test lib/llm/index.test.ts",
     "test:authors": "node --experimental-strip-types --test lib/authors.test.ts",

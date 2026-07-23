@@ -587,3 +587,68 @@ test("does not apply currency rounding tolerance to exact counts", () => {
   )
   assert(qc?.issues.some((issue) => issue.includes("201")))
 })
+
+test("matches English number words to Japanese digit counts", () => {
+  const wordNumberCluster: SynthesisSource[] = [{
+    ...numericCluster[0],
+    bodyText: `${numericCluster[0].bodyText} India has signed or concluded negotiations on eight major trade agreements since 2021.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "インドの貿易協定が拡大",
+      summary: "インドは2021年以降、8件の主要貿易協定を締結または交渉妥結した。".padEnd(
+        ARTICLE_BODY_MIN_SAMPLE,
+        "。",
+      ),
+      referenceUrls: [{
+        title: wordNumberCluster[0].title,
+        url: wordNumberCluster[0].sourceUrl,
+      }],
+      sourceUsage: [{
+        sourceIndex: 1,
+        factsUsed: ["2021年以降に8件の主要貿易協定を締結または交渉妥結"],
+      }],
+    }),
+    wordNumberCluster,
+  )
+  assert.equal(
+    qc?.issues.some((issue) => issue.includes("参考記事本文にない数値")) ?? false,
+    false,
+  )
+  assert.equal(
+    qc?.issues.some((issue) => issue.includes("sourceUsage")) ?? false,
+    false,
+  )
+})
+
+test("accepts 14.15 lakh jobs as 141万5000人 and rejects the old mis-conversion", () => {
+  const jobsCluster: SynthesisSource[] = [{
+    ...numericCluster[0],
+    bodyText: `${numericCluster[0].bodyText} The schemes generated more than 14.15 lakh jobs.`,
+  }]
+  const run = (summary: string) =>
+    runDeterministicQualityGuard(
+      output({
+        title: "PLI制度の雇用効果",
+        summary: summary.padEnd(ARTICLE_BODY_MIN_SAMPLE, "。"),
+        referenceUrls: [{
+          title: jobsCluster[0].title,
+          url: jobsCluster[0].sourceUrl,
+        }],
+        sourceUsage: [{ sourceIndex: 1, factsUsed: [summary] }],
+      }),
+      jobsCluster,
+    )
+
+  assert.equal(
+    run("直接・間接雇用は141万5000人を超えた")?.issues.some((issue) =>
+      issue.includes("参考記事本文にない数値")
+    ) ?? false,
+    false,
+  )
+  assert(
+    run("直接・間接雇用は14万15000人を超えた")?.issues.some((issue) =>
+      issue.includes("参考記事本文にない数値")
+    ),
+  )
+})

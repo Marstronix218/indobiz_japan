@@ -78,12 +78,16 @@ const INDUSTRY_TAG_KEYWORDS: Record<string, string[]> = {
     "石油",
     "エネルギー",
     "電力",
+    "太陽光",
+    "再生可能",
     "天然ガス",
     "lng",
     "crude",
     "petroleum",
     "energy",
     "electricity",
+    "solar",
+    "renewable",
   ],
   logistics: ["物流", "配送", "倉庫", "サプライチェーン", "logistics", "delivery"],
   agriculture: ["農業", "農地", "農産", "agriculture", "farm"],
@@ -515,6 +519,51 @@ const JAPANESE_SCALE_UNITS: Record<string, number> = {
   "千": 1_000,
 }
 
+// 英文ソースは "eight agreements" のように小さい整数を単語で書くことがある。
+// 生成記事側の「8件」と照合できるよう、一般的な単語表記を数値へ正規化する。
+// hundred 以上の複合数詞は桁解釈が必要なため、ここでは単独で明確な0〜20と10刻みだけ扱う。
+const ENGLISH_NUMBER_WORDS: Record<string, number> = {
+  zero: 0,
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
+  thirteen: 13,
+  fourteen: 14,
+  fifteen: 15,
+  sixteen: 16,
+  seventeen: 17,
+  eighteen: 18,
+  nineteen: 19,
+  twenty: 20,
+  thirty: 30,
+  forty: 40,
+  fifty: 50,
+  sixty: 60,
+  seventy: 70,
+  eighty: 80,
+  ninety: 90,
+}
+const ENGLISH_NUMBER_WORD_PATTERN = new RegExp(
+  `\\b(?:${Object.keys(ENGLISH_NUMBER_WORDS).join("|")})\\b`,
+  "gi",
+)
+
+function normalizeEnglishNumberWords(text: string): string {
+  return text.replace(
+    ENGLISH_NUMBER_WORD_PATTERN,
+    (word) => String(ENGLISH_NUMBER_WORDS[word.toLowerCase()]),
+  )
+}
+
 // 日本語の複合数詞(例: 892億4000万)は1つの数値として読む。桁ごとに「892」「4000」と
 // 切り出すと、原文の "Rs 8,924 crore" と突き合わせられず、正しい換算値が捏造として
 // 弾かれる。これが数値チェック誤検知の最大の原因だった。
@@ -538,8 +587,8 @@ function numberUnit(
   // 件数、という判定だと「41億ドル)だった。小売子会社…」の 41億 が通貨ではなく件数に
   // 分類され、原文の "$4.1 billion" と kind 不一致で捏造扱いになっていた。
   const isCount =
-    /^[\s　]*(?:人|社|件|台|基)/.test(suffix) ||
-    /^[\s　]*(?:(?:lakh|crore|million|billion|thousand)s?\s+)?(?:people|persons?|workers?|employees?|jobs?|units?)\b/i
+    /^[\s　]*(?:人|社|件|台|基|業種|州|[かカヵ]国|項目|協定|品目)/.test(suffix) ||
+    /^[\s　]*(?:(?:lakh|crore|million|billion|thousand)s?\s+)?(?:[a-z-]+\s+){0,2}(?:people|persons?|workers?|employees?|jobs?|units?|agreements?|countries|sectors|states|companies|firms|projects|products|devices|members|measures|years|months|days|quarters)\b/i
       .test(suffix)
   const isPercent = /^[\s\-–—]*(?:%|％|パーセント|per\s*cent|percent|ppt|percentage points?)/i.test(suffix)
   // 「Rs 8,924-crore package」のようにハイフンで単位が続く表記も拾う。
@@ -592,7 +641,7 @@ interface PositionedNumber extends ExtractedNumber {
 }
 
 function extractNumbers(text: string): ExtractedNumber[] {
-  const normalizedText = text.normalize("NFKC")
+  const normalizedText = normalizeEnglishNumberWords(text.normalize("NFKC"))
   const candidates: PositionedNumber[] = []
 
   for (const match of normalizedText.matchAll(NUMBER_TOKEN_PATTERN)) {
@@ -600,7 +649,7 @@ function extractNumbers(text: string): ExtractedNumber[] {
     const index = match.index
     const end = index + raw.length
     const prefix = normalizedText.slice(Math.max(0, index - 8), index)
-    const suffix = normalizedText.slice(end, end + 18)
+    const suffix = normalizedText.slice(end, end + 40)
     const unit = numberUnit(prefix, suffix)
 
     if (/[兆億万千]/.test(raw)) {
@@ -632,6 +681,15 @@ function extractNumbers(text: string): ExtractedNumber[] {
     const current = candidates[i]
     const next = candidates[i + 1]
     if (current.scale !== 1 || next.scale === 1) continue
+    const previous = candidates[i - 1]
+    const isAbbreviatedYearEnd =
+      previous !== undefined &&
+      previous.numeric >= 1900 &&
+      previous.numeric <= 2099 &&
+      current.numeric >= 0 &&
+      current.numeric <= 99 &&
+      /^\s*(?:[-/])\s*$/.test(normalizedText.slice(previous.end, current.index))
+    if (isAbbreviatedYearEnd) continue
     if (!RANGE_SEPARATOR.test(normalizedText.slice(current.end, next.index))) continue
     current.scale = next.scale
     if (current.kind === "generic") current.kind = next.kind
@@ -640,13 +698,16 @@ function extractNumbers(text: string): ExtractedNumber[] {
   const result: ExtractedNumber[] = []
   const seen = new Set<string>()
   for (const candidate of candidates) {
-    const suffix = normalizedText.slice(candidate.end, candidate.end + 18)
+    const suffix = normalizedText.slice(candidate.end, candidate.end + 40)
     // Keep small values when they carry a meaningful unit. Previously the
     // early filter only recognised Japanese "%" spellings, so an English
     // source value such as "5.2 per cent" disappeared before unit
     // normalisation while the generated Japanese "5.2%" remained. That made
     // supported percentages look fabricated.
-    const hasSensitiveUnit = candidate.kind === "percent" || candidate.scale !== 1 ||
+    const hasSensitiveUnit =
+      candidate.kind === "percent" ||
+      candidate.kind === "count" ||
+      candidate.scale !== 1 ||
       /[兆億万千]/.test(candidate.raw) ||
       /^[\s　\-–—]*(?:%|％|パーセント|per\s*cent|percent|クロール|crores?|lakhs?|億|兆|万人|社|件|基点|ポイント)/i.test(suffix)
     if (candidate.numeric > 0 && candidate.numeric < SIGNIFICANT_NUMBER_MIN && !hasSensitiveUnit) {

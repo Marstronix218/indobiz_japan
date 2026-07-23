@@ -16,6 +16,10 @@ import {
 import type { AuthorProfile } from "@/lib/authors"
 import type { PipelineDraft } from "@/lib/automation"
 import { extractKeywords } from "@/lib/clustering"
+import {
+  buildDedupeSourceUrls,
+  hasSharedDedupeSourceUrl,
+} from "@/lib/dedupe-source-url"
 import { getServiceClient, hasSupabaseConfig } from "./client"
 
 interface ArticleRow {
@@ -382,6 +386,7 @@ function dedupeMinSharedKeywords(): number {
 interface RecentArticleKeywords {
   category: string
   keywords: Set<string>
+  sourceUrls: Set<string>
 }
 
 async function loadRecentArticleKeywords(
@@ -393,7 +398,7 @@ async function loadRecentArticleKeywords(
 
   const { data, error } = await client
     .from("articles")
-    .select("title, summary, category, created_at")
+    .select("title, summary, category, source_url, created_at, article_sources(original_url, canonical_url)")
     .gte("created_at", sinceIso)
 
   if (error) {
@@ -402,12 +407,28 @@ async function loadRecentArticleKeywords(
     return []
   }
 
-  return ((data ?? []) as { title: string; summary: string; category: string }[]).map(
+  return ((data ?? []) as {
+    title: string
+    summary: string
+    category: string
+    source_url: string | null
+    article_sources: Array<{
+      original_url: string | null
+      canonical_url: string | null
+    }> | null
+  }[]).map(
     (row) => ({
       category: row.category,
       keywords: new Set(
         extractKeywords(row.title ?? "", row.summary ?? "", DEDUPE_KEYWORDS_PER_ARTICLE),
       ),
+      sourceUrls: buildDedupeSourceUrls([
+        row.source_url,
+        ...(row.article_sources ?? []).flatMap((source) => [
+          source.original_url,
+          source.canonical_url,
+        ]),
+      ]),
     }),
   )
 }
@@ -451,6 +472,22 @@ export async function insertPipelineDrafts(
     const draftKeywords = new Set(
       extractKeywords(draft.title, draft.summary, DEDUPE_KEYWORDS_PER_ARTICLE),
     )
+    const draftSourceUrls = buildDedupeSourceUrls([
+      draft.sourceUrl,
+      ...(draft.sources ?? []).flatMap((source) => [
+        source.originalUrl,
+        source.canonicalUrl,
+      ]),
+    ])
+    if (recent.some((row) =>
+      hasSharedDedupeSourceUrl(draftSourceUrls, row.sourceUrls)
+    )) {
+      console.warn(
+        `[supabase] skipping duplicate draft with an already-used source URL: ${draft.title}`,
+      )
+      skipped += 1
+      continue
+    }
     if (isSemanticDuplicate(draft.category, draftKeywords, recent)) {
       console.warn(
         `[supabase] skipping near-duplicate draft (same-topic as recent article): ${draft.title}`,
@@ -502,7 +539,11 @@ export async function insertPipelineDrafts(
     if (data) {
       await insertSourcesFor(client, data.id, input.sources)
       inserted += 1
-      recent.push({ category: draft.category, keywords: draftKeywords })
+      recent.push({
+        category: draft.category,
+        keywords: draftKeywords,
+        sourceUrls: draftSourceUrls,
+      })
     }
   }
 
