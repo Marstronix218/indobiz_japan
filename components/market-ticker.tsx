@@ -82,7 +82,7 @@ export function MarketTicker() {
 
   return (
     <div className="marquee-wrap overflow-hidden border-b border-border bg-card">
-      <div className="mx-auto flex max-w-[1180px] items-center gap-2 px-5 py-1.5 sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-1.5 sm:px-6 lg:px-8">
         <span className="shrink-0 bg-foreground px-2 py-1 font-mono text-[10px] tracking-[0.16em] text-background">
           {badgeText}
         </span>

@@ -26,7 +26,7 @@ export function SiteHeader() {
   return (
     <header className="border-b border-border bg-background">
       <div className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-5 py-1.5 text-[11px] sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 text-[11px] sm:px-6 lg:px-8">
           {/* 下位ブレークポイント用。lg 以上ではロゴ右のタグラインが同じ役割を担う */}
           <p className="truncate font-semibold text-primary-foreground lg:hidden">
             日本企業向けインド市場インテリジェンス
@@ -50,7 +50,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1180px] px-5 py-2 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
         <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-end">
           <div className="flex min-w-0 items-center gap-3">
             <Link href="/" className="inline-flex min-w-0 items-center gap-3">
