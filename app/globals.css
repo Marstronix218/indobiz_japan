@@ -120,6 +120,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* ページ内アンカー（例: ヒーロー下の「最新ニュースをもっと見る」）を滑らかに送る。
+     モーション低減設定では従来どおり即時ジャンプする。 */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   body {
     @apply bg-background text-foreground;
   }

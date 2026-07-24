@@ -3,6 +3,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { ChevronDown } from "lucide-react"
 import { NewsCardHero, NewsCardMosaic, NewsCardTile } from "@/components/news-card"
 import { CategoryLinkBlock } from "@/components/category-link-block"
 import { MarketTicker } from "@/components/market-ticker"
@@ -203,7 +204,11 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
           <>
             {/* Hero: portal view only (hidden while filtering) */}
             {!filterActive && hero && (
-              <section className="mb-10 grid gap-3 lg:grid-cols-2">
+              <section
+                className={`grid gap-3 lg:grid-cols-2 ${
+                  latest.length > 0 ? "mb-3" : "mb-10"
+                }`}
+              >
                 <div className="lg:min-h-[26rem]">
                   <NewsCardHero article={hero} className="h-full lg:aspect-auto" />
                 </div>
@@ -221,6 +226,19 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                   )}
                 </div>
               </section>
+            )}
+
+            {/* ヒーロー直下から下部の最新ニュース欄へ送るページ内アンカー */}
+            {!filterActive && hero && latest.length > 0 && (
+              <div className="mb-10 flex justify-start">
+                <a
+                  href="#latest-news"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline-offset-4 transition-colors hover:text-accent hover:underline"
+                >
+                  最新ニュースをもっと見る
+                  <ChevronDown className="size-4" aria-hidden="true" />
+                </a>
+              </div>
             )}
 
             <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -261,7 +279,7 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                           href="/?view=latest"
                           className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
                         >
-                          最新ニュースをもっと見る
+                          最新ニュースを一覧で見る
                         </Link>
                       </section>
                     )}
