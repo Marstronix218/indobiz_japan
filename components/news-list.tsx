@@ -137,15 +137,25 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
     return buckets
   }, [sortedArticles])
 
+  // Articles already shown in the hero block must not repeat in 最新ニュース.
+  const heroIds = useMemo(
+    () =>
+      new Set(
+        [hero, m1, m2, m3, m4].filter(Boolean).map((article) => article.id),
+      ),
+    [hero, m1, m2, m3, m4],
+  )
+
   const latest = useMemo(
     () =>
       [...sortedArticles]
+        .filter((article) => !heroIds.has(article.id))
         .sort(
           (a, b) =>
             Date.parse(articleDisplayDate(b)) - Date.parse(articleDisplayDate(a)),
         )
         .slice(0, 6),
-    [sortedArticles],
+    [heroIds, sortedArticles],
   )
 
   function toggleIndustry(tag: IndustryTag) {
@@ -237,21 +247,24 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                       </div>
                     </section>
 
-                    {/* Latest news: thumbnail 2-col grid */}
-                    <section id="latest-news" className="scroll-mt-6">
-                      <SectionHeading title="最新ニュース" en="LATEST" />
-                      <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
-                        {latest.map((article) => (
-                          <NewsCardTile key={article.id} article={article} />
-                        ))}
-                      </div>
-                      <Link
-                        href="/?view=latest"
-                        className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
-                      >
-                        最新ニュースをもっと見る
-                      </Link>
-                    </section>
+                    {/* Latest news: thumbnail 2-col grid.
+                        Excludes the articles already shown in the hero block. */}
+                    {latest.length > 0 && (
+                      <section id="latest-news" className="scroll-mt-6">
+                        <SectionHeading title="最新ニュース" en="LATEST" />
+                        <div className="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+                          {latest.map((article) => (
+                            <NewsCardTile key={article.id} article={article} />
+                          ))}
+                        </div>
+                        <Link
+                          href="/?view=latest"
+                          className="mt-6 block rounded-md border border-border bg-card py-3 text-center text-sm font-semibold text-primary transition-colors hover:border-primary"
+                        >
+                          最新ニュースをもっと見る
+                        </Link>
+                      </section>
+                    )}
                   </>
                 )}
               </div>
