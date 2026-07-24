@@ -1,3 +1,5 @@
+import { formatUnixDateTime } from "@/lib/date-format"
+
 export type Direction = "up" | "down" | "flat"
 
 export interface LiveQuote {
@@ -113,13 +115,6 @@ export async function fetchMarketSnapshot(): Promise<MarketSnapshotLive | null> 
   }
 }
 
-export function formatAsOf(ts: number, locale = "ja-JP"): string {
-  const d = new Date(ts * 1000)
-  return d.toLocaleString(locale, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Tokyo",
-  })
+export function formatAsOf(ts: number): string {
+  return formatUnixDateTime(ts)
 }

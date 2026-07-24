@@ -9,7 +9,6 @@ import { MarketTicker } from "@/components/market-ticker"
 import { PortalSidebar } from "@/components/portal-sidebar"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
-import { SiteIntro } from "@/components/site-intro"
 import { usePublicArticles } from "@/lib/article-store"
 import {
   CATEGORY_LABELS,
@@ -172,7 +171,6 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      {!filterActive && <SiteIntro />}
       <MarketTicker />
 
       <main

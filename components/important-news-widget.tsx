@@ -8,7 +8,7 @@ import {
   CATEGORY_LABELS,
   articleDisplayDate,
   computePopularityScore,
-  formatArticleShortDate,
+  formatArticleDate,
 } from "@/lib/news-data"
 import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
@@ -27,7 +27,7 @@ export function ImportantNewsWidget() {
         {items.map((article) => (
           <li key={article.id} className="flex gap-2">
             <span className="mt-0.5 shrink-0 font-mono text-[9px] font-semibold text-accent">
-              {formatArticleShortDate(articleDisplayDate(article))}
+              {formatArticleDate(articleDisplayDate(article))}
             </span>
             <div className="min-w-0">
               <span className="mb-0.5 inline-block bg-secondary px-1.5 py-0.5 text-[9px] font-bold text-secondary-foreground">

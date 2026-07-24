@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import type { LiveQuote, MarketSnapshotLive } from "@/lib/market-data"
+import { KOLKATA_TZ, formatUnixDateTime } from "@/lib/date-format"
 
 const FALLBACK_ITEMS: LiveQuote[] = [
   { symbol: "INRJPY=X", label: "INR/JPY", sub: "₹/¥", value: "—", change: "—", changeAbs: "—", direction: "flat" },
@@ -42,21 +43,7 @@ function TickerRow({ keyPrefix, items }: { keyPrefix: string; items: LiveQuote[]
 
 function formatBadge(asOf: number | null): string {
   if (!asOf) return "LOADING"
-  const d = new Date(asOf * 1000)
-  const date = d
-    .toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      timeZone: "Asia/Kolkata",
-    })
-    .toUpperCase()
-  const time = d.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Asia/Kolkata",
-  })
-  return `LIVE · ${date} ${time} IST`
+  return `LIVE · ${formatUnixDateTime(asOf, KOLKATA_TZ)} IST`
 }
 
 export function MarketTicker() {

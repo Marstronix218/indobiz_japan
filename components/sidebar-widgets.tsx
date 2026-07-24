@@ -14,11 +14,12 @@ import {
 } from "lucide-react"
 import {
   articleDisplayDate,
-  formatArticleShortDate,
+  formatArticleDate,
   type ImagePlaceholderTone,
   type NewsArticle,
 } from "@/lib/news-data"
 import type { MarketSnapshotLive } from "@/lib/market-data"
+import { formatUnixDateTime } from "@/lib/date-format"
 import { usePublicArticles } from "@/lib/article-store"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { CITIES } from "@/lib/cities"
@@ -87,7 +88,7 @@ export function TrendingWidget() {
                 {addJapanesePhraseBreaks(article.title)}
               </Link>
               <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                {formatArticleShortDate(articleDisplayDate(article))}
+                {formatArticleDate(articleDisplayDate(article))}
               </p>
             </div>
           </li>
@@ -121,14 +122,7 @@ function rowsFromLive(snapshot: MarketSnapshotLive): IndicatorRow[] {
 }
 
 function formatLiveAsOf(ts: number): string {
-  const d = new Date(ts * 1000)
-  return d.toLocaleString("ja-JP", {
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Tokyo",
-  })
+  return formatUnixDateTime(ts)
 }
 
 export function MarketIndicatorWidget() {
@@ -594,7 +588,7 @@ export function CollabHighlightWidget({
                     {addJapanesePhraseBreaks(article.title)}
                   </p>
                   <p className="mt-1 font-mono text-[10px] text-muted-foreground">
-                    {formatArticleShortDate(articleDisplayDate(article))}
+                    {formatArticleDate(articleDisplayDate(article))}
                   </p>
                 </div>
               </Link>
@@ -647,7 +641,7 @@ export function EditorialColumnWidget() {
                 </div>
                 <div className="min-w-0">
                   <p className="mb-1 font-mono text-[10px] text-muted-foreground">
-                    {formatArticleShortDate(articleDisplayDate(article))}
+                    {formatArticleDate(articleDisplayDate(article))}
                   </p>
                   <p className="text-auto-phrase line-clamp-2 text-[13px] font-semibold leading-relaxed group-hover:text-accent">
                     {addJapanesePhraseBreaks(article.title)}

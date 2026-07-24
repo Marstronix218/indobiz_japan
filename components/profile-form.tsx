@@ -9,6 +9,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
 import { toast } from "sonner"
 import Link from "next/link"
 import type { BetaAccessPhase } from "@/lib/beta-access"
+import { formatDate } from "@/lib/date-format"
 
 interface ProfileFormProps {
   email: string
@@ -201,12 +202,7 @@ export function ProfileForm({
 }
 
 function formatAccessDate(value: string) {
-  return new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "Asia/Tokyo",
-  }).format(new Date(value))
+  return formatDate(value)
 }
 
 function betaPlanLabel(phase: BetaAccessPhase) {

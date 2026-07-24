@@ -6,7 +6,6 @@ import {
   articleDisplayDate,
   deriveImageTone,
   formatArticleDate,
-  formatArticleShortDate,
   type ImagePlaceholderTone,
   type NewsArticle,
 } from "@/lib/news-data"
@@ -160,7 +159,7 @@ export function NewsCardMosaic({
       )}
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-3">
         <p className="font-mono text-[10px] text-white/80">
-          {formatArticleShortDate(articleDisplayDate(article))}
+          {formatArticleDate(articleDisplayDate(article))}
         </p>
         <h3 className="text-auto-phrase mt-1 line-clamp-3 text-[15px] font-semibold leading-snug text-white md:text-base">
           {addJapanesePhraseBreaks(article.title)}

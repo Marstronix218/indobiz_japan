@@ -1,4 +1,10 @@
 import type { AuthorProfile } from "@/lib/authors"
+import {
+  KOLKATA_TZ,
+  TOKYO_TZ,
+  formatDate,
+  formatDateTime,
+} from "@/lib/date-format"
 
 export type Category =
   | "economy"
@@ -381,69 +387,9 @@ export function normalizeLegacyCategory(category: string): Category {
   return LEGACY_CATEGORY_MAP[category] ?? "economy"
 }
 
-const JST_DATETIME_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
-  timeZone: "Asia/Tokyo",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-})
-
-const JST_DATE_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
-  timeZone: "Asia/Tokyo",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-})
-
-const JST_DATE_PARTS_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
-  timeZone: "Asia/Tokyo",
-  year: "numeric",
-  month: "numeric",
-  day: "numeric",
-})
-
-const IST_DATETIME_FORMATTER = new Intl.DateTimeFormat("en-IN", {
-  timeZone: "Asia/Kolkata",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-})
-
-function getJstDateParts(value: string): {
-  year: string
-  month: string
-  day: string
-} | null {
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return null
-
-  const parts = JST_DATE_PARTS_FORMATTER.formatToParts(d)
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((item) => item.type === type)?.value
-
-  const year = part("year")
-  const month = part("month")
-  const day = part("day")
-
-  return year && month && day ? { year, month, day } : null
-}
-
+/** `2026/8/5` — see `lib/date-format.ts` for the canonical format. */
 export function formatArticleDate(date: string) {
-  const parts = getJstDateParts(date)
-  if (!parts) return date
-  return `${parts.year}年${parts.month}月${parts.day}日`
-}
-
-export function formatArticleShortDate(date: string) {
-  const parts = getJstDateParts(date)
-  if (!parts) return date
-  return `${parts.month}/${parts.day}`
+  return formatDate(date)
 }
 
 /**
@@ -455,25 +401,23 @@ export function articleDisplayDate(article: NewsArticle): string {
   return article.createdAt ?? article.publishedAt
 }
 
+/** `2026/8/5 21:00 JST` */
 export function formatJstDateTime(value: string | undefined | null): string {
   if (!value) return ""
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return value
-  return `${JST_DATETIME_FORMATTER.format(d)} JST`
+  const formatted = formatDateTime(value, TOKYO_TZ)
+  return formatted === value ? value : `${formatted} JST`
 }
 
+/** `2026/8/5` */
 export function formatJstDate(value: string | undefined | null): string {
-  if (!value) return ""
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return value
-  return JST_DATE_FORMATTER.format(d)
+  return formatDate(value, TOKYO_TZ)
 }
 
+/** `2026/8/5 21:00 IST` */
 export function formatIstDateTime(value: string | undefined | null): string {
   if (!value) return ""
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return value
-  return `${IST_DATETIME_FORMATTER.format(d)} IST`
+  const formatted = formatDateTime(value, KOLKATA_TZ)
+  return formatted === value ? value : `${formatted} IST`
 }
 
 const MS_PER_DAY = 86_400_000

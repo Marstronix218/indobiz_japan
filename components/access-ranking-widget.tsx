@@ -7,7 +7,7 @@ import { mergeRankedArticles } from "@/lib/home-selection"
 import {
   articleDisplayDate,
   computePopularityScore,
-  formatArticleShortDate,
+  formatArticleDate,
 } from "@/lib/news-data"
 import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
@@ -46,7 +46,7 @@ export function AccessRankingWidget({ rankedIds }: { rankedIds: string[] }) {
                 {addJapanesePhraseBreaks(article.title)}
               </Link>
               <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                {formatArticleShortDate(articleDisplayDate(article))}
+                {formatArticleDate(articleDisplayDate(article))}
               </p>
             </div>
           </li>

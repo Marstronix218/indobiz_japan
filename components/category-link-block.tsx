@@ -3,7 +3,7 @@ import Image from "next/image"
 import {
   articleDisplayDate,
   deriveImageTone,
-  formatArticleShortDate,
+  formatArticleDate,
   type CategorySection,
   type ImagePlaceholderTone,
   type NewsArticle,
@@ -75,7 +75,7 @@ export function CategoryLinkBlock({
           className="aspect-[16/9]"
         />
         <p className="mt-2 font-mono text-[10px] font-semibold text-accent">
-          {formatArticleShortDate(articleDisplayDate(lead))}
+          {formatArticleDate(articleDisplayDate(lead))}
         </p>
         <p className="text-auto-phrase mt-1 line-clamp-2 text-sm font-bold leading-relaxed group-hover:text-accent">
           {addJapanesePhraseBreaks(lead.title)}
@@ -98,7 +98,7 @@ export function CategoryLinkBlock({
                 />
                 <div className="min-w-0">
                   <p className="font-mono text-[10px] font-semibold text-accent">
-                    {formatArticleShortDate(articleDisplayDate(article))}
+                    {formatArticleDate(articleDisplayDate(article))}
                   </p>
                   <p className="text-auto-phrase mt-0.5 line-clamp-2 text-[13px] leading-relaxed group-hover:text-accent">
                     {addJapanesePhraseBreaks(article.title)}

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ChevronRight, LineChart } from "lucide-react"
 import type { MarketSnapshotLive } from "@/lib/market-data"
+import { KOLKATA_TZ, formatUnixDateTime } from "@/lib/date-format"
 
 type Row = { label: string; value: string; change: string; up: boolean }
 
@@ -22,13 +23,7 @@ function rowsFromLive(snapshot: MarketSnapshotLive): Row[] {
 }
 
 function formatAsOf(ts: number): string {
-  return new Date(ts * 1000).toLocaleString("ja-JP", {
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Kolkata",
-  })
+  return formatUnixDateTime(ts, KOLKATA_TZ)
 }
 
 export function MarketIndicatorPanel() {

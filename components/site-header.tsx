@@ -3,21 +3,7 @@ import Image from "next/image"
 import { Search } from "lucide-react"
 import { HeaderAuthControls } from "@/components/header-auth-controls"
 import { CATEGORY_SECTIONS } from "@/lib/news-data"
-
-function formatTokyoDate(date: Date) {
-  const parts = new Intl.DateTimeFormat("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    weekday: "short",
-  }).formatToParts(date)
-
-  const value = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((part) => part.type === type)?.value ?? ""
-
-  return `${value("year")}年${value("month")}月${value("day")}日 (${value("weekday")})`
-}
+import { formatDateWithWeekday } from "@/lib/date-format"
 
 function BrandWordmark({ compact = false }: { compact?: boolean }) {
   return (
@@ -35,16 +21,17 @@ function BrandWordmark({ compact = false }: { compact?: boolean }) {
 }
 
 export function SiteHeader() {
-  const dateStr = formatTokyoDate(new Date())
+  const dateStr = formatDateWithWeekday(new Date())
 
   return (
     <header className="border-b border-border bg-background">
       <div className="bg-primary text-primary-foreground">
         <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-5 py-1.5 text-[11px] sm:px-6">
-          <p className="truncate font-semibold text-primary-foreground">
+          {/* 下位ブレークポイント用。lg 以上ではロゴ右のタグラインが同じ役割を担う */}
+          <p className="truncate font-semibold text-primary-foreground lg:hidden">
             日本企業向けインド市場インテリジェンス
           </p>
-          <div className="flex shrink-0 items-center gap-3 opacity-90">
+          <div className="flex shrink-0 items-center gap-3 opacity-90 lg:ml-auto">
             <time className="font-mono" suppressHydrationWarning>
               {dateStr}
             </time>
@@ -65,21 +52,29 @@ export function SiteHeader() {
 
       <div className="mx-auto max-w-[1180px] px-5 py-2 sm:px-6">
         <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-end">
-          <Link href="/" className="inline-flex min-w-0 items-center gap-3">
-            <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-background">
-              <Image
-                src="/goindia.png"
-                alt="IndoBiz Japan logo"
-                width={48}
-                height={48}
-                className="size-full object-contain"
-                priority
-              />
-            </span>
-            <span className="min-w-0 leading-tight">
-              <BrandWordmark />
-            </span>
-          </Link>
+          <div className="flex min-w-0 items-center gap-3">
+            <Link href="/" className="inline-flex min-w-0 items-center gap-3">
+              <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-background">
+                <Image
+                  src="/goindia.png"
+                  alt="IndoBiz Japan logo"
+                  width={48}
+                  height={48}
+                  className="size-full object-contain"
+                  priority
+                />
+              </span>
+              <span className="min-w-0 leading-tight">
+                <BrandWordmark />
+              </span>
+            </Link>
+            <span className="hidden h-8 w-px shrink-0 bg-border lg:block" />
+            <p className="hidden min-w-0 text-[13px] font-medium leading-snug text-muted-foreground lg:block">
+              インド市場の変化を、
+              <br />
+              日本企業の意思決定に使える情報へ。
+            </p>
+          </div>
 
           <div className="flex min-w-0 flex-col gap-2 lg:items-end">
             <form

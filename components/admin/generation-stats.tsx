@@ -17,6 +17,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { formatDate } from "@/lib/date-format"
 
 interface DailyStat {
   date: string
@@ -71,10 +72,9 @@ function formatUsd(value: number): string {
   }).format(value)
 }
 
-/** `2026-05-15` → `5/15` for compact axis ticks / tooltip labels. */
+/** `2026-05-15` → `2026/5/15`. Recharts drops overlapping ticks via `minTickGap`. */
 function formatDateLabel(value: string): string {
-  const parts = value.split("-")
-  return parts.length === 3 ? `${Number(parts[1])}/${Number(parts[2])}` : value
+  return formatDate(value)
 }
 
 export function GenerationStats() {
