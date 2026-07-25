@@ -253,7 +253,6 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
                   <>
                     {/* Category blocks: 3-col x 2-row */}
                     <section>
-                      <SectionHeading title="カテゴリ別ニュース" en="BY CATEGORY" />
                       <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
                         {CATEGORY_SECTIONS.map((section) => (
                           <CategoryLinkBlock
