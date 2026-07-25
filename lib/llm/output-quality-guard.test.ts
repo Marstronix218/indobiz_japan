@@ -392,6 +392,60 @@ test("flags concrete names introduced only in implications", () => {
   assert(qc?.issues.some((issue) => issue.includes("マルチ・スズキ")))
 })
 
+test("accepts a dot-joined place pair when both names already appear in the body", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: `${validSummary}高速鉄道は西部アーメダバードとムンバイを結ぶ計画である。`,
+      implications: [
+        "アーメダバード・ムンバイ間の高速鉄道は土地収用の難航により、当初予定から遅れが続いている。",
+        "インド準備銀行の市場介入が続く局面では、財務と調達が同じ為替前提を共有して予算を管理する必要がある。",
+        "販売契約の価格転嫁条項と見積もり有効期限を見直し、為替変動を部門横断で管理する体制が重要となる。",
+      ],
+    }),
+    cluster,
+  )
+
+  assert.equal(
+    qc?.issues.some((issue) => issue.includes("アーメダバード・ムンバイ")) ?? false,
+    false,
+  )
+})
+
+test("accepts a reversed dot-joined place pair when the names remain adjacent", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: `${validSummary}高速鉄道は西部ムンバイとアーメダバードを結ぶ計画である。`,
+      implications: [
+        "アーメダバード・ムンバイ間の高速鉄道は土地収用の難航により、当初予定から遅れが続いている。",
+        "インド準備銀行の市場介入が続く局面では、財務と調達が同じ為替前提を共有して予算を管理する必要がある。",
+        "販売契約の価格転嫁条項と見積もり有効期限を見直し、為替変動を部門横断で管理する体制が重要となる。",
+      ],
+    }),
+    cluster,
+  )
+
+  assert.equal(
+    qc?.issues.some((issue) => issue.includes("アーメダバード・ムンバイ")) ?? false,
+    false,
+  )
+})
+
+test("still flags a dot-joined pair when its parts only appear in distant contexts", () => {
+  const qc = runDeterministicQualityGuard(
+    output({
+      summary: `${validSummary}ムンバイでは市場調査が進んだ。別の案件ではアーメダバードの企業が投資を決めた。`,
+      implications: [
+        "ムンバイ・アーメダバード間の高速鉄道は土地収用の難航により、当初予定から遅れが続いている。",
+        "インド準備銀行の市場介入が続く局面では、財務と調達が同じ為替前提を共有して予算を管理する必要がある。",
+        "販売契約の価格転嫁条項と見積もり有効期限を見直し、為替変動を部門横断で管理する体制が重要となる。",
+      ],
+    }),
+    cluster,
+  )
+
+  assert(qc?.issues.some((issue) => issue.includes("ムンバイ・アーメダバード")))
+})
+
 test("rejects meta commentary about insufficient source evidence", () => {
   const qc = runDeterministicQualityGuard(
     output({
@@ -455,6 +509,51 @@ test("accepts the energy tag on a crude oil article", () => {
   )
 
   assert.equal(qc?.issues.some((issue) => issue.includes("industryTags")) ?? false, false)
+})
+
+test("accepts the logistics tag for high-speed rail infrastructure", () => {
+  const railCluster: SynthesisSource[] = [{
+    ...cluster[0],
+    title: "India and Japan discuss Mumbai Ahmedabad high-speed railway",
+    bodyText: `${cluster[0].bodyText} The Mumbai Ahmedabad high-speed railway is a major India-Japan infrastructure project.`,
+  }]
+
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "ムンバイ・アーメダバード高速鉄道、事業遅延を巡り協議",
+      summary: `${validSummary}ムンバイとアーメダバードを結ぶ高速鉄道では事業の遅延が続いている。`,
+      industryTags: ["logistics"],
+      referenceUrls: [{ title: railCluster[0].title, url: railCluster[0].sourceUrl }],
+    }),
+    railCluster,
+  )
+
+  assert.equal(
+    qc?.issues.some((issue) => issue.includes("industryTags")) ?? false,
+    false,
+  )
+})
+
+test("does not accept the logistics tag for an unrelated railway accident", () => {
+  const accidentCluster: SynthesisSource[] = [{
+    ...cluster[0],
+    title: "Passenger railway accident under investigation",
+    bodyText: `${cluster[0].bodyText} Authorities are investigating a passenger railway accident.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "旅客鉄道の事故原因を当局が調査",
+      summary: validSummary,
+      industryTags: ["logistics"],
+      referenceUrls: [{
+        title: accidentCluster[0].title,
+        url: accidentCluster[0].sourceUrl,
+      }],
+    }),
+    accidentCluster,
+  )
+
+  assert(qc?.issues.some((issue) => issue.includes("industryTags")))
 })
 
 // --- 数値照合: 単位換算の誤検知 ---------------------------------------------
@@ -651,4 +750,59 @@ test("accepts 14.15 lakh jobs as 141万5000人 and rejects the old mis-conversio
       issue.includes("参考記事本文にない数値")
     ),
   )
+})
+
+test("does not classify a sector count as currency because a later amount uses rupees", () => {
+  const pliCluster: SynthesisSource[] = [{
+    ...numericCluster[0],
+    bodyText: `${numericCluster[0].bodyText} The PLI schemes cover 14 sectors and attracted more than ₹2.40 lakh crore in investments. Employment generation exceeded 14.15 lakh.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "PLI制度の対象14分野で投資が拡大",
+      summary: "PLI対象14分野で投資額は2.40兆ルピーを超え、雇用創出は14.15lakhに達した。".padEnd(
+        ARTICLE_BODY_MIN_SAMPLE,
+        "。",
+      ),
+      referenceUrls: [{ title: pliCluster[0].title, url: pliCluster[0].sourceUrl }],
+      sourceUsage: [{
+        sourceIndex: 1,
+        factsUsed: ["14 sectors", "₹2.40 lakh crore", "14.15 lakh"],
+      }],
+    }),
+    pliCluster,
+  )
+
+  assert.equal(
+    qc?.issues.some((issue) =>
+      issue.includes("参考記事本文にない数値が生成記事に含まれている: 14")
+    ) ?? false,
+    false,
+  )
+})
+
+test("still rejects an unsupported sector count near a supported rupee amount", () => {
+  const pliCluster: SynthesisSource[] = [{
+    ...numericCluster[0],
+    bodyText: `${numericCluster[0].bodyText} The PLI schemes cover 14 sectors and attracted more than ₹2.40 lakh crore in investments.`,
+  }]
+  const qc = runDeterministicQualityGuard(
+    output({
+      title: "PLI制度の対象15分野で投資が拡大",
+      summary: "PLI対象15分野で投資額は2.40兆ルピーを超えた。".padEnd(
+        ARTICLE_BODY_MIN_SAMPLE,
+        "。",
+      ),
+      referenceUrls: [{ title: pliCluster[0].title, url: pliCluster[0].sourceUrl }],
+      sourceUsage: [{
+        sourceIndex: 1,
+        factsUsed: ["14 sectors", "₹2.40 lakh crore"],
+      }],
+    }),
+    pliCluster,
+  )
+
+  assert(qc?.issues.some((issue) =>
+    issue.includes("参考記事本文にない数値が生成記事に含まれている: 15")
+  ))
 })

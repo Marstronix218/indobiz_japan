@@ -89,7 +89,25 @@ const INDUSTRY_TAG_KEYWORDS: Record<string, string[]> = {
     "solar",
     "renewable",
   ],
-  logistics: ["物流", "配送", "倉庫", "サプライチェーン", "logistics", "delivery"],
+  logistics: [
+    "物流",
+    "配送",
+    "倉庫",
+    "サプライチェーン",
+    "高速鉄道",
+    "鉄道インフラ",
+    "鉄道計画",
+    "鉄道事業",
+    "新幹線",
+    "high-speed rail",
+    "rail infrastructure",
+    "railway project",
+    "rail corridor",
+    "freight rail",
+    "rail transport",
+    "logistics",
+    "delivery",
+  ],
   agriculture: ["農業", "農地", "農産", "agriculture", "farm"],
   steel: ["鉄鋼", "鋼材", "steel"],
   education: ["教育", "学校", "研修", "education", "school"],
@@ -494,7 +512,19 @@ function checkImplicationIntroducesNewNames(output: SynthesisOutput): Determinis
   const body = `${output.title}\n${output.summary}`
   const newNames = output.implications
     .flatMap((implication) => extractJapaneseNameLikeTerms(implication))
-    .filter((term) => !body.includes(term))
+    .filter((term) => {
+      if (body.includes(term)) return false
+      // 「アーメダバードとムンバイ」→「アーメダバード・ムンバイ」のような
+      // 自然な表記変更を許容する。複合名を構成する各具体名が本文に既出なら、
+      // implications が新しい固有名詞を導入したことにはならない。
+      if (
+        term.includes("・") &&
+        partsAppearAsPair(term.split("・"), body)
+      ) {
+        return false
+      }
+      return true
+    })
 
   if (newNames.length === 0) return []
 
@@ -502,6 +532,20 @@ function checkImplicationIntroducesNewNames(output: SynthesisOutput): Determinis
     issue: `implications で本文に出ていない固有名詞・具体名が突然出ている: ${newNames.slice(0, 3).join(", ")}`,
     instruction: `示唆で使う具体名(${newNames.slice(0, 3).join(", ")})は本文で先に説明するか、本文と接続できないなら示唆から削除すること。`,
   }]
+}
+
+function partsAppearAsPair(parts: string[], text: string): boolean {
+  if (parts.length < 2) return false
+  const escaped = parts.map((part) =>
+    part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  )
+  const connector = String.raw`[\s　・･と〜～—–-]{0,8}`
+  if (new RegExp(escaped.join(connector)).test(text)) return true
+  // 路線・都市ペアは「ムンバイとアーメダバード」と
+  // 「アーメダバード・ムンバイ」のように順序が入れ替わる場合がある。
+  // 2要素に限り、同じ近接条件の逆順も同一ペアとして扱う。
+  return escaped.length === 2 &&
+    new RegExp([...escaped].reverse().join(connector)).test(text)
 }
 
 interface ExtractedNumber {
@@ -581,13 +625,18 @@ function numberUnit(
   prefix: string,
   suffix: string,
 ): Pick<ExtractedNumber, "scale" | "kind"> {
-  const around = `${prefix}__NUMBER__${suffix}`
-  const isCurrency = /(?:₹|\$|rs\.?|inr|usd|dollars?|ルピー|円|ドル)/i.test(around)
+  // 通貨記号・単位は数値に直接結び付く場合だけ採用する。suffix 全体(最大40字)を
+  // 無条件に見ると「14分野で投資額は2.40兆ルピー」の 14 まで通貨に分類され、
+  // ソース側の "14 sectors" (件数) と kind 不一致になっていた。
+  const isCurrency =
+    /(?:₹|\$|rs\.?|inr|usd)\s*$/i.test(prefix) ||
+    /^[\s　\-–—]*(?:(?:lakh\s+)?crores?|crs?|lakhs?|trillions?|tn\b|billions?|bn\b|millions?|mn\b|thousands?|k\b|[兆億万千])?\s*(?:ルピー|円|ドル|dollars?|inr\b|usd\b)/i
+      .test(suffix)
   // 助数詞は数値の直後になければならない。18字の先読み窓のどこかに「社」があれば
   // 件数、という判定だと「41億ドル)だった。小売子会社…」の 41億 が通貨ではなく件数に
   // 分類され、原文の "$4.1 billion" と kind 不一致で捏造扱いになっていた。
   const isCount =
-    /^[\s　]*(?:人|社|件|台|基|業種|州|[かカヵ]国|項目|協定|品目)/.test(suffix) ||
+    /^[\s　]*(?:人|社|件|台|基|業種|分野|セクター|州|[かカヵ]国|項目|協定|品目)/.test(suffix) ||
     /^[\s　]*(?:(?:lakh|crore|million|billion|thousand)s?\s+)?(?:[a-z-]+\s+){0,2}(?:people|persons?|workers?|employees?|jobs?|units?|agreements?|countries|sectors|states|companies|firms|projects|products|devices|members|measures|years|months|days|quarters)\b/i
       .test(suffix)
   const isPercent = /^[\s\-–—]*(?:%|％|パーセント|per\s*cent|percent|ppt|percentage points?)/i.test(suffix)
