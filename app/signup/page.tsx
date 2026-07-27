@@ -67,7 +67,7 @@ function SignupForm() {
             新規登録
           </h1>
           <p className="text-[13px] leading-6 text-muted-foreground">
-            登録後、最初の14日間は全記事を無料でお読みいただけます。
+            アカウント登録後の初回アクセスから14日間は、全記事を無料でお読みいただけます。
           </p>
         </div>
         <div className="space-y-4">

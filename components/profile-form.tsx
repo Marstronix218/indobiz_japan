@@ -207,7 +207,7 @@ function formatAccessDate(value: string) {
 
 function betaPlanLabel(phase: BetaAccessPhase) {
   if (phase === "initial_access") return "ベータ版・初回無料期間"
-  if (phase === "extension_access") return "ベータ版・延長期間"
+  if (phase === "extension_access") return "ベータ版・延長無料期間"
   if (phase === "survey_required") return "アンケート回答待ち"
   return "ベータ版の無料期間終了"
 }
@@ -217,10 +217,10 @@ function betaPlanDescription(
   accessUntil: string | null,
 ) {
   if (phase === "initial_access") {
-    return "ログイン後14日間は、全記事を無料でお読みいただけます。"
+    return "アカウント登録後の初回アクセスから14日間は、全記事を無料でお読みいただけます。"
   }
   if (phase === "extension_access" && accessUntil) {
-    return `${formatAccessDate(accessUntil)}まで全記事をお読みいただけます。`
+    return `アンケート回答特典を適用済みです。${formatAccessDate(accessUntil)}まで全記事をお読みいただけます。`
   }
   if (phase === "survey_required") {
     return "アンケート回答後、延長コードを入力するとさらに14日間ご利用いただけます。"

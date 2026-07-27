@@ -230,7 +230,7 @@ function AccessPanel({
         続きを読むにはログインが必要です
       </h2>
       <p className="mt-2 text-base leading-8 text-muted-foreground">
-        ログイン後14日間は、すべての記事を無料でお読みいただけます。
+        アカウント登録後の初回アクセスから14日間は、すべての記事を無料でお読みいただけます。
       </p>
       <p className="mt-2 text-base font-semibold leading-8 text-foreground">
         15日目以降は、アンケートに回答すると、次の14日間も無料でご利用いただけます。

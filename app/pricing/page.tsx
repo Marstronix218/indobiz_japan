@@ -27,7 +27,7 @@ export default function PricingPage() {
             BETA
           </span>
           <h2 className="mt-4 font-serif text-2xl font-bold tracking-tight text-foreground">
-            ログイン後、最初の14日間は無料です
+            アカウント登録後の初回アクセスから14日間は無料です
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-8 text-muted-foreground">
             記事の閲覧にはアカウント登録とログインが必要です。最初の14日間が終了した後、アンケートにご回答いただいた方はさらに14日間ご利用いただけます。
