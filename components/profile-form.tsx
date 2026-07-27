@@ -216,10 +216,10 @@ function betaPlanDescription(
   phase: BetaAccessPhase,
   accessUntil: string | null,
 ) {
-  if (
-    (phase === "initial_access" || phase === "extension_access") &&
-    accessUntil
-  ) {
+  if (phase === "initial_access") {
+    return "ログイン後14日間は、全記事を無料でお読みいただけます。"
+  }
+  if (phase === "extension_access" && accessUntil) {
     return `${formatAccessDate(accessUntil)}まで全記事をお読みいただけます。`
   }
   if (phase === "survey_required") {
