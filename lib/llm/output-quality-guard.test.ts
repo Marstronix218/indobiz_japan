@@ -130,7 +130,6 @@ test("accepts enrichment fields inside their requested ranges", () => {
     output({
       backgroundContext: "背".repeat(200),
       japanBusinessImpact: "影".repeat(200),
-      imageCaption: "写".repeat(40),
       keywords: [
         { term: "EPFO", definition: "定".repeat(50) },
         { term: "PF", definition: "義".repeat(120) },
@@ -159,7 +158,6 @@ test("flags generated enrichment fields outside their requested ranges", () => {
     output({
       backgroundContext: "背".repeat(140),
       japanBusinessImpact: "影".repeat(251),
-      imageCaption: "写".repeat(20),
       keywords: [{ term: "EPFO", definition: "定".repeat(32) }],
     }),
     cluster,
@@ -168,7 +166,6 @@ test("flags generated enrichment fields outside their requested ranges", () => {
   assert.equal(qc?.verdict, "REVISION")
   assert(qc?.issues.some((issue) => issue.includes("ニュースの背景")))
   assert(qc?.issues.some((issue) => issue.includes("日本企業への影響")))
-  assert(qc?.issues.some((issue) => issue.includes("画像キャプション")))
   assert(qc?.issues.some((issue) => issue.includes("キーワード解説")))
 })
 

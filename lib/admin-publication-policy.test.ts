@@ -1,6 +1,49 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { getAdminPublicationBlock } from "./admin-publication-policy.ts"
+import {
+  getAdminPublicationBlock,
+  hasArticleContentChanges,
+  isPublicationTransition,
+} from "./admin-publication-policy.ts"
+
+const CURRENT_ARTICLE = {
+  title: "Title",
+  summary: "Summary",
+  source: "Editorial",
+  sourceUrl: "https://example.com/source",
+  publishedAt: "2026-07-30T00:00:00.000Z",
+  category: "column",
+  industryTags: ["economy"],
+  implications: ["Point"],
+  imageCaption: undefined,
+  backgroundContext: "Background",
+  japanBusinessImpact: "Impact",
+  keywords: [{ term: "FDI", definition: "Investment" }],
+}
+
+test("treats an edit that remains published as an update, not a publication", () => {
+  assert.equal(isPublicationTransition("published", "published"), false)
+  assert.equal(isPublicationTransition("review", "published"), true)
+})
+
+test("does not invalidate quality when a full form resubmits unchanged content", () => {
+  assert.equal(hasArticleContentChanges(CURRENT_ARTICLE, { ...CURRENT_ARTICLE }), false)
+  assert.equal(
+    hasArticleContentChanges(
+      { ...CURRENT_ARTICLE, keywords: undefined },
+      { ...CURRENT_ARTICLE, keywords: [] },
+    ),
+    false,
+  )
+})
+
+test("detects an actual editorial change while ignoring non-content updates", () => {
+  assert.equal(
+    hasArticleContentChanges(CURRENT_ARTICLE, { title: "Updated title" }),
+    true,
+  )
+  assert.equal(hasArticleContentChanges(CURRENT_ARTICLE, {}), false)
+})
 
 test("requires an explicit override for synthesized articles without PASS", () => {
   assert.deepEqual(

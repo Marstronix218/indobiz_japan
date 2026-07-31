@@ -812,7 +812,7 @@ export function ArticleFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="imageCaption">画像キャプション（任意）</Label>
+            <Label htmlFor="imageCaption">画像の代替テキスト（任意）</Label>
             <Input
               id="imageCaption"
               value={form.imageCaption}

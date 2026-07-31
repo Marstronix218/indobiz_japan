@@ -31,3 +31,4 @@ scripts/experiments/model-results-*.md
 
 # Production remediation artifacts (DB backups + fetched source bodies)
 scripts/remediation-backup/
+.omx/

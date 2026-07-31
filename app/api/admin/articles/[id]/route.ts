@@ -6,7 +6,11 @@ import {
   type UpdateArticleInput,
 } from "@/lib/supabase/article-repository"
 import { isAdminRequest } from "@/lib/admin-auth"
-import { getAdminPublicationBlock } from "@/lib/admin-publication-policy"
+import {
+  getAdminPublicationBlock,
+  hasArticleContentChanges,
+  isPublicationTransition,
+} from "@/lib/admin-publication-policy"
 import { coerceAuthorInput } from "@/lib/authors"
 import {
   type Category,
@@ -109,13 +113,17 @@ export async function PATCH(
     "keywords",
     "imageCaption",
   ]
-  const changesArticleContent = qualityRelevantFields.some((field) => field in body)
-  const current = update.workflowStatus === "published" || changesArticleContent
+  const includesArticleContent = qualityRelevantFields.some((field) => field in body)
+  const current = update.workflowStatus === "published" || includesArticleContent
     ? await getArticleByIdForAdmin(id)
     : null
-  if ((update.workflowStatus === "published" || changesArticleContent) && !current) {
+  if ((update.workflowStatus === "published" || includesArticleContent) && !current) {
     return NextResponse.json({ ok: false, error: "article not found" }, { status: 404 })
   }
+
+  const changesArticleContent = current
+    ? hasArticleContentChanges(current, update)
+    : false
 
   if (changesArticleContent && current?.isSynthesized) {
     update.qualityCheck = {
@@ -126,8 +134,12 @@ export async function PATCH(
     }
   }
 
-  if (update.workflowStatus === "published") {
-    // `current` is guaranteed above for publication requests.
+  const requestsPublication = current
+    ? isPublicationTransition(current.workflowStatus, update.workflowStatus)
+    : false
+
+  if (requestsPublication) {
+    // `current` is guaranteed above for publication transitions.
     if (!current) throw new Error("unreachable: publication target was not loaded")
     if (current.isSynthesized && changesArticleContent) {
       return NextResponse.json(

@@ -252,7 +252,6 @@ async function main() {
       background_context: final.backgroundContext?.trim() || null,
       japan_business_impact: final.japanBusinessImpact?.trim() || null,
       keywords: final.keywords?.length ? final.keywords : null,
-      image_caption: final.imageCaption?.trim() || null,
       image_url: imageUrl,
       source: source.source,
       source_url: source.sourceUrl,

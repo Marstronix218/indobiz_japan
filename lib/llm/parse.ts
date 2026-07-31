@@ -10,12 +10,11 @@ import type { SynthesisInput, SynthesisKeyword } from "./types"
 import { sanitizeReferenceUrls } from "./source-policy"
 import { sanitizeArticleKeywords } from "@/lib/news-data"
 
-// 理解補助セクションの許容上限。目安(背景・影響ともに180〜220字/キャプション
-// 40〜90字)から大きく外れた異常出力は、切り詰めではなく undefined に落とす
+// 理解補助セクションの許容上限。目安(背景・影響ともに180〜220字)
+// から大きく外れた異常出力は、切り詰めではなく undefined に落とす
 // (中途半端に切ると文が壊れるため。本文の保存は新フィールドの失敗で止めない)。
 const BACKGROUND_MAX_CHARS = 600
 const IMPACT_MAX_CHARS = 400
-const CAPTION_MAX_CHARS = 200
 
 export function extractJsonObject(raw: string): string {
   const trimmed = raw.trim()
@@ -76,7 +75,6 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
     /日本企業への直接的な影響.*確認でき(?:ません|ない)/.test(rawBusinessImpact)
   ) ? rawBusinessImpact : undefined
   const keywords = asKeywords(obj.keywords)
-  const imageCaption = asBoundedText(obj.imageCaption, CAPTION_MAX_CHARS, 40)
 
   if (!title || !summary || implications.length === 0 || !category) {
     throw new LLMError("LLM応答に必須フィールドが欠落しています")
@@ -96,7 +94,6 @@ export function parseSynthesisOutput(raw: string, input?: SynthesisInput): Synth
     backgroundContext,
     japanBusinessImpact,
     keywords,
-    imageCaption,
   }
 }
 

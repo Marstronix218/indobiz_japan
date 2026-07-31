@@ -125,7 +125,6 @@ const TARGETS: Record<string, TargetPlan> = {
       output.backgroundContext = undefined
       output.japanBusinessImpact = NO_DIRECT_IMPACT
       output.keywords = []
-      output.imageCaption = undefined
     },
   },
   "ed8068c5-c564-4326-9ee9-222f452cb8ad": {
@@ -168,7 +167,6 @@ const TARGETS: Record<string, TargetPlan> = {
         "米国は3月、インドを対象に複数の通商法301条調査を開始した。先に結果が出た調査は強制労働品の輸入禁止規制、別の調査は過剰生産能力を対象とする。前者の結果を受け、USTRは6月3日に12.5%の追加関税案を提示した。インド政府は7月13日、外国貿易政策に強制労働品の輸入禁止規定を追加した。規定は官報掲載から30日後に発効し、個別品目は調査を踏まえて指定される。"
       output.japanBusinessImpact = NO_DIRECT_IMPACT
       output.keywords = []
-      output.imageCaption = undefined
     },
   },
   "ce910854-348f-4cef-8483-20e51d2d2ddf": {
@@ -222,7 +220,6 @@ const TARGETS: Record<string, TargetPlan> = {
       output.backgroundContext = undefined
       output.japanBusinessImpact = NO_DIRECT_IMPACT
       output.keywords = []
-      output.imageCaption = undefined
     },
   },
   "74215272-4f41-475f-8040-67eea191bd97": {
@@ -275,7 +272,6 @@ const TARGETS: Record<string, TargetPlan> = {
       output.backgroundContext = undefined
       output.japanBusinessImpact = NO_DIRECT_IMPACT
       output.keywords = []
-      output.imageCaption = undefined
     },
   },
 }
@@ -369,7 +365,6 @@ function buildOutput(row: ArticleRow, plan: TargetPlan): SynthesisOutput {
     backgroundContext: row.background_context ?? undefined,
     japanBusinessImpact: row.japan_business_impact ?? undefined,
     keywords: row.keywords ?? undefined,
-    imageCaption: row.image_caption ?? undefined,
   }
   plan.mutate(output)
   return output
@@ -554,7 +549,6 @@ async function apply(resultsArg: string, imageArgs: string[]) {
       background_context: output.backgroundContext?.trim() || null,
       japan_business_impact: output.japanBusinessImpact?.trim() || null,
       keywords: output.keywords?.length ? output.keywords : null,
-      image_caption: output.imageCaption?.trim() || null,
       image_url: imageUrl,
       source: names.length > 1 ? `${names[0]}、他${names.length - 1}件` : names[0],
       source_url: result.sources[0].sourceUrl,

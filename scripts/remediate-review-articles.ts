@@ -290,9 +290,6 @@ function normalizeKnownRemediationOutput(
   ) {
     output.japanBusinessImpact = undefined
   }
-  if (output.imageCaption && output.imageCaption.trim().length < 40) {
-    output.imageCaption = undefined
-  }
   output.keywords = output.keywords?.filter(
     (keyword) => keyword.definition.trim().length >= 40,
   )
@@ -317,8 +314,6 @@ function normalizeKnownRemediationOutput(
       ),
     }))
     output.industryTags = []
-    output.imageCaption =
-      "原材料費や輸送費の上昇を販売価格へ転嫁し、売上増を見込むインド企業活動のイメージ写真。"
   }
   if (articleId === "e8952191-c19b-4622-80b0-ac8b6569cb77") {
     output.industryTags = []
@@ -852,7 +847,6 @@ async function applyResults(resultsPathArg: string) {
         background_context: reviewOutput.backgroundContext?.trim() || null,
         japan_business_impact: reviewOutput.japanBusinessImpact?.trim() || null,
         keywords: reviewOutput.keywords?.length ? reviewOutput.keywords : null,
-        image_caption: reviewOutput.imageCaption?.trim() || null,
         source: names.length > 1 ? `${names[0]}、他${names.length - 1}件` : names[0],
         source_url: selectedSources[0].sourceUrl,
         visibility: "member",
@@ -916,7 +910,6 @@ async function applyResults(resultsPathArg: string) {
       background_context: publishOutput.backgroundContext?.trim() || null,
       japan_business_impact: publishOutput.japanBusinessImpact?.trim() || null,
       keywords: publishOutput.keywords?.length ? publishOutput.keywords : null,
-      image_caption: publishOutput.imageCaption?.trim() || null,
       image_url: imageUrl,
       source: names.length > 1 ? `${names[0]}、他${names.length - 1}件` : names[0],
       source_url: selectedSources[0].sourceUrl,

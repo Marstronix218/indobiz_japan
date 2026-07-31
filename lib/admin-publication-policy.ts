@@ -11,6 +11,75 @@ interface PublicationPolicyInput {
   qualityOverrideConfirmed: boolean
 }
 
+interface ArticleContentSnapshot {
+  title: string
+  summary: string
+  source: string
+  sourceUrl?: string
+  publishedAt: string
+  category: string
+  industryTags: string[]
+  implications: string[]
+  imageCaption?: string
+  backgroundContext?: string
+  japanBusinessImpact?: string
+  keywords?: unknown[]
+}
+
+type ArticleContentUpdate = Partial<
+  Omit<
+    ArticleContentSnapshot,
+    "imageCaption" | "backgroundContext" | "japanBusinessImpact" | "keywords"
+  >
+> & {
+  imageCaption?: string | null
+  backgroundContext?: string | null
+  japanBusinessImpact?: string | null
+  keywords?: unknown[] | null
+}
+
+const CONTENT_FIELDS = [
+  "title",
+  "summary",
+  "source",
+  "sourceUrl",
+  "publishedAt",
+  "category",
+  "industryTags",
+  "implications",
+  "imageCaption",
+  "backgroundContext",
+  "japanBusinessImpact",
+  "keywords",
+] as const
+
+function comparable(field: (typeof CONTENT_FIELDS)[number], value: unknown): string {
+  if (field === "keywords" && Array.isArray(value) && value.length === 0) {
+    return "null"
+  }
+  return JSON.stringify(value ?? null)
+}
+
+/** Returns true only when a supplied editorial field actually changed. */
+export function hasArticleContentChanges(
+  current: ArticleContentSnapshot,
+  update: ArticleContentUpdate,
+): boolean {
+  return CONTENT_FIELDS.some(
+    (field) =>
+      update[field] !== undefined &&
+      comparable(field, update[field]) !== comparable(field, current[field]),
+  )
+}
+
+/** Publication checks apply to a transition, not to edits that remain published. */
+export function isPublicationTransition(
+  currentStatus: string,
+  requestedStatus: string | undefined,
+): boolean {
+  return requestedStatus === "published" && currentStatus !== "published"
+}
+
 /**
  * Server-side publication policy for the admin's explicit manual action.
  * Automated publication still requires PASS; only an authenticated admin PATCH

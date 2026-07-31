@@ -542,7 +542,6 @@ function buildSynthesizedDraft(
     backgroundContext: output.backgroundContext,
     japanBusinessImpact: output.japanBusinessImpact,
     keywords: output.keywords,
-    imageCaption: output.imageCaption,
     contentType: "news",
     visibility: workflowStatus === "review" ? "member" : "public",
     workflowStatus,

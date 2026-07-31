@@ -134,7 +134,7 @@ export interface NewsArticle {
   /** Per-article author override / one-off contributor (merged over the roster entry). */
   author?: Partial<AuthorProfile>
   imageUrl?: string
-  /** メイン画像の説明文。写っている対象と記事との関係のみ(存在するときだけ表示)。 */
+  /** 旧キャプション。既存データとの互換性と画像の代替テキスト用にのみ保持する。 */
   imageCaption?: string
   /** ニュースの背景(180〜220字目安)。既存記事では未設定。 */
   backgroundContext?: string

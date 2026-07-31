@@ -54,7 +54,6 @@ export interface SynthesisOutput {
   backgroundContext?: string
   japanBusinessImpact?: string
   keywords?: SynthesisKeyword[]
-  imageCaption?: string
 }
 
 export type QualityVerdict = "PASS" | "REVISION" | "REJECT"

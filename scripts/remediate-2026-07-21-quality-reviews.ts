@@ -128,7 +128,6 @@ const TARGETS: Record<string, TargetPlan> = {
         "FDI流入上位5州のうちカルナタカとデリーは指数総合上位3州に入らず、流入額と指数順位は完全には一致しない。"
       output.industryTags = []
       output.japanBusinessImpact = NO_DIRECT_IMPACT
-      output.imageCaption = undefined
     },
   },
   "c52afda9-f03b-4c9f-aefd-e1b23dad6669": {
@@ -180,7 +179,6 @@ const TARGETS: Record<string, TargetPlan> = {
       output.category = "market"
       output.backgroundContext = undefined
       output.japanBusinessImpact = NO_DIRECT_IMPACT
-      output.imageCaption = undefined
     },
   },
   "b11fcf97-7f36-4ed9-9f64-c682355d61b8": {
@@ -303,7 +301,6 @@ function buildOutput(row: ArticleRow, plan: TargetPlan): SynthesisOutput {
     backgroundContext: row.background_context ?? undefined,
     japanBusinessImpact: row.japan_business_impact ?? undefined,
     keywords: row.keywords ?? undefined,
-    imageCaption: row.image_caption ?? undefined,
   }
   plan.mutate(output)
   return output
@@ -467,7 +464,6 @@ async function apply(resultsArg: string) {
       background_context: output.backgroundContext?.trim() || null,
       japan_business_impact: output.japanBusinessImpact?.trim() || null,
       keywords: output.keywords?.length ? output.keywords : null,
-      image_caption: output.imageCaption?.trim() || null,
       image_url: imageUrl,
       source: names.length > 1 ? `${names[0]}、他${names.length - 1}件` : names[0],
       source_url: result.sources[0].sourceUrl,

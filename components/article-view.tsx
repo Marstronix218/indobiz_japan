@@ -21,6 +21,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Badge } from "@/components/ui/badge"
 import { usePublicArticles } from "@/lib/article-store"
+import { getArticleTakeaways } from "@/lib/article-takeaways"
 import { selectRelatedArticles } from "@/lib/home-selection"
 import {
   CATEGORY_COLORS,
@@ -390,10 +391,7 @@ export function ArticleView({
             },
           ]
         : []
-  const takeawayBullets =
-    article.implications.length > 0
-      ? article.implications.slice(0, 3)
-      : summaryParagraphs.slice(0, 3)
+  const takeawayBullets = getArticleTakeaways(article.implications)
   // 理解補助セクション。値がないフィールドは見出しごと描画しない(既存記事はすべてnull)。
   const backgroundContext = article.backgroundContext?.trim() || undefined
   const japanBusinessImpact = article.japanBusinessImpact?.trim() || undefined
@@ -462,11 +460,9 @@ export function ArticleView({
                     sizes="(max-width: 1024px) 100vw, 780px"
                   />
                 </div>
-                {article.imageCaption && (
-                  <figcaption className="border-t border-border/70 px-4 py-1.5 text-[11px] leading-5 text-muted-foreground sm:px-5">
-                    {article.imageCaption}
-                  </figcaption>
-                )}
+                <figcaption className="border-t border-border/70 px-4 py-1 text-[10px] leading-4 text-muted-foreground/80 sm:px-5">
+                  記事の内容をもとにしたイメージ画像です
+                </figcaption>
               </figure>
             )}
 

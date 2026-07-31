@@ -60,15 +60,12 @@ function db(): SupabaseClient {
 
 interface TargetPlan {
   category?: SynthesisOutput["category"]
-  imageCaption: string
   sourceUsage: NonNullable<SynthesisOutput["sourceUsage"]>
 }
 
 const TARGETS: Record<string, TargetPlan> = {
   "c14597bf-4b11-4952-ae1f-79659cf2f3e4": {
     category: "economy",
-    imageCaption:
-      "西部インドの高速鉄道と建設中の高架橋を題材にしたAI生成イメージ。実在の車両・工区を示す写真ではない。",
     sourceUsage: [{
       sourceIndex: 1,
       factsUsed: [
@@ -82,8 +79,6 @@ const TARGETS: Record<string, TargetPlan> = {
     }],
   },
   "d2c7fcb6-0511-40fa-83b4-4c54e8540a01": {
-    imageCaption:
-      "インドのロケット施設と建設中の高速鉄道高架を題材にしたAI生成イメージ。実在の施設・工区を示す写真ではない。",
     sourceUsage: [{
       sourceIndex: 1,
       factsUsed: [
@@ -96,8 +91,6 @@ const TARGETS: Record<string, TargetPlan> = {
     }],
   },
   "f0271d33-a785-44af-b88f-6581073289a1": {
-    imageCaption:
-      "インドの製造業投資と生産拡大を題材にしたAI生成イメージ。実在の企業・工場を示す写真ではない。",
     sourceUsage: [{
       sourceIndex: 1,
       factsUsed: [
@@ -249,7 +242,6 @@ function buildOutput(row: ArticleRow, source: EvaluatedSource): SynthesisOutput 
     backgroundContext: row.background_context ?? undefined,
     japanBusinessImpact: row.japan_business_impact ?? undefined,
     keywords: row.keywords ?? undefined,
-    imageCaption: plan.imageCaption,
   }
 }
 
@@ -344,7 +336,6 @@ function normalizeRemediatedOutput(
   const normalized: SynthesisOutput = {
     ...output,
     implications: [...output.implications],
-    imageCaption: TARGETS[id].imageCaption,
   }
   if (id === "c14597bf-4b11-4952-ae1f-79659cf2f3e4") {
     normalized.implications[0] =
@@ -386,7 +377,6 @@ async function revise(resultsArg: string) {
         ...output,
         category: plan.category ?? output.category,
         industryTags: result.output.industryTags,
-        imageCaption: plan.imageCaption,
       })
       if (result.id === "d2c7fcb6-0511-40fa-83b4-4c54e8540a01") {
         output.summary =
@@ -627,7 +617,6 @@ async function apply(resultsArg: string, imageArgs: string[]) {
         background_context: output.backgroundContext?.trim() || null,
         japan_business_impact: output.japanBusinessImpact?.trim() || null,
         keywords: output.keywords?.length ? output.keywords : null,
-        image_caption: output.imageCaption?.trim() || null,
         image_url: uploaded.publicUrl,
         visibility: "public",
         workflow_status: "published",

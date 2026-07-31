@@ -24,8 +24,6 @@ const ENRICHMENT_SECTION_MAX_CHARS = 250
 const ENRICHMENT_SECTION_MAX_LENGTH_DIFFERENCE = 50
 const KEYWORD_DEFINITION_MIN_CHARS = 40
 const KEYWORD_DEFINITION_MAX_CHARS = 130
-const IMAGE_CAPTION_MIN_CHARS = 40
-const IMAGE_CAPTION_MAX_CHARS = 90
 const SIGNIFICANT_NUMBER_MIN = 13
 const GENERIC_KATAKANA_TERMS = new Set([
   "インド",
@@ -248,14 +246,6 @@ function checkEnrichmentFormat(output: SynthesisOutput): DeterministicIssue[] {
       })
     }
   }
-  checkOptionalLength(
-    "画像キャプション",
-    "imageCaption",
-    output.imageCaption,
-    IMAGE_CAPTION_MIN_CHARS,
-    IMAGE_CAPTION_MAX_CHARS,
-  )
-
   for (const [index, keyword] of (output.keywords ?? []).entries()) {
     const length = keyword.definition.trim().length
     if (

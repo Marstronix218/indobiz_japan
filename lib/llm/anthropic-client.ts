@@ -32,7 +32,7 @@ export class AnthropicClient implements LLMClient {
     }
     this.client = new Anthropic({ apiKey, maxRetries: 0 })
     this.model = opts?.model ?? process.env.LLM_MODEL_ANTHROPIC ?? "claude-sonnet-4-6"
-    // 既定3500: 理解補助セクション(背景・影響・キーワード・キャプション)の追加で
+    // 既定3500: 理解補助セクション(背景・影響・キーワード)の追加で
     // 出力JSONが約1000トークン伸びたため、旧既定2000だと途中で切れて必ずパース失敗する。
     this.maxTokens = opts?.maxTokens ?? Number(process.env.LLM_MAX_TOKENS ?? 3500)
     this.timeoutMs = opts?.timeoutMs ?? Number(process.env.LLM_TIMEOUT_MS ?? 45000)
