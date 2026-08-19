@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Search } from "lucide-react"
 import { HeaderAuthControls } from "@/components/header-auth-controls"
+import { MobileSiteMenu } from "@/components/mobile-site-menu"
 import { CATEGORY_SECTIONS } from "@/lib/news-data"
 import { formatDateWithWeekday } from "@/lib/date-format"
 
@@ -68,6 +69,7 @@ export function SiteHeader() {
                 <BrandWordmark />
               </span>
             </Link>
+            <MobileSiteMenu />
             <span className="hidden h-8 w-px shrink-0 bg-border lg:block" />
             <p className="hidden min-w-0 text-[13px] font-medium leading-snug text-muted-foreground lg:block">
               インド市場の変化を、
