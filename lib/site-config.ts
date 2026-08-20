@@ -1,5 +1,11 @@
 export type DigestFrequency = "daily" | "weekly"
 
+/** Canonical public origin used by metadata, robots.txt, and sitemap.xml. */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+  "https://indobiz-japan.launchers-g.com"
+).replace(/\/$/, "")
+
 /**
  * 公式LINEアカウントの友だち追加URL。トップページの LINE CTA ボックス
  * (`components/line-cta-box.tsx`) から外部リンクで開く。

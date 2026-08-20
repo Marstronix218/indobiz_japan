@@ -15,6 +15,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { getSessionUser } from "@/lib/supabase/server-auth"
 import { toArticlePreview } from "@/lib/article-preview"
 import type { NewsArticle } from "@/lib/news-data"
+import type { Metadata } from "next"
 
 export const revalidate = 0
 
@@ -45,17 +46,36 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>
-}) {
+}): Promise<Metadata> {
   const { id } = await params
   if (!hasSupabaseConfig()) {
-    return { title: "記事を取得できません | IndoBiz Japan" }
+    return {
+      title: "記事を取得できません | IndoBiz Japan",
+      robots: { index: false, follow: false },
+    }
   }
   const article = await getArticleById(id)
-  if (!article) return { title: "記事が見つかりません | IndoBiz Japan" }
+  if (!article || article.workflowStatus !== "published") {
+    return {
+      title: "記事が見つかりません | IndoBiz Japan",
+      robots: { index: false, follow: false },
+    }
+  }
+
+  const description = article.summary.slice(0, 160)
 
   return {
     title: `${article.title} | IndoBiz Japan`,
-    description: article.summary.slice(0, 160),
+    description,
+    alternates: { canonical: `/article/${id}` },
+    openGraph: {
+      type: "article",
+      title: article.title,
+      description,
+      url: `/article/${id}`,
+      publishedTime: article.publishedAt,
+      images: article.imageUrl ? [{ url: article.imageUrl }] : undefined,
+    },
   }
 }
 
