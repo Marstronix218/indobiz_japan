@@ -54,7 +54,7 @@
 
 ## Responsive behavior
 - Supported breakpoints/devices: Mobile-first layout with existing Tailwind `sm` and `lg` breakpoints.
-- Layout adaptations: Event copy and the embedded window sit side by side from the `md` breakpoint and stack within the same banner on mobile; the embedded window is 176px high on mobile and fills a minimum 256px banner edge on desktop. Crop a small portion from the remote page's top while retaining the complete primary 「INDIA & HAMAMATSU FESTIVAL」 artwork.
+- Layout adaptations: Event copy and the embedded window sit side by side from the `md` breakpoint and stack within the same banner on mobile; the embedded window is 160px high on mobile and fills a minimum 224px banner edge on desktop. Crop the remote page so the frame ends around the primary English 「INDIA HAMAMATSU FESTIVAL」 artwork, excluding the lower decorative strip.
 - Touch/hover differences: The embedded site remains interactive, while a separate 「別タブで開く」 link provides a predictable escape path.
 
 ## Interaction states

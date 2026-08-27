@@ -38,7 +38,7 @@ export function EventNoticeBoard() {
           </a>
         </div>
 
-        <div className="h-44 min-w-0 overflow-hidden border-t-2 border-accent/20 bg-card md:h-full md:min-h-64 md:border-l-2 md:border-t-0">
+        <div className="h-40 min-w-0 overflow-hidden border-t-2 border-accent/20 bg-card md:h-full md:min-h-56 md:border-l-2 md:border-t-0">
           <iframe
             src={EVENT_URL}
             title="インドはままつフェスティバル公式サイト"
@@ -48,7 +48,7 @@ export function EventNoticeBoard() {
             className="block border-0 bg-background"
             style={{
               width: "250%",
-              height: "250%",
+              height: "300%",
               transform: "translateY(-2rem) scale(0.4)",
               transformOrigin: "top left",
             }}
