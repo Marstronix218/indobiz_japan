@@ -24,12 +24,12 @@
 ## Information architecture
 - Primary navigation: Top, six editorial categories, search, authentication, and contact.
 - Core routes/screens: Home portal, filtered news lists, article detail, city information, campaign/authentication, and contact.
-- Content hierarchy: Site header and market ticker; one compact community preview; lead stories; category and latest-news sections; supporting sidebar widgets.
+- Content hierarchy: Site header and market ticker; one explicitly labelled advertising/notice preview; a clear visual break; lead stories; category and latest-news sections; supporting sidebar widgets.
 
 ## Design principles
 - Principle 1: Make the next useful action obvious through strong headings, concise summaries, and explicit link labels.
 - Principle 2: Reuse the portal's existing tokens and card language so new notices feel editorial rather than promotional noise.
-- Tradeoffs: Event notices should be prominent enough to discover but remain compact so readers reach IndoBiz's lead news quickly; keep the event copy and its embedded preview inside one banner instead of stacking separate blocks.
+- Tradeoffs: Event notices should be prominent enough to discover but remain compact so readers reach IndoBiz's lead news quickly; advertising/notice content must be unmistakably separate from editorial news through explicit labelling, color, border treatment, and semantic structure.
 
 ## Visual language
 - Color: Use semantic Tailwind tokens from `app/globals.css`, especially `primary`, `accent`, `card`, `border`, and muted text.
@@ -41,7 +41,7 @@
 
 ## Components
 - Existing components to reuse: `SiteHeader`, `MarketTicker`, news cards, category blocks, `PortalSidebar`, and token-based CTA patterns.
-- New/changed components: `EventNoticeBoard` combines concise event copy and a scaled iframe overview inside one banner, without decorative browser chrome; the preview runs edge to edge against the banner's top, right, and bottom edges on desktop. `NewsList` places it before lead stories in the unfiltered portal view and no longer renders the large top LINE campaign. `ArticleTeaser` uses the short, moderately emphasized access heading 「無料で読む」 and moves qualification details into supporting copy.
+- New/changed components: `EventNoticeBoard` is a semantic complementary region labelled 「広告・お知らせ」, with an accent border/background distinct from editorial cards. It combines concise event copy and a scaled iframe overview inside one banner, without decorative browser chrome; the preview runs edge to edge against the banner's top, right, and bottom edges on desktop. `NewsList` places it before lead stories in the unfiltered portal view and no longer renders the large top LINE campaign. `ArticleTeaser` uses the short, moderately emphasized access heading 「無料で読む」 and moves qualification details into supporting copy.
 - Variants and states: The initial board contains one embedded event preview and remains hidden in filtered/search views to preserve result focus. The existing sidebar `LineCtaBox` retains the LINE registration path without delaying mobile readers from reaching editorial content.
 - Token/component ownership: Global tokens stay in `app/globals.css`; notice content and presentation stay in the notice component.
 
@@ -49,12 +49,12 @@
 - Target standard: WCAG 2.2 AA where practicable.
 - Keyboard/focus behavior: The event header exposes a keyboard-focusable external link with a visible focus ring; the embedded page retains its own keyboard behavior.
 - Contrast/readability: Use semantic foreground/background token pairs and do not rely on color alone to communicate link behavior.
-- Screen-reader semantics: Use a labelled section, heading hierarchy, a descriptive iframe title, decorative icons marked `aria-hidden`, and explicit external-link text.
+- Screen-reader semantics: Use an `<aside>` complementary region, an explicit advertising/notice label, heading hierarchy, a descriptive iframe title, decorative icons marked `aria-hidden`, and explicit external-link text.
 - Reduced motion and sensory considerations: Hover movement is subtle and nonessential; no autoplay or flashing content.
 
 ## Responsive behavior
 - Supported breakpoints/devices: Mobile-first layout with existing Tailwind `sm` and `lg` breakpoints.
-- Layout adaptations: Event copy and the embedded window sit side by side from the `md` breakpoint and stack within the same banner on mobile; the embedded window is 208px high on mobile and fills a minimum 288px banner edge on desktop. Scale the remote page to keep its primary 「INDIA & HAMAMATSU FESTIVAL」 artwork legible without cropping.
+- Layout adaptations: Event copy and the embedded window sit side by side from the `md` breakpoint and stack within the same banner on mobile; the embedded window is 176px high on mobile and fills a minimum 256px banner edge on desktop. Crop a small portion from the remote page's top while retaining the complete primary 「INDIA & HAMAMATSU FESTIVAL」 artwork.
 - Touch/hover differences: The embedded site remains interactive, while a separate 「別タブで開く」 link provides a predictable escape path.
 
 ## Interaction states
@@ -68,7 +68,7 @@
 ## Content voice
 - Tone: Concise, factual, inviting, and explicit about the source of detailed information.
 - Terminology: Use the organizer's official spelling, 「インドはままつフェスティバル」.
-- Microcopy rules: Lead conversion panels with a short benefit statement such as 「無料で読む」, then explain requirements in supporting copy. Label outbound event links explicitly and avoid fixed date claims when the linked official page is stale or awaiting an update.
+- Microcopy rules: Lead conversion panels with a short benefit statement such as 「無料で読む」, then explain requirements in supporting copy. Label promotional surfaces explicitly as 「広告・お知らせ」, label outbound event links clearly, and avoid fixed date claims when the linked official page is stale or awaiting an update.
 
 ## Implementation constraints
 - Framework/styling system: Next.js App Router, React, TypeScript, Tailwind CSS v4, and existing shadcn-style primitives.
