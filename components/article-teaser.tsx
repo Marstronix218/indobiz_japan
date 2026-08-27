@@ -155,14 +155,14 @@ function AccessPanel({ next }: { next: string }) {
   return (
     <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
       <Lock className="mx-auto size-6 text-accent" />
-      <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
-        LINEで届くコードで、記事の続きを無料で読めます
+      <h2 className="mt-3 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-[28px]">
+        無料で読む
       </h2>
       <p className="mt-2 text-base leading-8 text-muted-foreground">
-        IndoBiz Japan 正式リリース記念のLINE登録キャンペーンを実施中です。
+        公式LINEで届くコードを入力すると、この記事の続きを無料で読めます。
       </p>
       <p className="mt-2 text-base font-semibold leading-8 text-foreground">
-        公式LINEを友だち追加し、LINE内で配布されるコードを入力してください。
+        公式LINEを友だち追加し、配布されたコードを入力してください。
       </p>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <Button asChild>

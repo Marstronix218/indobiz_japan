@@ -10,7 +10,7 @@ import { MarketTicker } from "@/components/market-ticker"
 import { PortalSidebar } from "@/components/portal-sidebar"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
-import { LineRegistrationCampaign } from "@/components/line-registration-campaign"
+import { EventNoticeBoard } from "@/components/event-notice-board"
 import { usePublicArticles } from "@/lib/article-store"
 import {
   CATEGORY_LABELS,
@@ -27,10 +27,8 @@ import {
 
 export function NewsList({
   rankedViewIds,
-  showRegistrationCampaign = true,
 }: {
   rankedViewIds: string[]
-  showRegistrationCampaign?: boolean
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -196,7 +194,7 @@ export function NewsList({
           filterActive ? "pt-4" : "pt-8"
         }`}
       >
-        {!filterActive && showRegistrationCampaign && <LineRegistrationCampaign />}
+        {!filterActive && <EventNoticeBoard />}
 
         {showIndustryFilter ? (
           <IndustryFilterPanel

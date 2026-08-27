@@ -55,10 +55,7 @@ export default async function HomePage() {
       <h1 className="sr-only">
         IndoBiz Japan（インドビズジャパン）— 日本企業向けインド市場情報
       </h1>
-      <NewsList
-        rankedViewIds={rankedViewIds}
-        showRegistrationCampaign={!hasLineCampaignAccess(user)}
-      />
+      <NewsList rankedViewIds={rankedViewIds} />
     </ArticleStoreProvider>
   )
 }
