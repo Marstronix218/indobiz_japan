@@ -19,11 +19,7 @@
 - `app/page.tsx`
   ホームの一覧ページ。
 - `app/pricing/page.tsx`
-  ベータ版と本リリース後の料金案内ページ。
-- `app/extend-code/page.tsx`
-  アンケート回答者向けの延長コード入力ページ。
-- `lib/supabase/beta-access.ts`
-  ログインユーザーごとの無料期間をDBで開始・確認・延長するサーバー処理。
+  正式リリース記念LINE登録キャンペーンの案内ページ。
 - `app/contact/page.tsx`
   問い合わせ専用ページ。
 - `components/news-list.tsx`
@@ -61,30 +57,19 @@ npm run dev
 npm run build
 ```
 
-## ベータ版アクセス設定
+## 正式リリース記念LINE登録キャンペーン
 
-記事の閲覧にはログインが必要です。ログイン済みユーザーが初めてサイトへアクセスした日時を `beta_access` テーブルへ保存し、その時点から14日間は全記事を閲覧できます。期間終了後、アンケート回答者が共通コードを `/extend-code` へ入力すると、同じアカウントを1回だけ14日間延長します。
-
-`supabase/migrations/0009_beta_access.sql` を適用してから公開してください。残り日数を毎日保存するのではなく、開始日時・延長開始日時をDBへ保存し、サーバー時刻から期限を判定します。以前の匿名 `localStorage` 値は使用せず、移行後の初回表示時に削除します。
-
-Googleフォームの公開URLを環境変数へ設定してください。
-
-```bash
-NEXT_PUBLIC_BETA_SURVEY_URL=https://docs.google.com/forms/d/e/FORM_ID/viewform
-BETA_EXTENSION_CODE=IBDJ-EXTEND-2026
-```
-
-Googleフォームの回答完了メッセージには、延長コード `IBDJ-EXTEND-2026` と `https://indobiz-japan.launchers-g.com/extend-code` への戻りリンクを記載します。
+未ログインユーザーには記事のプレビューを表示します。公式LINEで配布する共通コードをサイト上で入力すると、そのアカウントは当面の期間、全記事を無料で閲覧できます。共通コードは転送・共有できることを前提とした簡易キャンペーン方式です。`LINE_CAMPAIGN_CODE`には長いランダム値を設定し、`supabase/migrations/0010_official_release_access.sql` を適用してください。
 
 ## LINEログイン
 
-ログイン画面と新規登録画面は、Supabase Auth のカスタム OIDC provider 経由で LINE ログインに対応しています。ボタンを試す前に、外部 provider 側を設定してください。
+ログイン画面と新規登録画面は、アプリ内のOAuthコールバックを経由するLINE Loginに対応しています。ボタンを試す前に、LINE Loginチャネルと環境変数を設定してください。
+
+LINE公式アカウントのあいさつメッセージで、共通コードと `/line-campaign` のURLを案内してください。すでに友だちの方向けには、キーワード「無料購読」への自動応答にも同じコードとURLを設定します。
 
 1. LINE Developers Console で LINE Login チャネルを作成し、Web app を有効にします。
-2. Supabase Dashboard → Auth → Providers でカスタム OIDC provider を作成します。identifier は `custom:line`、issuer は `https://access.line.me`、scopes は `openid profile email`、client ID/secret は LINE のチャネルID/チャネルシークレットを設定します。
-3. Supabase が表示する callback URL を、LINE Login チャネルの callback URL に追加します。
-4. Supabase Auth の redirect allow list に `http://localhost:3000/auth/callback` と本番 URL の `/auth/callback` を追加します。
-5. `email` scope を使うため、LINE Developers Console でメールアドレス取得権限を申請します。
+2. Callback URLにローカル/本番それぞれの `/api/auth/line/callback` を追加します。
+3. `LINE_CHANNEL_ID`、`LINE_CHANNEL_SECRET`、`LINE_SESSION_SECRET` を環境変数へ設定します。
 
 ## Scraping Execution
 

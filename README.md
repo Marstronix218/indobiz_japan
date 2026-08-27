@@ -76,8 +76,8 @@ Key groups in `.env.example`:
 - `CRON_SECRET`, `ADMIN_API_KEY`: cron and admin API protection
 - `GNEWS_API_KEY`, `GNEWS_QUERY`, `GNEWS_LANG`, `GNEWS_COUNTRY`: optional GNews integration for scraping
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`, `NEXT_PUBLIC_APP_URL`: Stripe membership payments
-- `NEXT_PUBLIC_BETA_SURVEY_URL`: public Google Forms URL shown after the initial beta period
-- `BETA_EXTENSION_CODE`: server-validated code shown after a completed beta survey
+- `LINE_CHANNEL_ID`, `LINE_CHANNEL_SECRET`, `LINE_SESSION_SECRET`: LINE Login authentication
+- `LINE_CAMPAIGN_CODE`: server-only shared code distributed through the official LINE account
 - `IMAGE_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_IMAGE_*`, `RUNWARE_*`, `SUPABASE_IMAGE_BUCKET`: generated article image settings
 
 ## Useful Scripts

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight, ExternalLink, Lock } from "lucide-react"
+import { ChevronRight, Lock } from "lucide-react"
 import { MarketTicker } from "@/components/market-ticker"
 import { NewsCardTile } from "@/components/news-card"
 import { PortalSidebar } from "@/components/portal-sidebar"
@@ -21,14 +21,9 @@ import {
 } from "@/lib/news-data"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
-import { BETA_SURVEY_URL, GO_INDIA_URL } from "@/lib/site-config"
+import { LINE_ADD_FRIEND_URL } from "@/lib/site-config"
 
 const TEASER_LENGTH = 150
-
-export type ArticleTeaserReason =
-  | "login_required"
-  | "survey_required"
-  | "expired"
 
 /**
  * Logged-out article page. Mirrors `ArticleView`'s layout (breadcrumb, header
@@ -39,11 +34,9 @@ export type ArticleTeaserReason =
 export function ArticleTeaser({
   article,
   rankedViewIds = [],
-  reason = "login_required",
 }: {
   article: NewsArticle
   rankedViewIds?: string[]
-  reason?: ArticleTeaserReason
 }) {
   const articles = usePublicArticles()
   const relatedArticles = selectRelatedArticles(articles, article, 3)
@@ -123,7 +116,7 @@ export function ArticleTeaser({
                 {truncated ? "…" : ""}
               </p>
 
-              <AccessPanel reason={reason} next={next} />
+              <AccessPanel next={next} />
 
               {relatedArticles.length > 0 && (
                 <section className="mt-7 border-t border-border pt-5">
@@ -158,92 +151,27 @@ export function ArticleTeaser({
   )
 }
 
-function AccessPanel({
-  reason,
-  next,
-}: {
-  reason: ArticleTeaserReason
-  next: string
-}) {
-  if (reason === "survey_required") {
-    return (
-      <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
-        <Lock className="mx-auto size-6 text-accent" />
-        <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
-          最初の14日間の無料期間が終了しました
-        </h2>
-        <p className="mt-2 text-base leading-8 text-muted-foreground">
-          アンケートにご回答いただくと、さらに14日間無料でお読みいただけます。
-        </p>
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
-          {BETA_SURVEY_URL ? (
-            <Button asChild>
-              <a
-                href={BETA_SURVEY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                アンケートに回答する
-                <ExternalLink aria-hidden className="size-4" />
-              </a>
-            </Button>
-          ) : (
-            <Button disabled>アンケートフォーム準備中</Button>
-          )}
-          <Button asChild variant="outline">
-            <Link href="/extend-code">回答済みの方はこちら</Link>
-          </Button>
-        </div>
-      </section>
-    )
-  }
-
-  if (reason === "expired") {
-    return (
-      <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
-        <Lock className="mx-auto size-6 text-accent" />
-        <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
-          ベータ版の無料期間が終了しました
-        </h2>
-        <p className="mt-2 text-base leading-8 text-muted-foreground">
-          本サービスの料金・申込方法は、決定後にご案内します。
-        </p>
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
-          <Button asChild>
-            <Link href="/pricing">料金・申込について</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <a href={GO_INDIA_URL} target="_blank" rel="noopener noreferrer">
-              Go India について
-              <ExternalLink aria-hidden className="size-4" />
-            </a>
-          </Button>
-        </div>
-      </section>
-    )
-  }
-
+function AccessPanel({ next }: { next: string }) {
   return (
     <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
       <Lock className="mx-auto size-6 text-accent" />
       <h2 className="mt-3 font-serif text-xl font-bold text-foreground">
-        続きを読むにはログインが必要です
+        LINEで届くコードで、記事の続きを無料で読めます
       </h2>
       <p className="mt-2 text-base leading-8 text-muted-foreground">
-        アカウント登録後の初回アクセスから14日間は、すべての記事を無料でお読みいただけます。
+        IndoBiz Japan 正式リリース記念のLINE登録キャンペーンを実施中です。
       </p>
       <p className="mt-2 text-base font-semibold leading-8 text-foreground">
-        15日目以降は、アンケートに回答すると、次の14日間も無料でご利用いただけます。
-      </p>
-      <p className="mt-1 text-sm leading-6 text-muted-foreground">
-        ※料金が自動で発生することはありません。
+        公式LINEを友だち追加し、LINE内で配布されるコードを入力してください。
       </p>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <Button asChild>
-          <Link href={`/signup?next=${next}`}>新規登録（無料）</Link>
+          <a href={LINE_ADD_FRIEND_URL} target="_blank" rel="noopener noreferrer">
+            公式LINEを友だち追加
+          </a>
         </Button>
         <Button asChild variant="outline">
-          <Link href={`/login?next=${next}`}>ログイン</Link>
+          <Link href={`/line-campaign?next=${next}`}>コードを入力する</Link>
         </Button>
       </div>
     </section>

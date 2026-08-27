@@ -10,6 +10,7 @@ import { MarketTicker } from "@/components/market-ticker"
 import { PortalSidebar } from "@/components/portal-sidebar"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import { LineRegistrationCampaign } from "@/components/line-registration-campaign"
 import { usePublicArticles } from "@/lib/article-store"
 import {
   CATEGORY_LABELS,
@@ -24,7 +25,13 @@ import {
   type NewsArticle,
 } from "@/lib/news-data"
 
-export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
+export function NewsList({
+  rankedViewIds,
+  showRegistrationCampaign = true,
+}: {
+  rankedViewIds: string[]
+  showRegistrationCampaign?: boolean
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeCategory, setActiveCategory] = useState<Category | null>(null)
@@ -189,6 +196,8 @@ export function NewsList({ rankedViewIds }: { rankedViewIds: string[] }) {
           filterActive ? "pt-4" : "pt-8"
         }`}
       >
+        {!filterActive && showRegistrationCampaign && <LineRegistrationCampaign />}
+
         {showIndustryFilter ? (
           <IndustryFilterPanel
             selectedIndustries={selectedIndustries}

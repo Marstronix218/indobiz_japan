@@ -2,118 +2,48 @@
 
 import { Suspense, useState } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { LineAuthButton } from "@/components/line-auth-button"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { getSafeAuthRedirectPath } from "@/lib/auth-redirect"
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
 
 function SignupForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const next = getSafeAuthRedirectPath(searchParams.get("next"))
   const callbackError = searchParams.get("auth_error")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(
     callbackError === "oauth_callback"
       ? "LINE認証に失敗しました。時間をおいて再度お試しください。"
       : null,
   )
-  const [info, setInfo] = useState<string | null>(null)
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (submitting) return
-    if (password.length < 8) {
-      setError("パスワードは8文字以上で入力してください。")
-      return
-    }
-    setSubmitting(true)
-    setError(null)
-    setInfo(null)
-    try {
-      const supabase = getSupabaseBrowserClient()
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-      })
-      if (signUpError) throw signUpError
-      if (data.session) {
-        router.replace(next)
-        router.refresh()
-        return
-      }
-      setInfo(
-        "登録メールを送信しました。受信箱を確認し、リンクをクリックしてアカウントを有効化してください。",
-      )
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "登録に失敗しました"
-      setError(message)
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   return (
     <div className="grid min-h-screen place-items-center bg-background px-4">
       <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-8 shadow-sm">
-        <div className="mb-6 space-y-1">
+        <div className="mb-6 space-y-1.5">
+          <p className="text-xs font-bold tracking-[0.12em] text-[#059b43]">
+            正式リリース記念
+          </p>
           <h1 className="font-serif text-2xl font-bold tracking-tight">
-            新規登録
+            サイトアカウントを作成
           </h1>
           <p className="text-[13px] leading-6 text-muted-foreground">
-            アカウント登録後の初回アクセスから14日間は、全記事を無料でお読みいただけます。
+            LINEアカウントなら、パスワード入力なしですぐに作成できます。
           </p>
         </div>
-        <div className="space-y-4">
-          <LineAuthButton
-            label="LINEで新規登録"
-            nextPath={next}
-            errorPath="/signup"
-            disabled={submitting}
-            onError={setError}
-          />
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground">または</span>
-            <Separator className="flex-1" />
-          </div>
-        </div>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">メールアドレス</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              autoComplete="email"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">パスワード（8文字以上）</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete="new-password"
-              minLength={8}
-              required
-            />
-          </div>
-          {error && <p className="text-[13px] leading-6 text-destructive">{error}</p>}
-          {info && <p className="text-[13px] leading-6 text-muted-foreground">{info}</p>}
-          <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? "登録中…" : "登録する"}
-          </Button>
-        </form>
+
+        <LineAuthButton
+          label="LINEでアカウントを作成"
+          nextPath={next}
+          errorPath="/signup"
+          onError={setError}
+        />
+
+        {error && (
+          <p className="mt-4 text-[13px] leading-6 text-destructive">{error}</p>
+        )}
+        <p className="mt-4 text-xs leading-5 text-muted-foreground">
+          無料購読を有効にするには、公式LINEで配布されたコードを入力してください。
+        </p>
         <p className="mt-6 text-center text-[13px] leading-6 text-muted-foreground">
           既にアカウントをお持ちの方は{" "}
           <Link

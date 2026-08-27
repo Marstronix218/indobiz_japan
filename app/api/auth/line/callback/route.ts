@@ -58,10 +58,10 @@ export async function GET(request: Request) {
     const sessionClient = await getSupabaseServerClient()
 
     // Sign in if the account already exists; otherwise create it, then sign in.
-    let { error: signInError } = await sessionClient.auth.signInWithPassword({
-      email,
-      password,
-    })
+    let {
+      data: signInData,
+      error: signInError,
+    } = await sessionClient.auth.signInWithPassword({ email, password })
 
     if (signInError) {
       const { error: createError } = await getServiceClient().auth.admin.createUser({
@@ -84,12 +84,12 @@ export async function GET(request: Request) {
         throw createError
       }
 
-      ;({ error: signInError } = await sessionClient.auth.signInWithPassword({
-        email,
-        password,
-      }))
+      ;({ data: signInData, error: signInError } =
+        await sessionClient.auth.signInWithPassword({ email, password }))
       if (signInError) throw signInError
     }
+
+    if (!signInData.user) throw new Error("LINE sign-in response missing user")
 
     clearOAuthCookies(store)
     return NextResponse.redirect(new URL(next, origin))

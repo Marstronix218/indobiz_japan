@@ -6,16 +6,11 @@ export const SITE_URL = (
   "https://indobiz-japan.launchers-g.com"
 ).replace(/\/$/, "")
 
-/**
- * 公式LINEアカウントの友だち追加URL。トップページの LINE CTA ボックス
- * (`components/line-cta-box.tsx`) から外部リンクで開く。
- */
+/** IndoBiz Japan公式LINEの友だち追加URL。 */
 export const LINE_ADD_FRIEND_URL = "https://qr.paps.jp/KRwFx"
 
-/** Public destinations used by the beta access experience. */
+/** Public destination used by related service links. */
 export const GO_INDIA_URL = "https://capital.launchers-g.com/"
-export const BETA_SURVEY_URL =
-  process.env.NEXT_PUBLIC_BETA_SURVEY_URL?.trim() ?? ""
 
 export interface LeadInquiry {
   companyName: string

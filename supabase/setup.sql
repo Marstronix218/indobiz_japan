@@ -224,41 +224,36 @@ drop policy if exists "articles public read" on public.articles;
 drop policy if exists "article_sources public read" on public.article_sources;
 drop policy if exists "articles authenticated beta read" on public.articles;
 drop policy if exists "article_sources authenticated beta read" on public.article_sources;
+drop policy if exists "articles authenticated campaign read" on public.articles;
+drop policy if exists "article_sources authenticated campaign read" on public.article_sources;
 drop policy if exists "beta_access users read own" on public.beta_access;
 
 create policy "beta_access users read own"
   on public.beta_access for select to authenticated
   using (user_id = auth.uid());
 
-create policy "articles authenticated beta read"
+create policy "articles authenticated campaign read"
   on public.articles for select to authenticated
   using (
     workflow_status = 'published'
-    and exists (
-      select 1 from public.beta_access b
-      where b.user_id = auth.uid()
-        and (
-          now() < b.trial_started_at + interval '14 days'
-          or b.extension_expires_at > now()
-        )
+    and (
+      auth.jwt() -> 'app_metadata' ->> 'indobiz_line_campaign' = 'true'
+      or auth.jwt() -> 'app_metadata' ->> 'indobiz_line_verified' = 'true'
     )
   );
 
-create policy "article_sources authenticated beta read"
+create policy "article_sources authenticated campaign read"
   on public.article_sources for select to authenticated
   using (
+    (
+      auth.jwt() -> 'app_metadata' ->> 'indobiz_line_campaign' = 'true'
+      or auth.jwt() -> 'app_metadata' ->> 'indobiz_line_verified' = 'true'
+    )
+    and
     exists (
       select 1 from public.articles a
       where a.id = article_sources.article_id
         and a.workflow_status = 'published'
-    )
-    and exists (
-      select 1 from public.beta_access b
-      where b.user_id = auth.uid()
-        and (
-          now() < b.trial_started_at + interval '14 days'
-          or b.extension_expires_at > now()
-        )
     )
   );
 

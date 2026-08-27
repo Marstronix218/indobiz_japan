@@ -95,8 +95,8 @@ export function HeaderAuthControls({
         <Link href="/login" className="hover:text-primary-foreground">
           ログイン
         </Link>
-        <Link href="/signup" className="hover:text-primary-foreground">
-          新規登録
+        <Link href="/line-campaign" className="hover:text-primary-foreground">
+          LINE無料購読
         </Link>
       </div>
     )
@@ -127,7 +127,7 @@ export function HeaderAuthControls({
         <Link href="/login">ログイン</Link>
       </Button>
       <Button asChild variant="outline" size="sm">
-        <Link href="/signup">新規登録</Link>
+        <Link href="/line-campaign">LINE無料購読</Link>
       </Button>
     </div>
   )

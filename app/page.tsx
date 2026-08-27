@@ -5,10 +5,10 @@ import {
   getTopViewedArticleIds,
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
-import { ensureUserBetaAccess } from "@/lib/supabase/beta-access"
 import { getSessionUser } from "@/lib/supabase/server-auth"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { toArticlePreview } from "@/lib/article-preview"
+import { hasLineCampaignAccess } from "@/lib/line-campaign"
 import { SITE_URL } from "@/lib/site-config"
 import type { Metadata } from "next"
 
@@ -32,16 +32,15 @@ export default async function HomePage() {
   }
 
   const user = await getSessionUser()
-  const [articles, rankedViewIds, betaAccess] = await Promise.all([
+  const [articles, rankedViewIds] = await Promise.all([
     listPublishedArticles(),
     getTopViewedArticleIds(24, 5),
-    user ? ensureUserBetaAccess(user.id) : Promise.resolve(null),
   ])
   if (articles.length === 0) {
     return <DataUnavailable />
   }
 
-  const visibleArticles = betaAccess?.evaluation.hasFullAccess
+  const visibleArticles = hasLineCampaignAccess(user)
     ? articles
     : articles.map(toArticlePreview)
 
@@ -56,7 +55,10 @@ export default async function HomePage() {
       <h1 className="sr-only">
         IndoBiz Japan（インドビズジャパン）— 日本企業向けインド市場情報
       </h1>
-      <NewsList rankedViewIds={rankedViewIds} />
+      <NewsList
+        rankedViewIds={rankedViewIds}
+        showRegistrationCampaign={!hasLineCampaignAccess(user)}
+      />
     </ArticleStoreProvider>
   )
 }

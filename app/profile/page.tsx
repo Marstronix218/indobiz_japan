@@ -2,8 +2,8 @@ import { redirect } from "next/navigation"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { ProfileForm } from "@/components/profile-form"
-import { ensureUserBetaAccess } from "@/lib/supabase/beta-access"
 import { getSessionUser } from "@/lib/supabase/server-auth"
+import { hasLineCampaignAccess } from "@/lib/line-campaign"
 
 export const metadata = {
   title: "マイページ | IndoBiz Japan",
@@ -15,16 +15,13 @@ export default async function ProfilePage() {
     redirect("/login?next=/profile")
   }
 
-  const provider = (user.user_metadata?.provider as string | undefined) ?? null
-  const isLineAccount =
-    provider === "line" || (user.email?.endsWith("@line.invalid") ?? false)
-  const email = isLineAccount ? "" : user.email ?? ""
+  const isLineLogin = user.email?.endsWith("@line.invalid") ?? false
+  const campaignAccess = hasLineCampaignAccess(user)
+  const email = isLineLogin ? "" : user.email ?? ""
   const fullName =
     (user.user_metadata?.full_name as string | undefined) ??
     (user.user_metadata?.name as string | undefined) ??
     ""
-  const betaAccess = await ensureUserBetaAccess(user.id)
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -41,9 +38,8 @@ export default async function ProfilePage() {
           <ProfileForm
             email={email}
             fullName={fullName}
-            isLineAccount={isLineAccount}
-            betaPhase={betaAccess?.evaluation.phase ?? "expired"}
-            betaAccessUntil={betaAccess?.evaluation.accessUntil ?? null}
+            isLineAccount={isLineLogin}
+            hasCampaignAccess={campaignAccess}
           />
         </div>
       </main>

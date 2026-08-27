@@ -1,19 +1,16 @@
 import { ArticleView } from "@/components/article-view"
 import { ArticleStoreProvider } from "@/components/article-store-provider"
-import {
-  ArticleTeaser,
-  type ArticleTeaserReason,
-} from "@/components/article-teaser"
+import { ArticleTeaser } from "@/components/article-teaser"
 import { DataUnavailable } from "@/components/data-unavailable"
 import {
   getArticleById,
   getTopViewedArticleIds,
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
-import { ensureUserBetaAccess } from "@/lib/supabase/beta-access"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { getSessionUser } from "@/lib/supabase/server-auth"
 import { toArticlePreview } from "@/lib/article-preview"
+import { hasLineCampaignAccess } from "@/lib/line-campaign"
 import type { NewsArticle } from "@/lib/news-data"
 import type { Metadata } from "next"
 
@@ -22,7 +19,6 @@ export const revalidate = 0
 async function renderArticleTeaser(
   article: NewsArticle,
   rankedViewIds: string[],
-  reason: ArticleTeaserReason,
 ) {
   const articles = await listPublishedArticles()
   const storeArticles = (
@@ -36,7 +32,6 @@ async function renderArticleTeaser(
       <ArticleTeaser
         article={toArticlePreview(article)}
         rankedViewIds={rankedViewIds}
-        reason={reason}
       />
     </ArticleStoreProvider>
   )
@@ -100,27 +95,8 @@ export default async function ArticlePage({
     return <DataUnavailable showHomeLink />
   }
 
-  if (!user) {
-    return renderArticleTeaser(article, rankedViewIds, "login_required")
-  }
-
-  const betaAccess = await ensureUserBetaAccess(user.id)
-  if (!betaAccess) {
-    return (
-      <DataUnavailable
-        title="ご利用期間を確認できません"
-        description="現在アクセス状況を確認できません。しばらくしてから再度お試しください。"
-        showHomeLink
-      />
-    )
-  }
-
-  if (!betaAccess.evaluation.hasFullAccess) {
-    const reason: ArticleTeaserReason =
-      betaAccess.evaluation.phase === "survey_required"
-        ? "survey_required"
-        : "expired"
-    return renderArticleTeaser(article, rankedViewIds, reason)
+  if (!hasLineCampaignAccess(user)) {
+    return renderArticleTeaser(article, rankedViewIds)
   }
 
   const articles = await listPublishedArticles()

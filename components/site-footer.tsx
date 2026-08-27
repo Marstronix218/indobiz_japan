@@ -21,7 +21,7 @@ export function SiteFooter() {
               <h4 className="font-serif text-xl font-bold">IndoBiz Japan</h4>
             </div>
             <p className="max-w-sm text-base leading-8 text-primary-foreground/75">
-              日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける β版プロダクトです。
+              日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける情報サービスです。
             </p>
           </div>
 

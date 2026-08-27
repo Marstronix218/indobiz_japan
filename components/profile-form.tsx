@@ -7,24 +7,19 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
 import { toast } from "sonner"
-import Link from "next/link"
-import type { BetaAccessPhase } from "@/lib/beta-access"
-import { formatDate } from "@/lib/date-format"
 
 interface ProfileFormProps {
   email: string
   fullName: string
   isLineAccount?: boolean
-  betaPhase: BetaAccessPhase
-  betaAccessUntil: string | null
+  hasCampaignAccess?: boolean
 }
 
 export function ProfileForm({
   email,
   fullName: initialFullName,
   isLineAccount = false,
-  betaPhase,
-  betaAccessUntil,
+  hasCampaignAccess = false,
 }: ProfileFormProps) {
   const [fullName, setFullName] = useState(initialFullName)
   const [savingName, setSavingName] = useState(false)
@@ -187,43 +182,30 @@ export function ProfileForm({
         <h2 className="font-serif text-xl font-bold tracking-tight">プラン</h2>
         <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4">
           <div>
-            <p className="font-semibold">{betaPlanLabel(betaPhase)}</p>
+            <p className="font-semibold">
+              {hasCampaignAccess
+                ? "LINEコードキャンペーン・無料購読"
+                : "LINEコードで無料購読"}
+            </p>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              {betaPlanDescription(betaPhase, betaAccessUntil)}
+              {hasCampaignAccess
+                ? "正式リリース記念キャンペーンにより、当面の期間すべての記事を無料でお読みいただけます。"
+                : "公式LINEで配布されたコードを入力すると、無料購読を有効化できます。"}
             </p>
           </div>
           <Button asChild variant="outline" size="sm">
-            <Link href="/pricing">プランを見る</Link>
+            <a
+              href={
+                hasCampaignAccess
+                  ? "/pricing"
+                  : "/line-campaign"
+              }
+            >
+              {hasCampaignAccess ? "プランを見る" : "コードを入力"}
+            </a>
           </Button>
         </div>
       </section>
     </div>
   )
-}
-
-function formatAccessDate(value: string) {
-  return formatDate(value)
-}
-
-function betaPlanLabel(phase: BetaAccessPhase) {
-  if (phase === "initial_access") return "ベータ版・初回無料期間"
-  if (phase === "extension_access") return "ベータ版・延長無料期間"
-  if (phase === "survey_required") return "アンケート回答待ち"
-  return "ベータ版の無料期間終了"
-}
-
-function betaPlanDescription(
-  phase: BetaAccessPhase,
-  accessUntil: string | null,
-) {
-  if (phase === "initial_access") {
-    return "アカウント登録後の初回アクセスから14日間は、全記事を無料でお読みいただけます。"
-  }
-  if (phase === "extension_access" && accessUntil) {
-    return `アンケート回答特典を適用済みです。${formatAccessDate(accessUntil)}まで全記事をお読みいただけます。`
-  }
-  if (phase === "survey_required") {
-    return "アンケート回答後、延長コードを入力するとさらに14日間ご利用いただけます。"
-  }
-  return "無料期間は終了しています。"
 }
