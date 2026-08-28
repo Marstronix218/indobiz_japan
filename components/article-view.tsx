@@ -416,7 +416,7 @@ export function ArticleView({
           </Link>
           <ChevronRight className="size-3.5 shrink-0" />
           <Link
-            href={`/?category=${article.category}`}
+            href={`/category/${article.category}`}
             className="shrink-0 hover:text-foreground"
           >
             {CATEGORY_LABELS[article.category]}
@@ -485,7 +485,7 @@ export function ArticleView({
                     asChild
                     className={`${CATEGORY_COLORS[article.category]} rounded-sm border-none px-2 py-1 text-[11px]`}
                   >
-                    <Link href={`/?category=${article.category}`}>
+                    <Link href={`/category/${article.category}`}>
                       {CATEGORY_LABELS[article.category]}
                     </Link>
                   </Badge>
@@ -551,7 +551,9 @@ export function ArticleView({
               </div>
             )}
 
-            <section className="mt-5 border-t border-border pt-4">
+            {/* article-gated-body: 未ログインでは配信されない本文。記事ページの
+                JSON-LD hasPart(cssSelector) と対になっている。 */}
+            <section className="article-gated-body mt-5 border-t border-border pt-4">
               <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
                 <ClipboardList className="size-[18px] text-primary" />
                 この記事の概要

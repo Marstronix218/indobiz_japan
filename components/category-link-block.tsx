@@ -8,6 +8,7 @@ import {
   type ImagePlaceholderTone,
   type NewsArticle,
 } from "@/lib/news-data"
+import { articlePath } from "@/lib/article-slug"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
 
@@ -68,7 +69,7 @@ export function CategoryLinkBlock({
       </div>
 
       {/* Lead article with a large thumbnail */}
-      <Link href={`/article/${lead.id}`} className="group block">
+      <Link href={articlePath(lead)} className="group block">
         <ArticleThumb
           article={lead}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -88,7 +89,7 @@ export function CategoryLinkBlock({
           {rest.map((article) => (
             <li key={article.id}>
               <Link
-                href={`/article/${article.id}`}
+                href={articlePath(article)}
                 className="group flex items-center gap-3"
               >
                 <ArticleThumb
@@ -111,7 +112,7 @@ export function CategoryLinkBlock({
       )}
 
       <Link
-        href={`/?category=${section.key}`}
+        href={`/category/${section.key}`}
         className="mt-2.5 inline-block text-[11px] font-semibold text-primary hover:underline"
       >
         もっと見る →

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { ChevronRight, Newspaper } from "lucide-react"
+import { articlePath } from "@/lib/article-slug"
 import { usePublicArticles } from "@/lib/article-store"
 import { selectImportantNews } from "@/lib/home-selection"
 import {
@@ -34,7 +35,7 @@ export function ImportantNewsWidget() {
                 {CATEGORY_LABELS[article.category]}
               </span>
               <Link
-                href={`/article/${article.id}`}
+                href={articlePath(article)}
                 className="text-auto-phrase line-clamp-2 text-xs font-semibold leading-relaxed hover:text-accent"
               >
                 {addJapanesePhraseBreaks(article.title)}

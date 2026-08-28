@@ -27,12 +27,20 @@ import {
 
 export function NewsList({
   rankedViewIds,
+  lockedCategory,
 }: {
   rankedViewIds: string[]
+  /**
+   * `/category/<slug>` から渡される固定カテゴリ。指定されている間は
+   * `?category=` クエリより優先し、常にそのカテゴリの一覧を表示する。
+   */
+  lockedCategory?: Category
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [activeCategory, setActiveCategory] = useState<Category | null>(null)
+  const [activeCategory, setActiveCategory] = useState<Category | null>(
+    lockedCategory ?? null,
+  )
   const [selectedIndustries, setSelectedIndustries] = useState<IndustryTag[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [latestView, setLatestView] = useState(false)
@@ -41,9 +49,11 @@ export function NewsList({
 
   useEffect(() => {
     const categoryParam = searchParams.get("category")
-    const nextCategory = CATEGORY_OPTIONS.includes(categoryParam as Category)
-      ? (categoryParam as Category)
-      : null
+    const nextCategory =
+      lockedCategory ??
+      (CATEGORY_OPTIONS.includes(categoryParam as Category)
+        ? (categoryParam as Category)
+        : null)
 
     const nextTags = searchParams
       .getAll("tag")
@@ -55,7 +65,7 @@ export function NewsList({
     setSelectedIndustries(nextTags)
     setSearchQuery(searchParams.get("q") ?? "")
     setLatestView(searchParams.get("view") === "latest")
-  }, [searchParams])
+  }, [lockedCategory, searchParams])
 
   const showIndustryFilter = activeCategory === "economy" || selectedIndustries.length > 0
 

@@ -15,6 +15,7 @@ import {
 } from "@/lib/news-data"
 import type { AuthorProfile } from "@/lib/authors"
 import type { PipelineDraft } from "@/lib/automation"
+import { buildArticleSlug } from "@/lib/article-slug"
 import { extractKeywords } from "@/lib/clustering"
 import {
   buildDedupeSourceUrls,
@@ -138,6 +139,13 @@ function rowToArticle(row: ArticleRow): NewsArticle {
 
   return {
     id: row.id,
+    // スラッグはソース見出しから導出するため、ソースを読んだこの場で確定させる。
+    // 以降 `toArticlePreview` でソースが落ちても値は保持される。
+    slug: buildArticleSlug({
+      title: row.title,
+      provenance: sources[0],
+      sources: sources.length > 0 ? sources : undefined,
+    }),
     title: row.title,
     summary: row.summary,
     source: row.source,

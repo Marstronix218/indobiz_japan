@@ -63,7 +63,7 @@ export function MobileSiteMenu() {
                 <li key={section.key}>
                   <SheetClose asChild>
                     <Link
-                      href={`/?category=${section.key}`}
+                      href={`/category/${section.key}`}
                       className="block py-3 text-sm font-semibold hover:text-accent"
                     >
                       {section.label}

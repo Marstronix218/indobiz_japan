@@ -101,7 +101,7 @@ export function SiteHeader() {
               {CATEGORY_SECTIONS.map((section) => (
                 <Link
                   key={section.key}
-                  href={`/?category=${section.key}`}
+                  href={`/category/${section.key}`}
                   className="shrink-0 hover:text-accent"
                 >
                   {section.label}

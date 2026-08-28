@@ -9,13 +9,29 @@ import { getSessionUser } from "@/lib/supabase/server-auth"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { toArticlePreview } from "@/lib/article-preview"
 import { hasLineCampaignAccess } from "@/lib/line-campaign"
+import { CATEGORY_OPTIONS, type Category } from "@/lib/news-data"
 import { SITE_URL } from "@/lib/site-config"
 import type { Metadata } from "next"
 
 export const revalidate = 0
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
+/**
+ * 旧来の `/?category=<slug>` は独立URL `/category/<slug>` に正規化する。
+ * 既にインデックスされているクエリ付きURLの評価を新URLへ寄せるため。
+ * それ以外のクエリ（検索・タグ・view）はトップの重複なので `/` に集約する。
+ */
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}): Promise<Metadata> {
+  const params = await searchParams
+  const raw = params.category
+  const category = Array.isArray(raw) ? raw[0] : raw
+  const canonical = CATEGORY_OPTIONS.includes(category as Category)
+    ? `/category/${category}`
+    : "/"
+  return { alternates: { canonical } }
 }
 
 const websiteStructuredData = {

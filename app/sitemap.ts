@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next"
 
+import { articlePath } from "@/lib/article-slug"
 import { listCities } from "@/lib/cities"
+import { CATEGORY_OPTIONS } from "@/lib/news-data"
 import { SITE_URL } from "@/lib/site-config"
 import { listPublishedArticles } from "@/lib/supabase/article-repository"
 
@@ -32,13 +34,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: page.changeFrequency,
       priority: page.priority,
     })),
+    ...CATEGORY_OPTIONS.map((category) => ({
+      url: `${SITE_URL}/category/${category}`,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    })),
     ...cities.map((city) => ({
       url: `${SITE_URL}/city/${city.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
     ...articles.map((article) => ({
-      url: `${SITE_URL}/article/${article.id}`,
+      url: `${SITE_URL}${articlePath(article)}`,
       lastModified: article.createdAt ?? article.publishedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,

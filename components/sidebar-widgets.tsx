@@ -18,6 +18,7 @@ import {
   type ImagePlaceholderTone,
   type NewsArticle,
 } from "@/lib/news-data"
+import { articlePath } from "@/lib/article-slug"
 import type { MarketSnapshotLive } from "@/lib/market-data"
 import { formatUnixDateTime } from "@/lib/date-format"
 import { usePublicArticles } from "@/lib/article-store"
@@ -82,7 +83,7 @@ export function TrendingWidget() {
             </span>
             <div className="min-w-0">
               <Link
-                href={`/article/${article.id}`}
+                href={articlePath(article)}
                 className="text-auto-phrase line-clamp-2 text-sm font-semibold leading-snug hover:text-accent"
               >
                 {addJapanesePhraseBreaks(article.title)}
@@ -170,7 +171,7 @@ export function MarketIndicatorWidget() {
       { ...m.oil, sub: "USD/bbl", up: m.oil.change.startsWith("+") },
     ]
     asOfLabel = `スナップショット · ${m.fx.asOf}`
-    href = `/article/${fallbackArticle.id}`
+    href = articlePath(fallbackArticle)
   } else if (errored) {
     return null
   } else {
@@ -567,7 +568,7 @@ export function CollabHighlightWidget({
           return (
             <li key={article.id}>
               <Link
-                href={`/article/${article.id}`}
+                href={articlePath(article)}
                 className="group flex gap-3"
               >
                 <div className="relative size-16 shrink-0 overflow-hidden rounded bg-muted">
@@ -625,7 +626,7 @@ export function EditorialColumnWidget() {
           const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
           return (
             <li key={article.id}>
-              <Link href={`/article/${article.id}`} className="group flex gap-2.5">
+              <Link href={articlePath(article)} className="group flex gap-2.5">
                 <div className="relative size-14 shrink-0 overflow-hidden rounded bg-muted">
                   {imageSrc ? (
                     <Image
@@ -653,7 +654,7 @@ export function EditorialColumnWidget() {
         })}
       </ul>
       <Link
-        href="/?category=column"
+        href="/category/column"
         className="mt-3 flex items-center justify-end gap-0.5 text-[11px] font-semibold text-primary hover:underline"
       >
         一覧を見る

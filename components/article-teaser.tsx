@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { articlePath } from "@/lib/article-slug"
 import { usePublicArticles } from "@/lib/article-store"
 import { selectRelatedArticles } from "@/lib/home-selection"
 import {
@@ -43,7 +44,7 @@ export function ArticleTeaser({
   const imageSrc = resolveArticleImageUrl(article.imageUrl, article.id)
   const teaser = article.summary.slice(0, TEASER_LENGTH).trimEnd()
   const truncated = article.summary.length > TEASER_LENGTH
-  const next = encodeURIComponent(`/article/${article.id}`)
+  const next = encodeURIComponent(articlePath(article))
 
   return (
     <div className="min-h-screen bg-background">
@@ -60,7 +61,7 @@ export function ArticleTeaser({
           </Link>
           <ChevronRight className="size-3.5 shrink-0" />
           <Link
-            href={`/?category=${article.category}`}
+            href={`/category/${article.category}`}
             className="shrink-0 hover:text-foreground"
           >
             {CATEGORY_LABELS[article.category]}
@@ -104,7 +105,7 @@ export function ArticleTeaser({
                     asChild
                     className={`${CATEGORY_COLORS[article.category]} rounded-sm border-none px-2 py-1 text-[11px]`}
                   >
-                    <Link href={`/?category=${article.category}`}>
+                    <Link href={`/category/${article.category}`}>
                       {CATEGORY_LABELS[article.category]}
                     </Link>
                   </Badge>
@@ -153,7 +154,9 @@ export function ArticleTeaser({
 
 function AccessPanel({ next }: { next: string }) {
   return (
-    <section className="mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
+    // article-gated-body: 未ログインで読めない範囲。記事ページのJSON-LDの
+    // hasPart(cssSelector) と対になっており、Googleに「ここから先が会員限定」と伝える。
+    <section className="article-gated-body mt-6 rounded-md border-2 border-accent/40 bg-background p-6 text-center sm:p-8">
       <Lock className="mx-auto size-6 text-accent" />
       <h2 className="mt-3 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-[28px]">
         無料で読む

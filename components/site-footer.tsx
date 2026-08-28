@@ -33,7 +33,7 @@ export function SiteFooter() {
               {CATEGORY_OPTIONS.map((category) => (
                 <li key={category}>
                   <Link
-                    href={`/?category=${category}`}
+                    href={`/category/${category}`}
                     className="transition-opacity hover:opacity-100"
                   >
                     {CATEGORY_LABELS[category]}

@@ -9,6 +9,7 @@ import {
   type ImagePlaceholderTone,
   type NewsArticle,
 } from "@/lib/news-data"
+import { articlePath } from "@/lib/article-slug"
 import { resolveArticleImageUrl } from "@/lib/image-utils"
 import { cn } from "@/lib/utils"
 import { addJapanesePhraseBreaks } from "@/lib/japanese-line-breaks"
@@ -50,14 +51,14 @@ function CardBadges({
   return (
     <div className={`absolute ${offset} z-10 flex flex-wrap gap-1`}>
       <Link
-        href={`/?category=${article.category}`}
+        href={`/category/${article.category}`}
         className="bg-accent px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-accent-foreground transition-opacity hover:opacity-80"
       >
         {CATEGORY_LABELS[article.category]}
       </Link>
       {industry && article.category !== "column" && (
         <Link
-          href={`/?category=economy&tag=${industry}`}
+          href={`/category/economy?tag=${industry}`}
           className="bg-primary px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-primary-foreground transition-opacity hover:opacity-80"
         >
           {INDUSTRY_LABELS[industry]}
@@ -86,7 +87,7 @@ export function NewsCardHero({
     >
       {/* Stretched article link — covers full card below badges */}
       <Link
-        href={`/article/${article.id}`}
+        href={articlePath(article)}
         className="absolute inset-0 z-[1]"
         aria-label={article.title}
       />
@@ -139,7 +140,7 @@ export function NewsCardMosaic({
     >
       {/* Stretched article link — covers full card below badges */}
       <Link
-        href={`/article/${article.id}`}
+        href={articlePath(article)}
         className="absolute inset-0 z-[1]"
         aria-label={article.title}
       />
@@ -177,7 +178,7 @@ export function NewsCardTile({ article }: { article: NewsArticle }) {
     <article className="card-hover group relative block">
       {/* Stretched article link — covers full card below badges */}
       <Link
-        href={`/article/${article.id}`}
+        href={articlePath(article)}
         className="absolute inset-0 z-[1]"
         aria-label={article.title}
       />
@@ -218,7 +219,7 @@ export function NewsCardFeature({ article }: { article: NewsArticle }) {
     <article className="card-hover group relative h-full">
       {/* Stretched article link — covers full card below badges */}
       <Link
-        href={`/article/${article.id}`}
+        href={articlePath(article)}
         className="absolute inset-0 z-[1]"
         aria-label={article.title}
       />
@@ -236,14 +237,14 @@ export function NewsCardFeature({ article }: { article: NewsArticle }) {
         )}
         <div className="absolute left-3 top-3 z-10 flex gap-1">
           <Link
-            href={`/?category=${article.category}`}
+            href={`/category/${article.category}`}
             className="bg-accent px-1.5 py-0.5 text-[10px] font-bold text-white transition-opacity hover:opacity-80"
           >
             {CATEGORY_LABELS[article.category]}
           </Link>
           {industry && article.category !== "column" && (
             <Link
-              href={`/?category=economy&tag=${industry}`}
+              href={`/category/economy?tag=${industry}`}
               className="bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white transition-opacity hover:opacity-80"
             >
               {INDUSTRY_LABELS[industry]}

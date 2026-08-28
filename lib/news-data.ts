@@ -114,6 +114,12 @@ export function sanitizeArticleKeywords(value: unknown): ArticleKeyword[] {
 
 export interface NewsArticle {
   id: string
+  /**
+   * 記事URL末尾のスラッグ。Supabaseから読んだ時点で確定させ、
+   * カード・サイトマップ・記事ページが同じ値を使うようにする
+   * (`lib/article-slug.ts`)。列としては保存していない導出値。
+   */
+  slug?: string
   title: string
   summary: string
   source: string

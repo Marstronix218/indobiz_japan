@@ -87,7 +87,7 @@ export function MarketIndicatorPanel() {
         出典：Yahoo Finance
       </p>
       <Link
-        href="/?category=market"
+        href="/category/market"
         className="mt-2 flex items-center justify-end gap-0.5 text-[11px] font-semibold text-primary hover:underline"
       >
         市況一覧を見る

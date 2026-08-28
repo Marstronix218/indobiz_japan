@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { BarChart3, ChevronRight } from "lucide-react"
+import { articlePath } from "@/lib/article-slug"
 import { usePublicArticles } from "@/lib/article-store"
 import { mergeRankedArticles } from "@/lib/home-selection"
 import {
@@ -40,7 +41,7 @@ export function AccessRankingWidget({ rankedIds }: { rankedIds: string[] }) {
             </span>
             <div className="min-w-0">
               <Link
-                href={`/article/${article.id}`}
+                href={articlePath(article)}
                 className="text-auto-phrase line-clamp-2 text-xs font-semibold leading-relaxed hover:text-accent"
               >
                 {addJapanesePhraseBreaks(article.title)}
