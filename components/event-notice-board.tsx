@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "lucide-react"
 
-const EVENT_URL = "https://india-hamamatsu.com"
+const EVENT_URL = "https://www.instagram.com/india_hamamatsu/"
 
 export function EventNoticeBoard() {
   return (
@@ -33,7 +33,7 @@ export function EventNoticeBoard() {
             rel="noopener noreferrer"
             className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-accent px-3.5 py-1.5 text-xs font-bold text-accent-foreground transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            公式サイトを開く
+            公式Instagramを開く
             <ArrowUpRight className="size-3.5" aria-hidden="true" />
           </a>
         </div>
@@ -41,7 +41,7 @@ export function EventNoticeBoard() {
         <div className="h-40 min-w-0 overflow-hidden border-t-2 border-accent/20 bg-card md:h-full md:min-h-56 md:border-l-2 md:border-t-0">
           <iframe
             src={EVENT_URL}
-            title="インドはままつフェスティバル公式サイト"
+            title="インドはままつフェスティバル公式Instagram"
             loading="lazy"
             referrerPolicy="strict-origin-when-cross-origin"
             sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
