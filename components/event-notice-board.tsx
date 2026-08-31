@@ -1,6 +1,7 @@
+import Image from "next/image"
 import { ArrowUpRight } from "lucide-react"
 
-const EVENT_URL = "https://www.instagram.com/india_hamamatsu/"
+const EVENT_URL = "https://www.instagram.com/p/DcOESZbzSJA/"
 
 export function EventNoticeBoard() {
   return (
@@ -21,38 +22,40 @@ export function EventNoticeBoard() {
             className="font-serif text-xl font-extrabold tracking-tight text-foreground sm:text-2xl"
           >
             インドはままつ
-            <span className="block">フェスティバル</span>
+            <span className="block">フェスティバル 2026</span>
           </h2>
           <p className="mt-1 text-[13px] leading-5 text-muted-foreground">
             インド料理、音楽、ダンスや文化体験が集まる浜松のフェスティバルです。
+          </p>
+          <p className="mt-1.5 text-[13px] font-semibold leading-5 text-foreground">
+            9/12（土）10:00–19:00・9/13（日）10:00–17:00
+            <span className="block font-normal text-muted-foreground">
+              新川モール（浜松市中央区田町230-28）
+            </span>
           </p>
 
           <a
             href={EVENT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-accent px-3.5 py-1.5 text-xs font-bold text-accent-foreground transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-2.5 inline-flex items-center gap-1.5 rounded-md bg-accent px-3.5 py-1.5 text-xs font-bold text-accent-foreground transition-colors hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             公式Instagramを開く
             <ArrowUpRight className="size-3.5" aria-hidden="true" />
           </a>
         </div>
 
-        <div className="h-40 min-w-0 overflow-hidden border-t-2 border-accent/20 bg-card md:h-full md:min-h-56 md:border-l-2 md:border-t-0">
-          <iframe
-            src={EVENT_URL}
-            title="インドはままつフェスティバル公式Instagram"
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-            sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-            className="block border-0 bg-background"
-            style={{
-              width: "250%",
-              height: "300%",
-              transform: "translateY(-2rem) scale(0.4)",
-              transformOrigin: "top left",
-            }}
-          />
+        <div className="flex min-w-0 items-center border-t-2 border-accent/20 bg-card md:border-l-2 md:border-t-0">
+          <a href={EVENT_URL} target="_blank" rel="noopener noreferrer" className="block w-full">
+            <Image
+              src="/hamamatsu-festival-2026-banner.png"
+              alt="インドはままつフェスティバル 2026 — 9月12日（土）・13日（日）、新川モール（浜松市中央区田町230-28）"
+              width={884}
+              height={300}
+              className="h-auto w-full"
+              priority={false}
+            />
+          </a>
         </div>
       </div>
     </aside>

@@ -78,6 +78,6 @@
 - Test/screenshot expectations: Run TypeScript, lint, and production build checks; visually inspect desktop and mobile when a runnable data-backed environment is available.
 
 ## Open questions
-- [ ] Keep the event notice linked to the organizer's current Instagram account (`https://www.instagram.com/india_hamamatsu/`) and avoid presenting archived dates as upcoming.
+- [ ] Keep the event notice linked to the organizer's current Instagram post (`https://www.instagram.com/p/DcOESZbzSJA/`) and avoid presenting archived dates as upcoming.
 - [ ] Decide whether future notices will remain source-controlled or require admin-managed publishing once the board grows beyond a few items.
-- [ ] Recheck the organizer's `X-Frame-Options` and CSP `frame-ancestors` headers before each future event refresh because a third-party policy change can disable the embedded preview.
+- [ ] Replace `public/hamamatsu-festival-2026-banner.png` and the hard-coded dates/venue in `event-notice-board.tsx` at each event refresh; the board no longer embeds Instagram, so there is no third-party frame policy to recheck.
