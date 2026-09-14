@@ -10,7 +10,6 @@ import { MarketTicker } from "@/components/market-ticker"
 import { PortalSidebar } from "@/components/portal-sidebar"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
-import { EventNoticeBoard } from "@/components/event-notice-board"
 import { usePublicArticles } from "@/lib/article-store"
 import {
   CATEGORY_LABELS,
@@ -202,8 +201,6 @@ export function NewsList({
       <main
         className="mx-auto max-w-7xl px-4 pb-8 pt-4 sm:px-6 lg:px-8"
       >
-        {!filterActive && <EventNoticeBoard />}
-
         {showIndustryFilter ? (
           <IndustryFilterPanel
             selectedIndustries={selectedIndustries}
