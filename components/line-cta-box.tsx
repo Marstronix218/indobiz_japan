@@ -1,4 +1,3 @@
-import Link from "next/link"
 import Image from "next/image"
 import { MessageCircle } from "lucide-react"
 import { GO_INDIA_URL, LINE_ADD_FRIEND_URL } from "@/lib/site-config"
@@ -24,11 +23,13 @@ export function LineCtaBox() {
           className="h-5 w-5 shrink-0"
         />
       </a>
+      {/* 暫定文言。LINE登録の特典（ペルソナが今すぐ欲しいもの）が決まったら、
+          ここをその特典の訴求に差し替える。記事は全文無料公開なので「無料購読」とは書かない。 */}
       <p className="mt-2 text-lg font-black tracking-wide text-foreground">
-        無料購読はこちらから！！
+        友だち追加はこちらから
       </p>
       <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
-        公式LINEで無料購読コードを配布中です。すでに友だちの方は「無料購読」と送信してください。
+        IndoBiz Japanからのお知らせを公式LINEでお届けします。
       </p>
       <a
         href={LINE_ADD_FRIEND_URL}
@@ -39,12 +40,6 @@ export function LineCtaBox() {
         <MessageCircle aria-hidden className="size-4" />
         公式LINEを友だち追加
       </a>
-      <Link
-        href="/line-campaign"
-        className="mt-2 inline-block text-xs font-semibold text-accent hover:underline"
-      >
-        コードをお持ちの方
-      </Link>
     </div>
   )
 }

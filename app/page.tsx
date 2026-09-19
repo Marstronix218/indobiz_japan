@@ -5,10 +5,8 @@ import {
   getTopViewedArticleIds,
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
-import { getSessionUser } from "@/lib/supabase/server-auth"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { toArticlePreview } from "@/lib/article-preview"
-import { hasLineCampaignAccess } from "@/lib/line-campaign"
 import { CATEGORY_OPTIONS, type Category } from "@/lib/news-data"
 import { SITE_URL } from "@/lib/site-config"
 import type { Metadata } from "next"
@@ -47,7 +45,6 @@ export default async function HomePage() {
     return <DataUnavailable />
   }
 
-  const user = await getSessionUser()
   const [articles, rankedViewIds] = await Promise.all([
     listPublishedArticles(),
     getTopViewedArticleIds(24, 5),
@@ -56,9 +53,8 @@ export default async function HomePage() {
     return <DataUnavailable />
   }
 
-  const visibleArticles = hasLineCampaignAccess(user)
-    ? articles
-    : articles.map(toArticlePreview)
+  // 一覧はカードしか描画しないので、本文を削ったプレビューで足りる。
+  const visibleArticles = articles.map(toArticlePreview)
 
   return (
     <ArticleStoreProvider initial={visibleArticles}>

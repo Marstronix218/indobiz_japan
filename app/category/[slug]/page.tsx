@@ -6,7 +6,6 @@ import { DataUnavailable } from "@/components/data-unavailable"
 import { JsonLd } from "@/components/json-ld"
 import { NewsList } from "@/components/news-list"
 import { toArticlePreview } from "@/lib/article-preview"
-import { hasLineCampaignAccess } from "@/lib/line-campaign"
 import {
   CATEGORY_DESCRIPTIONS,
   CATEGORY_LABELS,
@@ -22,7 +21,6 @@ import {
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
-import { getSessionUser } from "@/lib/supabase/server-auth"
 
 export const revalidate = 0
 
@@ -82,7 +80,6 @@ export default async function CategoryPage({
     return <DataUnavailable />
   }
 
-  const user = await getSessionUser()
   const [articles, rankedViewIds] = await Promise.all([
     listPublishedArticles(),
     getTopViewedArticleIds(24, 5),
@@ -91,9 +88,8 @@ export default async function CategoryPage({
     return <DataUnavailable />
   }
 
-  const visibleArticles = hasLineCampaignAccess(user)
-    ? articles
-    : articles.map(toArticlePreview)
+  // 一覧はカードしか描画しないので、本文を削ったプレビューで足りる。
+  const visibleArticles = articles.map(toArticlePreview)
   const categoryArticles = articles.filter(
     (article) => article.category === category,
   )

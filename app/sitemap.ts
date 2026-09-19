@@ -1,10 +1,9 @@
 import type { MetadataRoute } from "next"
 
-import { articlePath } from "@/lib/article-slug"
 import { listCities } from "@/lib/cities"
 import { CATEGORY_OPTIONS } from "@/lib/news-data"
 import { SITE_URL } from "@/lib/site-config"
-import { listPublishedArticles } from "@/lib/supabase/article-repository"
+import { listPublishedArticleUrls } from "@/lib/supabase/article-repository"
 
 export const revalidate = 3600
 
@@ -24,7 +23,7 @@ const staticPages: Array<{
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [articles, cities] = await Promise.all([
-    listPublishedArticles(),
+    listPublishedArticleUrls(),
     Promise.resolve(listCities()),
   ])
 
@@ -45,8 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     })),
     ...articles.map((article) => ({
-      url: `${SITE_URL}${articlePath(article)}`,
-      lastModified: article.createdAt ?? article.publishedAt,
+      url: `${SITE_URL}${article.path}`,
+      lastModified: article.lastModified,
       changeFrequency: "weekly" as const,
       priority: 0.7,
       images: article.imageUrl ? [article.imageUrl] : undefined,

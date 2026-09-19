@@ -2,13 +2,11 @@ import type { Metadata } from "next"
 import { permanentRedirect } from "next/navigation"
 
 import { ArticleStoreProvider } from "@/components/article-store-provider"
-import { ArticleTeaser } from "@/components/article-teaser"
 import { ArticleView } from "@/components/article-view"
 import { DataUnavailable } from "@/components/data-unavailable"
 import { JsonLd } from "@/components/json-ld"
 import { articleSlug } from "@/lib/article-slug"
 import { toArticlePreview } from "@/lib/article-preview"
-import { hasLineCampaignAccess } from "@/lib/line-campaign"
 import { articleDisplayDate, type NewsArticle } from "@/lib/news-data"
 import {
   buildArticleJsonLd,
@@ -20,7 +18,6 @@ import {
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
-import { getSessionUser } from "@/lib/supabase/server-auth"
 
 /** 記事の正規パス。スラッグが取れない記事は `/article/<id>` のまま。 */
 function canonicalPath(article: NewsArticle): string {
@@ -78,27 +75,6 @@ export async function buildArticleMetadata(id: string): Promise<Metadata> {
   }
 }
 
-async function renderArticleTeaser(
-  article: NewsArticle,
-  rankedViewIds: string[],
-) {
-  const articles = await listPublishedArticles()
-  const storeArticles = (
-    articles.some((item) => item.id === article.id)
-      ? articles
-      : [article, ...articles]
-  ).map(toArticlePreview)
-
-  return (
-    <ArticleStoreProvider initial={storeArticles}>
-      <ArticleTeaser
-        article={toArticlePreview(article)}
-        rankedViewIds={rankedViewIds}
-      />
-    </ArticleStoreProvider>
-  )
-}
-
 /**
  * 記事ページ本体。`/article/[id]` と `/article/[id]/[slug]` の両方から使う。
  * `requestedSlug` は後者だけが渡す（前者は常にスラッグ付きURLへ送られる）。
@@ -114,8 +90,7 @@ export async function ArticlePageView({
     return <DataUnavailable showHomeLink />
   }
 
-  const [user, article, rankedViewIds] = await Promise.all([
-    getSessionUser(),
+  const [article, rankedViewIds] = await Promise.all([
     getArticleById(id),
     getTopViewedArticleIds(24, 5),
   ])
@@ -131,23 +106,15 @@ export async function ArticlePageView({
     buildBreadcrumbJsonLd(article.category, article),
   ]
 
-  if (!hasLineCampaignAccess(user)) {
-    return (
-      <>
-        <JsonLd data={structuredData} />
-        {await renderArticleTeaser(article, rankedViewIds)}
-      </>
-    )
-  }
-
+  // 本文を出すのはこの記事だけ。他の記事は関連記事・サイドバーのカードにしか
+  // 使わないのでプレビューに削り、ページのHTMLを軽くする。
   const articles = await listPublishedArticles()
+  const storeArticles = articles.map((item) =>
+    item.id === article.id ? article : toArticlePreview(item),
+  )
   // The feed is capped, so merge an older directly requested article back in.
-  const storeArticles = articles.some((item) => item.id === id)
-    ? articles
-    : [article, ...articles]
-
-  if (storeArticles.length === 0) {
-    return <DataUnavailable showHomeLink />
+  if (!storeArticles.some((item) => item.id === article.id)) {
+    storeArticles.unshift(article)
   }
 
   return (

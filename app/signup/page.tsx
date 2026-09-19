@@ -20,9 +20,6 @@ function SignupForm() {
     <div className="grid min-h-screen place-items-center bg-background px-4">
       <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-6 space-y-1.5">
-          <p className="text-xs font-bold tracking-[0.12em] text-[#059b43]">
-            正式リリース記念
-          </p>
           <h1 className="font-serif text-2xl font-bold tracking-tight">
             サイトアカウントを作成
           </h1>
@@ -41,9 +38,6 @@ function SignupForm() {
         {error && (
           <p className="mt-4 text-[13px] leading-6 text-destructive">{error}</p>
         )}
-        <p className="mt-4 text-xs leading-5 text-muted-foreground">
-          無料購読を有効にするには、公式LINEで配布されたコードを入力してください。
-        </p>
         <p className="mt-6 text-center text-[13px] leading-6 text-muted-foreground">
           既にアカウントをお持ちの方は{" "}
           <Link

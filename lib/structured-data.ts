@@ -48,10 +48,9 @@ function truncate(text: string, max: number): string {
 /**
  * 記事ページの NewsArticle 構造化データ。
  *
- * 記事本文はログイン（LINE登録）の内側にあるので、`isAccessibleForFree: false`
- * と `hasPart` で「どこが未ログインでは読めない部分か」を明示する。これが無いと
- * クローラが見るHTML（ティーザー）と会員が見る本文の差がクローキング扱いされうる。
- * セレクタ `.article-gated-body` は ArticleView / ArticleTeaser 側と対になっている。
+ * 記事は全文を無料公開しているので `isAccessibleForFree: true`。
+ * 本文をログインの内側に戻す場合は false にし、`hasPart` の cssSelector で
+ * 未ログインでは読めない範囲を示すこと（無いとクローキング扱いされうる）。
  */
 export function buildArticleJsonLd(article: NewsArticle): JsonLdObject {
   const url = `${SITE_URL}${articlePath(article)}`
@@ -64,7 +63,7 @@ export function buildArticleJsonLd(article: NewsArticle): JsonLdObject {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: truncate(article.title, HEADLINE_MAX),
-    // meta descriptionと同じ長さに揃える（未ログインに配信する要約の量を増やさない）。
+    // meta descriptionと同じ長さに揃える。
     description: truncate(article.summary, 160),
     datePublished: published,
     dateModified: published,
@@ -77,12 +76,7 @@ export function buildArticleJsonLd(article: NewsArticle): JsonLdObject {
     image: [article.imageUrl ?? LOGO_URL],
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     url,
-    isAccessibleForFree: false,
-    hasPart: {
-      "@type": "WebPageElement",
-      isAccessibleForFree: false,
-      cssSelector: ".article-gated-body",
-    },
+    isAccessibleForFree: true,
   }
 }
 

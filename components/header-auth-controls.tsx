@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { LINE_ADD_FRIEND_URL } from "@/lib/site-config"
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser-auth"
 
 type DisplayUser = { label: string } | null
@@ -95,9 +96,14 @@ export function HeaderAuthControls({
         <Link href="/login" className="hover:text-primary-foreground">
           ログイン
         </Link>
-        <Link href="/line-campaign" className="hover:text-primary-foreground">
-          LINE無料購読
-        </Link>
+        <a
+          href={LINE_ADD_FRIEND_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-primary-foreground"
+        >
+          公式LINE
+        </a>
       </div>
     )
   }
@@ -127,7 +133,9 @@ export function HeaderAuthControls({
         <Link href="/login">ログイン</Link>
       </Button>
       <Button asChild variant="outline" size="sm">
-        <Link href="/line-campaign">LINE無料購読</Link>
+        <a href={LINE_ADD_FRIEND_URL} target="_blank" rel="noopener noreferrer">
+          公式LINE
+        </a>
       </Button>
     </div>
   )

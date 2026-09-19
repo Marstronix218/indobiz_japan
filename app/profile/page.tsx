@@ -3,7 +3,6 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { ProfileForm } from "@/components/profile-form"
 import { getSessionUser } from "@/lib/supabase/server-auth"
-import { hasLineCampaignAccess } from "@/lib/line-campaign"
 
 export const metadata = {
   title: "マイページ | IndoBiz Japan",
@@ -16,7 +15,6 @@ export default async function ProfilePage() {
   }
 
   const isLineLogin = user.email?.endsWith("@line.invalid") ?? false
-  const campaignAccess = hasLineCampaignAccess(user)
   const email = isLineLogin ? "" : user.email ?? ""
   const fullName =
     (user.user_metadata?.full_name as string | undefined) ??
@@ -39,7 +37,6 @@ export default async function ProfilePage() {
             email={email}
             fullName={fullName}
             isLineAccount={isLineLogin}
-            hasCampaignAccess={campaignAccess}
           />
         </div>
       </main>

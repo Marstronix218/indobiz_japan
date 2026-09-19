@@ -6,8 +6,14 @@ export const SITE_URL = (
   "https://indobiz-japan.launchers-g.com"
 ).replace(/\/$/, "")
 
-/** IndoBiz Japan公式LINEの友だち追加URL。 */
-export const LINE_ADD_FRIEND_URL = "https://qr.paps.jp/KRwFx"
+/**
+ * IndoBiz Japan公式LINEの友だち追加URL。Lメッセージの流入経路「メルマガ」の
+ * QRランディング（PCはQR表示、スマホはLINEアプリを直接開く）。
+ * 以前は短縮URL https://qr.paps.jp/KRwFx を使っていたが、中継を挟まない
+ * Lメッセージ発行の本来のURLに切り替えた。流入計測・友だち追加時の自動応答は同じ。
+ */
+export const LINE_ADD_FRIEND_URL =
+  "https://step.lme.jp/landing-qr/2010418222-Yzeo0l8t?uLand=lqE1IW"
 
 /** Public destination used by related service links. */
 export const GO_INDIA_URL = "https://capital.launchers-g.com/"

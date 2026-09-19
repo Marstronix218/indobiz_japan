@@ -54,9 +54,6 @@ function LoginForm() {
           <h1 className="font-serif text-2xl font-bold tracking-tight">
             ログイン
           </h1>
-          <p className="text-[13px] leading-6 text-muted-foreground">
-            記事を読むには、ログインしてください。
-          </p>
         </div>
         <div className="space-y-4">
           <LineAuthButton

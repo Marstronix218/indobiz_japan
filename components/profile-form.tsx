@@ -12,14 +12,12 @@ interface ProfileFormProps {
   email: string
   fullName: string
   isLineAccount?: boolean
-  hasCampaignAccess?: boolean
 }
 
 export function ProfileForm({
   email,
   fullName: initialFullName,
   isLineAccount = false,
-  hasCampaignAccess = false,
 }: ProfileFormProps) {
   const [fullName, setFullName] = useState(initialFullName)
   const [savingName, setSavingName] = useState(false)
@@ -174,38 +172,6 @@ export function ProfileForm({
           </section>
         </>
       )}
-
-      <Separator />
-
-      {/* Plan */}
-      <section className="space-y-4">
-        <h2 className="font-serif text-xl font-bold tracking-tight">プラン</h2>
-        <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4">
-          <div>
-            <p className="font-semibold">
-              {hasCampaignAccess
-                ? "LINEコードキャンペーン・無料購読"
-                : "LINEコードで無料購読"}
-            </p>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {hasCampaignAccess
-                ? "正式リリース記念キャンペーンにより、当面の期間すべての記事を無料でお読みいただけます。"
-                : "公式LINEで配布されたコードを入力すると、無料購読を有効化できます。"}
-            </p>
-          </div>
-          <Button asChild variant="outline" size="sm">
-            <a
-              href={
-                hasCampaignAccess
-                  ? "/pricing"
-                  : "/line-campaign"
-              }
-            >
-              {hasCampaignAccess ? "プランを見る" : "コードを入力"}
-            </a>
-          </Button>
-        </div>
-      </section>
     </div>
   )
 }

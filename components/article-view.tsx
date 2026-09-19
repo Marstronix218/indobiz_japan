@@ -551,9 +551,7 @@ export function ArticleView({
               </div>
             )}
 
-            {/* article-gated-body: 未ログインでは配信されない本文。記事ページの
-                JSON-LD hasPart(cssSelector) と対になっている。 */}
-            <section className="article-gated-body mt-5 border-t border-border pt-4">
+            <section className="mt-5 border-t border-border pt-4">
               <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
                 <ClipboardList className="size-[18px] text-primary" />
                 この記事の概要

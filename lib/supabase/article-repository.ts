@@ -15,7 +15,7 @@ import {
 } from "@/lib/news-data"
 import type { AuthorProfile } from "@/lib/authors"
 import type { PipelineDraft } from "@/lib/automation"
-import { buildArticleSlug } from "@/lib/article-slug"
+import { articlePathFor, buildArticleSlug } from "@/lib/article-slug"
 import { extractKeywords } from "@/lib/clustering"
 import {
   buildDedupeSourceUrls,
@@ -182,10 +182,9 @@ export async function listPublishedArticles(
     .select(ARTICLE_SELECT)
     .eq("workflow_status", "published")
     .order("published_at", { ascending: false })
-    // Homepage loads the whole published feed and filters/searches client-side,
-    // so anything beyond this cap is unreachable from the main page. Kept well
-    // above the current article count; revisit with server-side pagination if
-    // the published set ever approaches this limit.
+    // Homepage loads the whole feed and filters/searches client-side, so this
+    // caps page weight; older articles drop out of the feed. They stay crawlable
+    // because the sitemap uses listPublishedArticleUrls(), which has no cap.
     .limit(500)
 
   if (error) {
@@ -193,6 +192,70 @@ export async function listPublishedArticles(
     return []
   }
   return (data as unknown as ArticleRow[] ?? []).map(rowToArticle)
+}
+
+export interface PublishedArticleUrl {
+  path: string
+  lastModified: string
+  imageUrl?: string
+}
+
+/** PostgRESTの1リクエストあたりの最大行数(Supabase既定 max_rows=1000)。 */
+const URL_PAGE_SIZE = 1000
+
+/**
+ * サイトマップ用に、公開中の全記事のURLを上限なしで返す。
+ * listPublishedArticles() は500件で切れるので使わない。本文は読まず、
+ * スラッグの導出に要る見出しとソース見出しだけを取る。
+ */
+export async function listPublishedArticleUrls(): Promise<PublishedArticleUrl[]> {
+  if (!hasSupabaseConfig()) return []
+
+  const client = getServiceClient()
+  const urls: PublishedArticleUrl[] = []
+  for (let from = 0; ; from += URL_PAGE_SIZE) {
+    const { data, error } = await client
+      .from("articles")
+      .select(
+        "id, title, image_url, published_at, created_at, article_sources (original_title, display_order)",
+      )
+      .eq("workflow_status", "published")
+      // idで順序を一意にしないと、同時刻の記事がページ境界で重複・欠落しうる。
+      .order("published_at", { ascending: false })
+      .order("id", { ascending: true })
+      .range(from, from + URL_PAGE_SIZE - 1)
+
+    if (error) {
+      console.error("[supabase] listPublishedArticleUrls failed:", error.message)
+      return urls
+    }
+
+    const rows = (data ?? []) as unknown as Array<{
+      id: string
+      title: string
+      image_url: string | null
+      published_at: string
+      created_at: string | null
+      article_sources: Array<{ original_title: string; display_order: number }> | null
+    }>
+    for (const row of rows) {
+      const primary = (row.article_sources ?? [])
+        .slice()
+        .sort((a, b) => a.display_order - b.display_order)[0]
+      const slug = buildArticleSlug({
+        title: row.title,
+        provenance: primary
+          ? { originalTitle: primary.original_title, originalUrl: "" }
+          : undefined,
+      })
+      urls.push({
+        path: articlePathFor(row.id, slug),
+        lastModified: row.created_at ?? row.published_at,
+        imageUrl: row.image_url ?? undefined,
+      })
+    }
+    if (rows.length < URL_PAGE_SIZE) return urls
+  }
 }
 
 export async function listAllArticles(): Promise<NewsArticle[]> {
