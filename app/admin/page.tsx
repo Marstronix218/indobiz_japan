@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner"
 import { ArticleFormDialog } from "@/components/admin/article-form-dialog"
 import { GenerationStats } from "@/components/admin/generation-stats"
+import { UserList } from "@/components/admin/user-list"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -470,6 +471,8 @@ export default function AdminPage() {
         )}
 
         <GenerationStats />
+
+        <UserList />
 
         <div className="rounded-2xl border border-border bg-card p-3 sm:p-4">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(4,_1fr)]">
