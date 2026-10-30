@@ -2,7 +2,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
 import { CATEGORY_OPTIONS, CATEGORY_LABELS } from "@/lib/news-data"
-import { GO_INDIA_URL } from "@/lib/site-config"
+import { MessageCircle } from "lucide-react"
+import { GO_INDIA_URL, LINE_ADD_FRIEND_URL } from "@/lib/site-config"
 
 export function SiteFooter() {
   return (
@@ -23,6 +24,15 @@ export function SiteFooter() {
             <p className="max-w-sm text-base leading-8 text-primary-foreground/75">
               日本企業向けに、インド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける情報サービスです。
             </p>
+            <a
+              href={LINE_ADD_FRIEND_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-md bg-[#06c755] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#05b64e]"
+            >
+              <MessageCircle aria-hidden className="size-4" />
+              公式LINE「Go India」を友だち追加
+            </a>
           </div>
 
           <div className="space-y-3">
