@@ -8,7 +8,9 @@ import {
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { toArticlePreview } from "@/lib/article-preview"
 import { CATEGORY_OPTIONS, type Category } from "@/lib/news-data"
-import { SITE_URL } from "@/lib/site-config"
+import { JsonLd } from "@/components/json-ld"
+import { FEED_ALTERNATE_TYPES } from "@/lib/site-config"
+import { buildSiteJsonLd } from "@/lib/structured-data"
 import type { Metadata } from "next"
 
 export const revalidate = 0
@@ -29,16 +31,9 @@ export async function generateMetadata({
   const canonical = CATEGORY_OPTIONS.includes(category as Category)
     ? `/category/${category}`
     : "/"
-  return { alternates: { canonical } }
+  return { alternates: { canonical, types: FEED_ALTERNATE_TYPES } }
 }
 
-const websiteStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "IndoBiz Japan",
-  alternateName: ["Indo Biz Japan", "インドビズジャパン"],
-  url: `${SITE_URL}/`,
-}
 
 export default async function HomePage() {
   if (!hasSupabaseConfig()) {
@@ -58,12 +53,7 @@ export default async function HomePage() {
 
   return (
     <ArticleStoreProvider initial={visibleArticles}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(websiteStructuredData).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd data={buildSiteJsonLd()} />
       <h1 className="sr-only">
         IndoBiz Japan（インドビズジャパン）— 日本企業向けインド市場情報
       </h1>

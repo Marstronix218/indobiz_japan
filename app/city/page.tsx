@@ -12,6 +12,7 @@ import { weatherCodeEmoji } from "@/lib/cities/weather-codes"
 export const metadata = {
   title: "都市データ | IndoBiz Japan",
   description: "インド主要9都市の気候・名物・生活情報。出張・駐在の準備に。",
+  alternates: { canonical: "/city" },
 }
 
 /**

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { ArticleStoreProvider } from "@/components/article-store-provider"
 import { DataUnavailable } from "@/components/data-unavailable"
 import { JsonLd } from "@/components/json-ld"
+import { FEED_ALTERNATE_TYPES } from "@/lib/site-config"
 import { NewsList } from "@/components/news-list"
 import { toArticlePreview } from "@/lib/article-preview"
 import {
@@ -52,7 +53,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: { canonical: `/category/${category}` },
+    alternates: { canonical: `/category/${category}`, types: FEED_ALTERNATE_TYPES },
     openGraph: {
       type: "website",
       title,

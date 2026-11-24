@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "運営会社 | IndoBiz Japan",
   description:
     "IndoBiz Japan の運営体制です。運営会社および共同運営（サポート）各社を記載しています。",
+  alternates: { canonical: "/company" },
 }
 
 interface CompanyRow {

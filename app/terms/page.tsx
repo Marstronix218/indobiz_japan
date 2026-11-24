@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "利用規約 | IndoBiz Japan",
   description:
     "IndoBiz Japan の利用規約およびプライバシーポリシーです。",
+  alternates: { canonical: "/terms" },
 }
 
 const prohibitedActions = [

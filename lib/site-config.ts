@@ -7,6 +7,15 @@ export const SITE_URL = (
 ).replace(/\/$/, "")
 
 /**
+ * RSSフィードの自動検出リンク(<link rel="alternate" type="application/rss+xml">)。
+ * Next.jsのメタデータは `alternates` を丸ごと上書きするので、canonical を
+ * 設定するページでは `alternates: { canonical, types: FEED_ALTERNATE_TYPES }` と併記する。
+ */
+export const FEED_ALTERNATE_TYPES = {
+  "application/rss+xml": [{ url: "/feed.xml", title: "IndoBiz Japan 新着記事" }],
+}
+
+/**
  * IndoBiz Japan公式LINEの友だち追加URL。Lメッセージの流入経路「メルマガ」の
  * QRランディング（PCはQR表示、スマホはLINEアプリを直接開く）。
  * 以前は短縮URL https://qr.paps.jp/KRwFx を使っていたが、中継を挟まない

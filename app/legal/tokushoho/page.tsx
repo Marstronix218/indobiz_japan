@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "特定商取引法に基づく表記 | IndoBiz Japan",
   description:
     "IndoBiz Japan の特定商取引法に基づく表記です。販売事業者、所在地、料金、支払方法、解約条件等を記載しています。",
+  alternates: { canonical: "/legal/tokushoho" },
 }
 
 interface DisclosureRow {

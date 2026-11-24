@@ -7,7 +7,12 @@ import { DataUnavailable } from "@/components/data-unavailable"
 import { JsonLd } from "@/components/json-ld"
 import { articleSlug } from "@/lib/article-slug"
 import { toArticlePreview } from "@/lib/article-preview"
-import { articleDisplayDate, type NewsArticle } from "@/lib/news-data"
+import {
+  CATEGORY_LABELS,
+  INDUSTRY_LABELS,
+  articleDisplayDate,
+  type NewsArticle,
+} from "@/lib/news-data"
 import {
   buildArticleJsonLd,
   buildBreadcrumbJsonLd,
@@ -18,6 +23,7 @@ import {
   listPublishedArticles,
 } from "@/lib/supabase/article-repository"
 import { hasSupabaseConfig } from "@/lib/supabase/client"
+import { FEED_ALTERNATE_TYPES } from "@/lib/site-config"
 
 /** 記事の正規パス。スラッグが取れない記事は `/article/<id>` のまま。 */
 function canonicalPath(article: NewsArticle): string {
@@ -62,7 +68,7 @@ export async function buildArticleMetadata(id: string): Promise<Metadata> {
   return {
     title: `${article.title} | IndoBiz Japan`,
     description,
-    alternates: { canonical: path },
+    alternates: { canonical: path, types: FEED_ALTERNATE_TYPES },
     openGraph: {
       type: "article",
       title: article.title,
@@ -70,7 +76,15 @@ export async function buildArticleMetadata(id: string): Promise<Metadata> {
       url: path,
       publishedTime,
       modifiedTime: publishedTime,
+      section: CATEGORY_LABELS[article.category],
+      tags: article.industryTags.map((tag) => INDUSTRY_LABELS[tag]).filter(Boolean),
       images: article.imageUrl ? [{ url: article.imageUrl }] : undefined,
+    },
+    twitter: {
+      card: article.imageUrl ? "summary_large_image" : "summary",
+      title: article.title,
+      description,
+      images: article.imageUrl ? [article.imageUrl] : undefined,
     },
   }
 }

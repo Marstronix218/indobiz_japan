@@ -5,12 +5,14 @@ import { notFound } from "next/navigation"
 
 import { ClimateCalendar } from "@/components/city/climate-calendar"
 import { LivingSections } from "@/components/city/living-sections"
+import { JsonLd } from "@/components/json-ld"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { getCity, listCities } from "@/lib/cities"
 import { getClimate } from "@/lib/cities/climate"
 import { describeWeatherCode } from "@/lib/cities/weather-codes"
 import { fetchCityWeather } from "@/lib/cities/weather"
+import { buildCityJsonLd } from "@/lib/structured-data"
 
 export function generateStaticParams() {
   return listCities().map((city) => ({ slug: city.slug }))
@@ -20,9 +22,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const city = getCity(slug)
   if (!city) return { title: "都市が見つかりません | IndoBiz Japan" }
+  const title = `${city.jp}（${city.name}）の都市データ | IndoBiz Japan`
   return {
-    title: `${city.jp}（${city.name}）の都市データ | IndoBiz Japan`,
+    title,
     description: city.note,
+    alternates: { canonical: `/city/${city.slug}` },
+    openGraph: {
+      type: "website",
+      title,
+      description: city.note,
+      url: `/city/${city.slug}`,
+      images: city.imageUrl ? [{ url: city.imageUrl }] : undefined,
+    },
   }
 }
 
@@ -47,6 +58,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={buildCityJsonLd(city)} />
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-4 py-10">
       <Link href="/city" className="font-mono text-xs text-muted-foreground hover:text-accent">

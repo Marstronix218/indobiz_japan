@@ -3,7 +3,7 @@ import { Noto_Sans_JP } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
 import { LegacyBetaStorageCleanup } from '@/components/legacy-beta-storage-cleanup'
-import { SITE_URL } from '@/lib/site-config'
+import { FEED_ALTERNATE_TYPES, SITE_URL } from '@/lib/site-config'
 import './globals.css'
 
 const notoSansJP = Noto_Sans_JP({
@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   description:
     'IndoBiz Japan（インドビズジャパン）は、日本企業向けにインド市場の短報、業界別ウォッチ、進出・採用の示唆を届ける情報プラットフォームです。',
   applicationName: 'IndoBiz Japan',
+  alternates: { types: FEED_ALTERNATE_TYPES },
   keywords: [
     'IndoBiz Japan',
     'Indo Biz Japan',

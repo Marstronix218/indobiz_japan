@@ -3,6 +3,14 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { LINE_ADD_FRIEND_URL } from "@/lib/site-config"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "料金・ご利用について | IndoBiz Japan",
+  description:
+    "IndoBiz Japan の記事はすべて無料でお読みいただけます。最新情報は公式LINEでもお届けしています。",
+  alternates: { canonical: "/pricing" },
+}
 
 export default function PricingPage() {
   return (

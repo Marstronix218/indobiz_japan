@@ -3,10 +3,13 @@ import { resolveArticleAuthor } from "@/lib/authors"
 import {
   CATEGORY_DESCRIPTIONS,
   CATEGORY_LABELS,
+  INDUSTRY_LABELS,
   articleDisplayDate,
+  getAllSources,
   type Category,
   type NewsArticle,
 } from "@/lib/news-data"
+import type { City } from "@/lib/cities/types"
 import { SITE_URL } from "@/lib/site-config"
 
 /** JSON-LD 1件分。値の形はschema.org任せなので unknown で持つ。 */
@@ -17,6 +20,11 @@ const LOGO_URL = `${SITE_URL}/goindia.png`
 
 /** Googleのheadline推奨上限。超えると構造化データ側で無視されることがある。 */
 const HEADLINE_MAX = 110
+
+const WEBSITE_ID = `${SITE_URL}/#website`
+
+const SITE_DESCRIPTION =
+  "IndoBiz Japan（インドビズジャパン）は、日本企業向けにインドの経済・規制・社会・市況ニュースを日本語で解説するニュースメディアです。"
 
 const publisher: JsonLdObject = {
   "@type": "Organization",
@@ -29,6 +37,44 @@ const publisher: JsonLdObject = {
     width: 1024,
     height: 1024,
   },
+}
+
+/**
+ * サイト全体の Organization(NewsMediaOrganization) + WebSite。トップページに出す。
+ * 運営会社は /company と一致させること。AI検索がサイトの素性(誰が・何を)を
+ * 判断する材料になるので、description は具体的に書く。
+ */
+export function buildSiteJsonLd(): JsonLdObject[] {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsMediaOrganization",
+      "@id": ORGANIZATION_ID,
+      name: "IndoBiz Japan",
+      alternateName: ["Indo Biz Japan", "インドビズジャパン"],
+      url: `${SITE_URL}/`,
+      logo: publisher.logo,
+      description: SITE_DESCRIPTION,
+      areaServed: { "@type": "Country", name: "Japan" },
+      knowsAbout: ["インド経済", "インド市場", "インド進出", "インドの規制・政策", "日印ビジネス"],
+      parentOrganization: {
+        "@type": "Organization",
+        name: "グローバルランチャーズ株式会社",
+        url: "https://global.launchers-g.com",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": WEBSITE_ID,
+      name: "IndoBiz Japan",
+      alternateName: ["Indo Biz Japan", "インドビズジャパン"],
+      url: `${SITE_URL}/`,
+      description: SITE_DESCRIPTION,
+      inLanguage: "ja",
+      publisher: { "@id": ORGANIZATION_ID },
+    },
+  ]
 }
 
 /**
@@ -58,6 +104,25 @@ export function buildArticleJsonLd(article: NewsArticle): JsonLdObject {
   // articlesテーブルに編集日時の列は無いので dateModified は同値。
   const published = toIso(articleDisplayDate(article)) ?? toIso(article.publishedAt)
   const author = resolveArticleAuthor(article)
+  // 出典(元記事)を isBasedOn で明示する。AI検索が一次情報を辿れるようにし、
+  // 「複数ソースを再構成した記事」であることを機械可読にする。
+  const sources = getAllSources(article)
+    .map((source) => source.canonicalUrl || source.originalUrl)
+    .filter((value): value is string => Boolean(value && /^https?:\/\//.test(value)))
+  const basedOn = sources.length > 0 ? sources : article.sourceUrl ? [article.sourceUrl] : []
+  // 記事内のキーワード解説を DefinedTerm として出す(用語の定義をAIが引用しやすい)。
+  const definedTerms = (article.keywords ?? []).map((keyword) => ({
+    "@type": "DefinedTerm",
+    name: keyword.term,
+    ...(keyword.fullName ? { alternateName: keyword.fullName } : {}),
+    description: keyword.definition,
+  }))
+  const keywords = [
+    CATEGORY_LABELS[article.category],
+    ...article.industryTags.map((tag) => INDUSTRY_LABELS[tag]).filter(Boolean),
+    ...(article.keywords ?? []).map((keyword) => keyword.term),
+    "インド",
+  ]
 
   return {
     "@context": "https://schema.org",
@@ -77,6 +142,13 @@ export function buildArticleJsonLd(article: NewsArticle): JsonLdObject {
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     url,
     isAccessibleForFree: true,
+    keywords: Array.from(new Set(keywords)).join(", "),
+    ...(article.implications.length > 0
+      ? { abstract: article.implications.join(" ") }
+      : {}),
+    ...(definedTerms.length > 0 ? { mentions: definedTerms } : {}),
+    ...(basedOn.length > 0 ? { isBasedOn: basedOn } : {}),
+    isPartOf: { "@id": WEBSITE_ID },
   }
 }
 
@@ -135,4 +207,32 @@ export function buildCategoryJsonLd(
       })),
     },
   }
+}
+
+/** 都市ページの City + BreadcrumbList。値はすべて lib/cities の静的データ由来。 */
+export function buildCityJsonLd(city: City): JsonLdObject[] {
+  const url = `${SITE_URL}/city/${city.slug}`
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "City",
+      "@id": `${url}#city`,
+      name: city.jp,
+      alternateName: city.name,
+      description: city.note,
+      url,
+      ...(city.imageUrl ? { image: city.imageUrl } : {}),
+      geo: { "@type": "GeoCoordinates", latitude: city.lat, longitude: city.lon },
+      containedInPlace: { "@type": "Country", name: "インド", alternateName: "India" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "トップ", item: `${SITE_URL}/` },
+        { "@type": "ListItem", position: 2, name: "都市データ", item: `${SITE_URL}/city` },
+        { "@type": "ListItem", position: 3, name: city.jp, item: url },
+      ],
+    },
+  ]
 }

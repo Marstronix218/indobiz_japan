@@ -1,6 +1,14 @@
 import { LeadCaptureForm } from "@/components/lead-capture-form"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "お問い合わせ | IndoBiz Japan",
+  description:
+    "IndoBiz Japan へのお問い合わせ窓口です。ご相談・ご質問・取材・協業のご提案を受け付けています。",
+  alternates: { canonical: "/contact" },
+}
 
 export default function ContactPage() {
   return (
