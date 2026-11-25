@@ -4,6 +4,7 @@ import {
   X_MAX_WEIGHTED_LENGTH,
   composeXPost,
   jstDateKey,
+  postSlotFor,
   truncateToWeight,
   xWeightedLength,
 } from "./x-text.ts"
@@ -73,4 +74,14 @@ test("jstDateKey rolls over at 15:00 UTC", () => {
   assert.equal(jstDateKey(new Date("2026-11-23T14:59:59Z")), "2026-11-23")
   assert.equal(jstDateKey(new Date("2026-11-23T15:00:00Z")), "2026-11-24")
   assert.equal(jstDateKey(new Date("2026-11-23T22:05:00Z")), "2026-11-24")
+})
+
+test("postSlotFor maps JST time of day to a slot", () => {
+  // 2026-11-25 07:00 / 07:14 / 12:15 / 12:29 / 21:00 / 21:14 JST
+  assert.equal(postSlotFor(new Date("2026-11-24T22:00:00Z")), "morning")
+  assert.equal(postSlotFor(new Date("2026-11-24T22:14:00Z")), "morning")
+  assert.equal(postSlotFor(new Date("2026-11-25T03:15:00Z")), "noon")
+  assert.equal(postSlotFor(new Date("2026-11-25T03:29:00Z")), "noon")
+  assert.equal(postSlotFor(new Date("2026-11-25T12:00:00Z")), "evening")
+  assert.equal(postSlotFor(new Date("2026-11-25T12:14:00Z")), "evening")
 })

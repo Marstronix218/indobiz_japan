@@ -11,14 +11,14 @@ import { listPublishedArticlesCreatedSince } from "@/lib/supabase/article-reposi
 import { hasSupabaseConfig } from "@/lib/supabase/client"
 import { XApiError, postTweet, readXCredentialsFromEnv } from "./x-client"
 import {
-  hasPostForDay,
+  hasPostForSlot,
   listPostedArticleIds,
   markFailed,
   markPosted,
   recordUnknownOutcome,
   reservePost,
 } from "./repository"
-import { composeXPost, jstDateKey } from "./x-text"
+import { composeXPost, jstDateKey, postSlotFor, type PostSlot } from "./x-text"
 
 /**
  * 候補にする記事の作成時刻の幅。scrape cron(毎朝6時台JST)の記事を拾う。
@@ -28,8 +28,8 @@ import { composeXPost, jstDateKey } from "./x-text"
 const CANDIDATE_WINDOW_HOURS = 30
 
 export type DailyXPostResult =
-  | { status: "posted"; articleId: string; postId: string; text: string }
-  | { status: "dry_run"; articleId: string; text: string }
+  | { status: "posted"; slot: PostSlot; articleId: string; postId: string; text: string }
+  | { status: "dry_run"; slot: PostSlot; articleId: string; text: string }
   | { status: "skipped"; reason: string }
 
 /** ホームのヒーロー枠と同じ順位付け(人気スコア→新しさ)で1位を選ぶ。 */
@@ -69,9 +69,12 @@ export function buildXPostText(article: NewsArticle): string {
 export async function runDailyXPost(options: {
   dryRun?: boolean
   now?: Date
+  /** 省略時は実行時刻(JST)から朝・昼・夜を判定する。 */
+  slot?: PostSlot
 } = {}): Promise<DailyXPostResult> {
   const now = options.now ?? new Date()
   const postedOn = jstDateKey(now)
+  const slot = options.slot ?? postSlotFor(now)
 
   if (!hasSupabaseConfig()) return { status: "skipped", reason: "supabase_not_configured" }
 
@@ -81,8 +84,8 @@ export async function runDailyXPost(options: {
   }
 
   // 記録テーブルが読めない(migration未適用など)なら投稿しない。二重投稿よりは見送りを選ぶ。
-  if (!options.dryRun && (await hasPostForDay("x", postedOn))) {
-    return { status: "skipped", reason: `already_posted_for_${postedOn}` }
+  if (!options.dryRun && (await hasPostForSlot("x", postedOn, slot))) {
+    return { status: "skipped", reason: `already_posted_for_${postedOn}_${slot}` }
   }
 
   const sinceIso = new Date(now.getTime() - CANDIDATE_WINDOW_HOURS * 3_600_000).toISOString()
@@ -98,20 +101,20 @@ export async function runDailyXPost(options: {
   if (!top) return { status: "skipped", reason: "all_recent_articles_already_posted" }
 
   const text = buildXPostText(top)
-  if (options.dryRun) return { status: "dry_run", articleId: top.id, text }
+  if (options.dryRun) return { status: "dry_run", slot, articleId: top.id, text }
 
-  const reservation = await reservePost({ platform: "x", articleId: top.id, postedOn, text })
+  const reservation = await reservePost({ platform: "x", articleId: top.id, postedOn, slot, text })
   if (!reservation) return { status: "skipped", reason: "concurrent_run_won" }
 
   try {
     const { id } = await postTweet(text, credentials!)
     await markPosted(reservation.id, id)
-    return { status: "posted", articleId: top.id, postId: id, text }
+    return { status: "posted", slot, articleId: top.id, postId: id, text }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    // Xが明確に拒否した(4xx)ときだけ failed にして、その日の再実行を許す。
+    // Xが明確に拒否した(4xx)ときだけ failed にして、その枠の再実行を許す。
     // タイムアウト・通信断・5xx・IDなし2xx は「実は投稿されている」可能性があるので
-    // pending のまま残して日をロックする(二重投稿より見送りを選ぶ)。
+    // pending のまま残して枠をロックする(二重投稿より見送りを選ぶ)。
     // タイムラインを確認して未投稿なら、行を failed に更新すれば再実行できる。
     const definitelyRejected =
       error instanceof XApiError && error.status >= 400 && error.status < 500

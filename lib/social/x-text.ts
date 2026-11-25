@@ -124,3 +124,17 @@ export function jstDateKey(date: Date): string {
   const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000)
   return jst.toISOString().slice(0, 10)
 }
+
+export type PostSlot = "morning" | "noon" | "evening"
+
+/**
+ * 実行時刻(JST)から投稿枠を決める。スケジュールは 7:00 / 12:15 / 21:00 JST で、
+ * Hobbyは最大15分遅れて起動するので、枠の境目は各時刻から十分離してある。
+ * 手動実行(テスト投稿)も、その時刻の枠として数える。
+ */
+export function postSlotFor(date: Date): PostSlot {
+  const jstHour = new Date(date.getTime() + 9 * 60 * 60 * 1000).getUTCHours()
+  if (jstHour < 10) return "morning"
+  if (jstHour < 17) return "noon"
+  return "evening"
+}

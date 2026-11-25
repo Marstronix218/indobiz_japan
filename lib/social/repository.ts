@@ -3,18 +3,25 @@ import { getServiceClient } from "@/lib/supabase/client"
 /** `social_posts` テーブル(migration 0011)へのアクセス。失敗はすべて throw する。 */
 
 export type SocialPlatform = "x" | "linkedin"
+export type { PostSlot } from "./x-text"
+import type { PostSlot } from "./x-text"
 
 export interface SocialPostReservation {
   id: string
 }
 
-/** その日(JST)にすでに投稿済み、または投稿処理中の行があるか。 */
-export async function hasPostForDay(platform: SocialPlatform, postedOn: string): Promise<boolean> {
+/** その日(JST)のその枠に、すでに投稿済み、または投稿処理中の行があるか。 */
+export async function hasPostForSlot(
+  platform: SocialPlatform,
+  postedOn: string,
+  slot: PostSlot,
+): Promise<boolean> {
   const { data, error } = await getServiceClient()
     .from("social_posts")
     .select("id")
     .eq("platform", platform)
     .eq("posted_on", postedOn)
+    .eq("slot", slot)
     .neq("status", "failed")
     .limit(1)
   if (error) throw new Error(`social_posts lookup failed: ${error.message}`)
@@ -38,7 +45,7 @@ export async function listPostedArticleIds(
 }
 
 /**
- * 投稿前に「予約行」を入れる。部分ユニーク索引により、同じ日・同じ記事の
+ * 投稿前に「予約行」を入れる。部分ユニーク索引により、同じ日・同じ枠・同じ記事の
  * 予約は1件しか通らないので、スケジュールが二重に発火しても投稿は1回になる。
  * 競合で負けた場合は null を返す。
  */
@@ -46,6 +53,7 @@ export async function reservePost(input: {
   platform: SocialPlatform
   articleId: string
   postedOn: string
+  slot: PostSlot
   text: string
 }): Promise<SocialPostReservation | null> {
   const { data, error } = await getServiceClient()
@@ -54,6 +62,7 @@ export async function reservePost(input: {
       platform: input.platform,
       article_id: input.articleId,
       posted_on: input.postedOn,
+      slot: input.slot,
       post_text: input.text,
       status: "pending",
     })

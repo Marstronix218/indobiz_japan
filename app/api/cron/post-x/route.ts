@@ -6,8 +6,8 @@ export const runtime = "nodejs"
 export const maxDuration = 60
 
 /**
- * 毎朝7時(JST)に、その日のトップ記事を1件Xへ投稿する。
- * vercel.json の schedules.daily-x-post から呼ばれる。
+ * 毎日 7:00 / 12:15 / 21:00 (JST) に、まだ投稿していない記事のうち点数が最も高いものを
+ * 1件ずつXへ投稿する(朝・昼・夜の3枠)。vercel.json の schedules.x-post-* から呼ばれる。
  *
  * 手動確認: `?dryRun=1` を付けると投稿せず、選ばれる記事と投稿文だけ返す。
  *   curl -H "Authorization: Bearer $CRON_SECRET" "https://<host>/api/cron/post-x?dryRun=1"
@@ -31,7 +31,7 @@ async function handle(request: Request) {
     if (result.status === "skipped") {
       console.warn(`[cron/post-x] skipped: ${result.reason}`)
     } else {
-      console.log(`[cron/post-x] ${result.status}: article=${result.articleId}`)
+      console.log(`[cron/post-x] ${result.status}: slot=${result.slot} article=${result.articleId}`)
     }
     return NextResponse.json({ ok: true, ...result })
   } catch (error) {
