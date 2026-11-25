@@ -24,7 +24,8 @@
     "test:beta-access": "node --experimental-strip-types --test lib/beta-access.test.ts",
     "test:article-preview": "node --experimental-strip-types --test lib/article-preview.test.ts",
     "test:article-slug": "node --experimental-strip-types --test lib/article-slug.test.ts",
-    "test:article-takeaways": "node --experimental-strip-types --test lib/article-takeaways.test.ts"
+    "test:article-takeaways": "node --experimental-strip-types --test lib/article-takeaways.test.ts",
+    "test:social": "node --experimental-strip-types --test lib/social/x-text.test.ts lib/social/x-oauth.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",

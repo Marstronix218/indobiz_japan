@@ -194,6 +194,27 @@ export async function listPublishedArticles(
   return (data as unknown as ArticleRow[] ?? []).map(rowToArticle)
 }
 
+/**
+ * `sinceIso` 以降に作成(created_at)された公開記事を全文で返す。
+ * SNS自動投稿で「その日のトップ記事」を選ぶ候補取得用。
+ * 失敗時は throw する(呼び出し側が投稿を見送れるように、空配列で握りつぶさない)。
+ */
+export async function listPublishedArticlesCreatedSince(
+  sinceIso: string,
+  client: SupabaseClient = getServiceClient(),
+): Promise<NewsArticle[]> {
+  const { data, error } = await client
+    .from("articles")
+    .select(ARTICLE_SELECT)
+    .eq("workflow_status", "published")
+    .gte("created_at", sinceIso)
+    .order("created_at", { ascending: false })
+    .limit(200)
+
+  if (error) throw new Error(`listPublishedArticlesCreatedSince failed: ${error.message}`)
+  return (data as unknown as ArticleRow[] ?? []).map(rowToArticle)
+}
+
 export interface PublishedArticleUrl {
   path: string
   lastModified: string
